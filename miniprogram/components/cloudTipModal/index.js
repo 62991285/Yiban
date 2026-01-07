@@ -9,7 +9,8 @@ Component({
   properties: {
     showTipProps: Boolean,
     title:String,
-    content:String
+    content:String,
+    modalType: String // 弹出方式：'bottom' 底部弹出, 'center' 居中弹出
   },
   observers: {
     showTipProps: function(showTipProps) {
@@ -23,6 +24,7 @@ Component({
       this.setData({
         showTip: !this.data.showTip
       });
+      this.triggerEvent('close');
     },
   }
 });

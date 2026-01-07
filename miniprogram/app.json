@@ -1,7 +1,12 @@
 {
   "pages": [
-    "pages/index/index",
-    "pages/example/index"
+    "pages/homepage/homepage",
+    "pages/aiConsultStart/aiConsultStart",
+    "pages/consultDetail/consultDetail",
+    "pages/registerHelper/registerHelper",
+    "pages/aiDepartmentNavigation/aiDepartmentNavigation",
+    "pages/record/record",
+    "pages/mine/mine"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",

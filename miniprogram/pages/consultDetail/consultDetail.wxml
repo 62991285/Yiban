@@ -1,0 +1,50 @@
+<!--pages/consultDetail/consultDetail.wxml-->
+<view class="assistant-page">
+  <!-- 功能未完成提示弹窗 -->
+  <cloud-tip-modal 
+    showTipProps="{{showUnfinishedModal}}" 
+    title="功能开发中" 
+    content="该功能还未完成，敬请期待！" 
+    modalType="center"
+    bindclose="onModalClose"
+  ></cloud-tip-modal>
+
+
+  <!-- 助手欢迎语 -->
+  <view class="welcome-area">
+    <text class="welcome-title">HI~我是XX</text>
+    <text class="welcome-desc">你身边的智能助手，可以为你xxxxxxxxxx</text>
+  </view>
+
+  <!-- 示例问题区域 -->
+  <view class="example-area">
+    <text class="example-label">你可以这样问</text>
+    <view class="example-btn">示例问题1。</view>
+    <view class="example-btn">示例问题2</view>
+    <view class="example-btn">示例问题3？</view>
+  </view>
+
+  <!-- 功能按钮区域 -->
+  <view class="func-bar">
+    <view class="func-item" bindtap="toRegister">
+      <image src="/images/icons/goods-active.png" mode="widthFix"></image>
+      <text class="func-name">一键挂号</text>
+      <text class="func-desc">简单介绍</text>
+    </view>
+    <view class="func-item" bindtap="toDeptNav">
+      <image src="/images/dept.png" mode="widthFix"></image>
+      <text class="func-name">科室导航</text>
+    </view>
+    <view class="func-item">
+      <image src="/images/more.png" mode="widthFix"></image>
+      <text class="func-name">等等</text>
+    </view>
+  </view>
+
+  <!-- 输入区域 -->
+  <view class="input-area">
+    <image class="voice-icon" src="/images/voice.png" mode="widthFix"></image>
+    <input class="input-box" placeholder="你有什么想知道的，快来问问我" />
+    <image class="add-icon" src="/images/add.png" mode="widthFix"></image>
+  </view>
+</view>
