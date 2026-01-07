@@ -1,0 +1,289 @@
+/* pages/registerHelper/registerHelper.wxss */
+.register-helper-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F6F6F6;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 对话历史区域 */
+.chat-history {
+  flex: 1;
+  padding: 20rpx;
+  overflow-y: auto;
+}
+
+/* 消息气泡 */
+.message {
+  display: flex;
+  margin-bottom: 30rpx;
+  align-items: flex-start;
+}
+
+.message.ai-message {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.message.user-message {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+/* 消息内容 */
+.content {
+  max-width: 70%;
+  padding: 20rpx;
+  border-radius: 20rpx;
+  position: relative;
+}
+
+.ai-message .content {
+  background-color: #FFFFFF;
+  border-bottom-left-radius: 5rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-left: 20rpx;
+}
+
+.user-message .content {
+  background-color: #07C160;
+  color: #FFFFFF;
+  border-bottom-right-radius: 5rpx;
+  margin-right: 20rpx;
+}
+
+.text {
+  font-size: 28rpx;
+  line-height: 1.6;
+  display: block;
+}
+
+.user-message .text {
+  color: #FFFFFF;
+}
+
+/* 选项区域 */
+.options {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+}
+
+.option {
+  padding: 15rpx 25rpx;
+  background-color: #F0F0F0;
+  border-radius: 25rpx;
+  font-size: 26rpx;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 2rpx 5rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.option:active {
+  transform: scale(0.95);
+  background-color: #E0E0E0;
+}
+
+/* 输入区域 */
+.input-area {
+  display: flex;
+  align-items: flex-end;
+  padding: 15rpx 20rpx;
+  background-color: #FFFFFF;
+  border-top: 1rpx solid #EEEEEE;
+  box-sizing: border-box;
+}
+
+.input-box {
+  width: 75%;
+  min-height: 80rpx;
+  max-height: 200rpx;
+  background-color: #F5F5F5;
+  border-radius: 20rpx;
+  padding: 20rpx 30rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+
+.send-btn {
+  width: 20%;
+  height: 80rpx;
+  background-color: #07C160;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  border-radius: 20rpx;
+  margin-left: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom-right-radius: 5rpx;
+}
+
+.send-btn::after {
+  border: none;
+}
+
+/* 信息总结和挂号对话框 */
+.summary-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #FFFFFF;
+  width: 90%;
+  max-width: 600rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #EEEEEE;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-btn {
+  font-size: 48rpx;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 30rpx;
+}
+
+.summary-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.summary-content {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  display: block;
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background-color: #F9F9F9;
+  border-radius: 10rpx;
+}
+
+.form-group {
+  margin-bottom: 30rpx;
+}
+
+.label {
+  font-size: 28rpx;
+  color: #333;
+  display: block;
+  margin-bottom: 15rpx;
+}
+
+.form-input {
+  width: 100%;
+  height: 80rpx;
+  background-color: #F5F5F5;
+  border-radius: 10rpx;
+  padding: 0 20rpx;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+.modal-footer {
+  padding: 30rpx;
+  border-top: 1rpx solid #EEEEEE;
+  display: flex;
+  gap: 20rpx;
+}
+
+.btn {
+  flex: 1;
+  height: 80rpx;
+  font-size: 30rpx;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background-color: #F5F5F5;
+  color: #333;
+}
+
+.btn-confirm {
+  background-color: #07C160;
+  color: #FFFFFF;
+}
+
+.btn::after {
+  border: none;
+}
+
+/* 底部下一步按钮 */
+.bottom-btn-area {
+  padding: 20rpx 40rpx 40rpx;
+  background-color: #F6F6F6;
+}
+
+.next-btn {
+  width: 100%;
+  height: 100rpx;
+  background-color: #07C160;
+  color: #FFFFFF;
+  font-size: 36rpx;
+  font-weight: 600;
+  border-radius: 50rpx;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.3);
+}
+
+.next-btn::after {
+  border: none;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 4rpx;
+}
+
+::-webkit-scrollbar-track {
+  background: #F1F1F1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C1C1C1;
+  border-radius: 2rpx;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #A8A8A8;
+}

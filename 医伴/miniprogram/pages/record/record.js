@@ -5,7 +5,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-
+    showUnfinishedModal: false
   },
 
   /**
@@ -26,7 +26,10 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-
+    // 页面加载时自动显示功能未完成提示
+    this.setData({
+      showUnfinishedModal: true
+    })
   },
 
   /**
@@ -62,5 +65,12 @@ Page({
    */
   onShareAppMessage() {
 
+  },
+
+  // 关闭提示弹窗
+  onModalClose() {
+    this.setData({
+      showUnfinishedModal: false
+    })
   }
 })

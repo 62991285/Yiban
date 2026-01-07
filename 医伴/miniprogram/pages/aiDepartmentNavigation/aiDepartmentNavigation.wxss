@@ -1,0 +1,225 @@
+/* pages/aiDepartmentNavigation/aiDepartmentNavigation.wxss */
+.ai-navigation-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+  padding: 20rpx;
+}
+
+/* 页面标题 */
+.page-header {
+  text-align: center;
+  margin-bottom: 30rpx;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 通用区块样式 */
+.section {
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20rpx;
+  padding-bottom: 10rpx;
+  border-bottom: 2rpx solid #eee;
+}
+
+/* 地图及AI路线指示部分 */
+.map-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 300rpx;
+  background-color: #e8f4f8;
+  border-radius: 12rpx;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.map-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.map-marker {
+  position: absolute;
+  width: 60rpx;
+  height: 60rpx;
+  background-color: #1aad19;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20rpx;
+  top: 50rpx;
+  left: 50rpx;
+}
+
+.map-marker.destination {
+  background-color: #e64340;
+  top: 150rpx;
+  right: 100rpx;
+}
+
+.map-path {
+  position: absolute;
+  top: 80rpx;
+  left: 80rpx;
+  width: 60%;
+  height: 6rpx;
+  background-color: #1aad19;
+  border-radius: 3rpx;
+  transform: rotate(45deg);
+}
+
+.ai-instructions {
+  background-color: #f0f9ff;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  border-left: 8rpx solid #1989fa;
+}
+
+.instruction-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #1989fa;
+  margin-bottom: 10rpx;
+}
+
+.instruction-content {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+/* 医生信息部分 */
+.doctor-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.doctor-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  background-color: #1989fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 48rpx;
+  font-weight: bold;
+}
+
+.doctor-details {
+  flex: 1;
+}
+
+.doctor-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.doctor-department {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.doctor-experience {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 4rpx;
+}
+
+.doctor-specialty {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 用户号码部分 */
+.user-number {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.number-display {
+  background-color: #fff7e6;
+  border: 2rpx solid #ffd591;
+  border-radius: 50%;
+  width: 200rpx;
+  height: 200rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+}
+
+.number-text {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #e64340;
+}
+
+.queue-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.queue-item {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 底部下一步按钮 */
+.bottom-btn-area {
+  margin-top: 40rpx;
+  padding: 0 20rpx 40rpx;
+}
+
+.next-btn {
+  width: 100%;
+  height: 88rpx;
+  background-color: #1989fa;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.next-btn::after {
+  border: none;
+  border-radius: 44rpx;
+}
+
+.next-btn:active {
+  background-color: #096dd9;
+}

@@ -7,15 +7,7 @@
   box-sizing: border-box;
 }
 
-/* 返回按钮 */
-.back-btn {
-  padding-left: 20rpx;
-  margin-bottom: 30rpx;
-}
-.back-btn image {
-  width: 40rpx;
-  height: 40rpx;
-}
+
 
 /* 欢迎语区域 */
 .welcome-area {

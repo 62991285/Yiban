@@ -1,9 +1,14 @@
 <!--pages/consultDetail/consultDetail.wxml-->
 <view class="assistant-page">
-  <!-- 返回按钮 -->
-  <view class="back-btn" bindtap="goBack">
-    <image src="/images/back.png" mode="widthFix"></image>
-  </view>
+  <!-- 功能未完成提示弹窗 -->
+  <cloud-tip-modal 
+    showTipProps="{{showUnfinishedModal}}" 
+    title="功能开发中" 
+    content="该功能还未完成，敬请期待！" 
+    modalType="center"
+    bindclose="onModalClose"
+  ></cloud-tip-modal>
+
 
   <!-- 助手欢迎语 -->
   <view class="welcome-area">

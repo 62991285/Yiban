@@ -58,3 +58,26 @@
   background-color: #07C160;
   color: #fff;
 }
+
+/* 居中弹出窗口样式 */
+.install_tip_detail_center {
+  position: fixed;
+  background-color: white;
+  width: 70%;
+  max-width: 600rpx;
+  border-radius: 20rpx;
+  padding: 50rpx;
+  z-index: 9;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.2);
+}
+
+.install_tip_detail_center .install_tip_close {
+  position: absolute;
+  right: 20rpx;
+  top: 20rpx;
+  width: 40rpx;
+  height: 40rpx;
+}

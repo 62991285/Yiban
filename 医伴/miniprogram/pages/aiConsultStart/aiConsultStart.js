@@ -1,11 +1,20 @@
-// pages/mine/mine.js
+// pages/aiConsultStart/aiConsultStart.js
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    showUnfinishedModal: false
+
+  },
+
+  /**
+   * 启动问诊，跳转到AI问诊详情页面
+   */
+  startConsult() {
+    wx.navigateTo({
+      url: '/pages/consultDetail/consultDetail'
+    })
   },
 
   /**
@@ -26,10 +35,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    // 页面加载时自动显示功能未完成提示
-    this.setData({
-      showUnfinishedModal: true
-    })
+
   },
 
   /**
@@ -65,12 +71,5 @@ Page({
    */
   onShareAppMessage() {
 
-  },
-
-  // 关闭提示弹窗
-  onModalClose() {
-    this.setData({
-      showUnfinishedModal: false
-    })
   }
 })

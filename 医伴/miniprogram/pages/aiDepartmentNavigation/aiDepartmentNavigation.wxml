@@ -1,0 +1,74 @@
+<!--pages/aiDepartmentNavigation/aiDepartmentNavigation.wxml-->
+<view class="ai-navigation-page">
+  <!-- 功能未完成提示弹窗 -->
+  <cloud-tip-modal 
+    showTipProps="{{showUnfinishedModal}}" 
+    title="功能开发中" 
+    content="该功能还未完成，敬请期待！" 
+    modalType="center"
+    bindclose="onModalClose"
+  ></cloud-tip-modal>
+
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">AI辅助科室导航</text>
+  </view>
+
+  <!-- 地图及AI路线指示部分 -->
+  <view class="section">
+    <view class="section-title">地图及AI路线指示</view>
+    <view class="map-section">
+      <!-- 模拟地图区域 -->
+      <view class="map-placeholder">
+        <text class="map-text">医院地图示意图</text>
+        <view class="map-marker">
+          <text class="marker-text">当前位置</text>
+        </view>
+        <view class="map-path"></view>
+        <view class="map-marker destination">
+          <text class="marker-text">呼吸内科</text>
+        </view>
+      </view>
+      <!-- AI路线指引 -->
+      <view class="ai-instructions">
+        <view class="instruction-title">{{mapInfo.title}}</view>
+        <view class="instruction-content">{{mapInfo.instructions}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 医生信息部分 -->
+  <view class="section">
+    <view class="section-title">医生信息</view>
+    <view class="doctor-info">
+      <view class="doctor-avatar">
+        <text class="avatar-text">张</text>
+      </view>
+      <view class="doctor-details">
+        <view class="doctor-name">{{doctorInfo.name}} {{doctorInfo.title}}</view>
+        <view class="doctor-department">{{doctorInfo.department}}</view>
+        <view class="doctor-experience">{{doctorInfo.experience}}</view>
+        <view class="doctor-specialty">{{doctorInfo.specialty}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 用户号码部分 -->
+  <view class="section">
+    <view class="section-title">您的号码</view>
+    <view class="user-number">
+      <view class="number-display">
+        <text class="number-text">号码：{{userNumber.number}}</text>
+      </view>
+      <view class="queue-info">
+        <view class="queue-item">{{userNumber.queuePosition}}</view>
+        <view class="queue-item">{{userNumber.estimatedTime}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部下一步按钮 -->
+  <view class="bottom-btn-area">
+    <button class="next-btn" bindtap="nextStep">下一步</button>
+  </view>
+</view>
