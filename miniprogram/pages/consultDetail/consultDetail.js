@@ -34,8 +34,40 @@ Page({
     })
   },
 
-  // 跳转科室导航页面（未完成功能）
+  // 跳转科室导航页面
   toDeptNav() {
-    this.showUnfinishedTip()
+    wx.navigateTo({
+      url: '/pages/aiDepartmentNavigation/aiDepartmentNavigation'
+    })
+  },
+
+  // 跳转到药室导航页面
+  toPharmacyNav() {
+    wx.navigateTo({
+      url: '/pages/aiPharmacyNavigation/aiPharmacyNavigation'
+    })
+  },
+
+  // 点击流程图步骤跳转
+  goToStep(e) {
+    const step = e.currentTarget.dataset.step
+    switch(step) {
+      case '1':
+        this.toRegister()
+        break
+      case '2':
+        this.toDeptNav()
+        break
+      case '3':
+        this.toPharmacyNav()
+        break
+      default:
+        break
+    }
+  },
+
+  // 从头开始按钮功能
+  startFromBeginning() {
+    this.toRegister()
   }
 })

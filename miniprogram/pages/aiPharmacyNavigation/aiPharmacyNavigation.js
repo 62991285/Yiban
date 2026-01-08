@@ -1,24 +1,23 @@
-// pages/aiDepartmentNavigation/aiDepartmentNavigation.js
+// pages/aiPharmacyNavigation/aiPharmacyNavigation.js
 Page({
   data: {
     // 地图及路线信息
     mapInfo: {
       title: 'AI路线指引',
-      instructions: '请按照以下路线前往科室：\n1. 从当前位置出发，沿走廊直走\n2. 左转进入电梯厅，乘坐3楼电梯\n3. 出电梯后右转，直走50米即可到达呼吸内科'
+      instructions: '请按照以下路线前往药室：\n1. 从当前位置出发，沿走廊直走\n2. 右转进入电梯厅，乘坐1楼电梯\n3. 出电梯后左转，直走30米即可到达药房取药窗口'
     },
-    // 医生信息
-    doctorInfo: {
-      name: '张医生',
-      department: '呼吸内科',
-      title: '主任医师',
-      experience: '15年临床经验',
-      specialty: '擅长呼吸系统疾病诊治'
+    // 药室信息
+    pharmacyInfo: {
+      name: '药房',
+      location: '1楼大厅西侧',
+      operatingHours: '周一至周日 8:00-18:00',
+      contact: '010-12345678'
     },
-    // 用户号码信息
-    userNumber: {
-      number: '1023',
-      queuePosition: '当前排队：5人',
-      estimatedTime: '预计等待时间：约30分钟'
+    // 取药信息
+    medicineInfo: {
+      prescriptionNumber: 'RX20230515001',
+      medicineCount: '3种药品',
+      waitingTime: '预计等待时间：约15分钟'
     },
     // 功能未完成提示
     showUnfinishedModal: false
@@ -28,16 +27,16 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    console.log('AI Department Navigation Page loaded with options:', options);
+    console.log('AI Pharmacy Navigation Page loaded with options:', options);
   },
 
   /**
    * 下一步按钮点击事件
    */
   nextStep() {
-    // 跳转到药室导航页面
-    wx.navigateTo({
-      url: '/pages/aiPharmacyNavigation/aiPharmacyNavigation'
+    // 显示功能未完成提示
+    this.setData({
+      showUnfinishedModal: true
     })
   },
 

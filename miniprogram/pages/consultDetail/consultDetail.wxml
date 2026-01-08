@@ -24,21 +24,39 @@
     <view class="example-btn">示例问题3？</view>
   </view>
 
-  <!-- 功能按钮区域 -->
-  <view class="func-bar">
-    <view class="func-item" bindtap="toRegister">
-      <image src="/images/icons/goods-active.png" mode="widthFix"></image>
-      <text class="func-name">一键挂号</text>
-      <text class="func-desc">简单介绍</text>
+  <!-- AI问诊流程图 -->
+  <view class="flow-chart-container">
+    <view class="flow-chart-title">AI问诊流程</view>
+    <view class="flow-chart">
+      <view class="flow-step" bindtap="goToStep" data-step="1">
+        <view class="step-number">1</view>
+        <view class="step-content">
+          <view class="step-title">预约挂号</view>
+          <view class="step-desc">选择科室和医生</view>
+        </view>
+      </view>
+      <view class="flow-arrow">→</view>
+      <view class="flow-step" bindtap="goToStep" data-step="2">
+        <view class="step-number">2</view>
+        <view class="step-content">
+          <view class="step-title">智能导航</view>
+          <view class="step-desc">前往就诊科室</view>
+        </view>
+      </view>
+      <view class="flow-arrow">→</view>
+      <view class="flow-step" bindtap="goToStep" data-step="3">
+        <view class="step-number">3</view>
+        <view class="step-content">
+          <view class="step-title">药室导航</view>
+          <view class="step-desc">取药窗口引导</view>
+        </view>
+      </view>
     </view>
-    <view class="func-item" bindtap="toDeptNav">
-      <image src="/images/dept.png" mode="widthFix"></image>
-      <text class="func-name">科室导航</text>
-    </view>
-    <view class="func-item">
-      <image src="/images/more.png" mode="widthFix"></image>
-      <text class="func-name">等等</text>
-    </view>
+  </view>
+
+  <!-- 操作按钮区域 -->
+  <view class="action-buttons">
+    <button class="start-btn" bindtap="startFromBeginning">从头开始</button>
   </view>
 
   <!-- 输入区域 -->

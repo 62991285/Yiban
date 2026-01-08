@@ -4,6 +4,7 @@ Page({
     userInput: '',
     showSummaryModal: false,
     showUnfinishedModal: false,
+    showPaymentModal: false,
     complaint: '头痛发热2天伴咳嗽',
     temperature: '38.5',
     messages: [
@@ -144,9 +145,9 @@ Page({
    * 下一步按钮点击事件
    */
   nextStep() {
-    // 跳转到AI辅助科室导航页面
-    wx.navigateTo({
-      url: '/pages/aiDepartmentNavigation/aiDepartmentNavigation'
+    // 显示缴费提示弹窗
+    this.setData({
+      showPaymentModal: true
     });
   },
 
@@ -156,6 +157,26 @@ Page({
   onModalClose() {
     this.setData({
       showUnfinishedModal: false
+    });
+  },
+
+  /**
+   * 关闭缴费弹窗
+   */
+  closePaymentModal() {
+    this.setData({
+      showPaymentModal: false
+    });
+  },
+
+  /**
+   * 缴费完成处理
+   */
+  onPaymentComplete() {
+    this.closePaymentModal();
+    // 跳转到AI辅助科室导航页面
+    wx.navigateTo({
+      url: '/pages/aiDepartmentNavigation/aiDepartmentNavigation'
     });
   },
 

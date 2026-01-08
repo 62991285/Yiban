@@ -5,6 +5,7 @@
     "pages/consultDetail/consultDetail",
     "pages/registerHelper/registerHelper",
     "pages/aiDepartmentNavigation/aiDepartmentNavigation",
+    "pages/aiPharmacyNavigation/aiPharmacyNavigation",
     "pages/record/record",
     "pages/mine/mine"
   ],

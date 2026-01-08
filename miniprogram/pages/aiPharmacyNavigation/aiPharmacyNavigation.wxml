@@ -1,0 +1,79 @@
+<!--pages/aiPharmacyNavigation/aiPharmacyNavigation.wxml-->
+<view class="ai-navigation-page">
+  <!-- 功能未完成提示弹窗 -->
+  <cloud-tip-modal 
+    showTipProps="{{showUnfinishedModal}}" 
+    title="功能开发中" 
+    content="该功能还未完成，敬请期待！" 
+    modalType="center"
+    bindclose="onModalClose"
+  ></cloud-tip-modal>
+
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="page-title">AI辅助药室导航</text>
+  </view>
+
+  <!-- 地图及AI路线指示部分 -->
+  <view class="section">
+    <view class="section-title">地图及AI路线指示</view>
+    <view class="map-section">
+      <!-- 模拟地图区域 -->
+      <view class="map-placeholder">
+        <text class="map-text">医院地图示意图</text>
+        <view class="map-marker">
+          <text class="marker-text">当前位置</text>
+        </view>
+        <view class="map-path"></view>
+        <view class="map-marker destination">
+          <text class="marker-text">药房</text>
+        </view>
+      </view>
+      <!-- AI路线指引 -->
+      <view class="ai-instructions">
+        <view class="instruction-title">{{mapInfo.title}}</view>
+        <view class="instruction-content">{{mapInfo.instructions}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 药室信息部分 -->
+  <view class="section">
+    <view class="section-title">药室信息</view>
+    <view class="pharmacy-info">
+      <view class="pharmacy-icon">
+        <text class="icon-text">药</text>
+      </view>
+      <view class="pharmacy-details">
+        <view class="pharmacy-name">{{pharmacyInfo.name}}</view>
+        <view class="pharmacy-location">{{pharmacyInfo.location}}</view>
+        <view class="pharmacy-hours">营业时间：{{pharmacyInfo.operatingHours}}</view>
+        <view class="pharmacy-contact">联系电话：{{pharmacyInfo.contact}}</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 取药信息部分 -->
+  <view class="section">
+    <view class="section-title">取药信息</view>
+    <view class="medicine-info">
+      <view class="prescription-number">
+        <text class="label">处方编号：</text>
+        <text class="value">{{medicineInfo.prescriptionNumber}}</text>
+      </view>
+      <view class="medicine-count">
+        <text class="label">药品数量：</text>
+        <text class="value">{{medicineInfo.medicineCount}}</text>
+      </view>
+      <view class="waiting-time">
+        <text class="label">等待时间：</text>
+        <text class="value">{{medicineInfo.waitingTime}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部下一步按钮 -->
+  <view class="bottom-btn-area">
+    <button class="next-btn" bindtap="nextStep">下一步</button>
+  </view>
+</view>

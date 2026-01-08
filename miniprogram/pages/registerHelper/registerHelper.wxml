@@ -8,6 +8,21 @@
     modalType="center"
     bindclose="onModalClose"
   ></cloud-tip-modal>
+  <!-- 缴费提示弹窗 -->
+  <view class="payment-modal" wx:if="{{showPaymentModal}}">
+    <view class="modal-content">
+      <view class="modal-header">
+        <text class="modal-title">完成缴费</text>
+        <view class="close-btn" bindtap="closePaymentModal">×</view>
+      </view>
+      <view class="modal-body">
+        <text class="payment-content">支付功能正在开发中，点击完成继续。</text>
+      </view>
+      <view class="modal-footer">
+        <button class="btn btn-confirm" bindtap="onPaymentComplete">完成</button>
+      </view>
+    </view>
+  </view>
   <!-- 对话历史区域 -->
   <scroll-view class="chat-history" scroll-y="true">
     <!-- 消息列表 -->
