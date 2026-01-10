@@ -6,8 +6,14 @@ cloud.init({
 const db = cloud.database();
 // 获取openid
 const getOpenId = async () => {
+  console.log('开始执行getOpenId云函数');
   // 获取基础信息
   const wxContext = cloud.getWXContext();
+  console.log('wxContext获取成功:', {
+    OPENID: wxContext.OPENID,
+    APPID: wxContext.APPID,
+    UNIONID: wxContext.UNIONID
+  });
   return {
     openid: wxContext.OPENID,
     appid: wxContext.APPID,
@@ -30,7 +36,25 @@ const getMiniProgramCode = async () => {
   return upload.fileID;
 };
 
-// 创建集合
+// 创建用户集合
+const createUserCollection = async () => {
+  try {
+    // 创建用户集合
+    await db.createCollection("users");
+    return {
+      success: true,
+      data: "create users collection success",
+    };
+  } catch (e) {
+    // 这里catch到的是该collection已经存在，从业务逻辑上来说是运行成功的，所以catch返回success给前端
+    return {
+      success: true,
+      data: "users collection already exists",
+    };
+  }
+};
+
+// 创建销售集合
 const createCollection = async () => {
   try {
     // 创建集合
@@ -157,6 +181,168 @@ const deleteRecord = async (event) => {
   }
 };
 
+// 获取用户信息
+const getUserInfo = async (event) => {
+  try {
+    const { openid } = event;
+    
+    // 数据验证
+    if (!openid || openid.trim() === '') {
+      return {
+        success: false,
+        errMsg: "openid不能为空"
+      };
+    }
+    
+    const user = await db.collection("users").where({
+      openid: openid
+    }).get();
+    
+    // 如果找到用户，过滤敏感数据
+    if (user.data[0]) {
+      // 创建一个新对象，只包含需要返回给前端的非敏感字段
+      const safeUserInfo = {
+        nickName: user.data[0].nickName,
+        avatarUrl: user.data[0].avatarUrl,
+        gender: user.data[0].gender,
+        province: user.data[0].province,
+        city: user.data[0].city,
+        country: user.data[0].country,
+        language: user.data[0].language,
+        motto: user.data[0].motto,
+        createdAt: user.data[0].createdAt,
+        updatedAt: user.data[0].updatedAt
+      };
+      
+      return {
+        success: true,
+        data: safeUserInfo
+      };
+    } else {
+      return {
+        success: true,
+        data: null
+      };
+    }
+  } catch (e) {
+    console.error('getUserInfo error:', e);
+    return {
+      success: false,
+      errMsg: "获取用户信息失败，请稍后重试"
+    };
+  }
+};
+
+// 创建或更新用户信息
+const upsertUserInfo = async (event) => {
+  try {
+    let { openid, userInfo } = event;
+    
+    // 获取当前用户的真实openid
+    const wxContext = cloud.getWXContext();
+    const realOpenid = wxContext.OPENID;
+    
+    // 安全检查：确保用户只能操作自己的信息
+    if (!openid || openid !== realOpenid) {
+      return {
+        success: false,
+        errMsg: "无权操作此用户信息"
+      };
+    }
+    
+    // 数据验证
+    if (!openid || openid.trim() === '') {
+      return {
+        success: false,
+        errMsg: "openid不能为空"
+      };
+    }
+    
+    if (userInfo.nickName && userInfo.nickName.trim() === '') {
+      return {
+        success: false,
+        errMsg: "昵称不能为空"
+      };
+    }
+    
+    // 限制昵称长度
+    if (userInfo.nickName && userInfo.nickName.length > 20) {
+      return {
+        success: false,
+        errMsg: "昵称长度不能超过20个字符"
+      };
+    }
+    
+    // 限制个人签名长度
+    if (userInfo.motto && userInfo.motto.length > 100) {
+      return {
+        success: false,
+        errMsg: "个人签名长度不能超过100个字符"
+      };
+    }
+    
+    // 验证性别值
+    if (userInfo.gender && ![0, 1, 2].includes(userInfo.gender)) {
+      return {
+        success: false,
+        errMsg: "性别值无效"
+      };
+    }
+    
+    // 检查用户是否存在
+    const user = await db.collection("users").where({
+      openid: openid
+    }).get();
+    
+    // 准备要保存的用户信息（过滤掉敏感字段，只允许更新指定字段）
+    const safeUserInfo = {
+      updatedAt: db.serverDate()
+    };
+    
+    // 只允许更新特定字段
+    if (userInfo.nickName !== undefined) safeUserInfo.nickName = userInfo.nickName;
+    if (userInfo.avatarUrl !== undefined) safeUserInfo.avatarUrl = userInfo.avatarUrl;
+    if (userInfo.gender !== undefined) safeUserInfo.gender = userInfo.gender;
+    if (userInfo.province !== undefined) safeUserInfo.province = userInfo.province;
+    if (userInfo.city !== undefined) safeUserInfo.city = userInfo.city;
+    if (userInfo.country !== undefined) safeUserInfo.country = userInfo.country;
+    if (userInfo.language !== undefined) safeUserInfo.language = userInfo.language;
+    if (userInfo.motto !== undefined) safeUserInfo.motto = userInfo.motto;
+    
+    if (user.data.length > 0) {
+      // 更新用户信息
+      await db.collection("users").where({
+        openid: openid
+      }).update({
+        data: safeUserInfo
+      });
+      return {
+        success: true,
+        data: "update user success"
+      };
+    } else {
+      // 创建新用户
+      await db.collection("users").add({
+        data: {
+          openid: openid,
+          ...safeUserInfo,
+          createdAt: db.serverDate()
+        }
+      });
+      return {
+        success: true,
+        data: "create user success"
+      };
+    }
+  } catch (e) {
+    console.error('upsertUserInfo error:', e);
+    return {
+      success: false,
+      errMsg: "操作失败，请稍后重试"
+    };
+  }
+};
+
 // const getOpenId = require('./getOpenId/index');
 // const getMiniProgramCode = require('./getMiniProgramCode/index');
 // const createCollection = require('./createCollection/index');
@@ -174,6 +360,8 @@ exports.main = async (event, context) => {
       return await getMiniProgramCode();
     case "createCollection":
       return await createCollection();
+    case "createUserCollection":
+      return await createUserCollection();
     case "selectRecord":
       return await selectRecord();
     case "updateRecord":
@@ -182,5 +370,9 @@ exports.main = async (event, context) => {
       return await insertRecord(event);
     case "deleteRecord":
       return await deleteRecord(event);
+    case "getUserInfo":
+      return await getUserInfo(event);
+    case "upsertUserInfo":
+      return await upsertUserInfo(event);
   }
 };

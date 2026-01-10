@@ -1,1 +1,94 @@
 /* pages/mine/mine.wxss */
+.mine-page {
+  background-color: #f6f6f6;
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+}
+
+/* 用户信息区域 */
+.user-info-section {
+  background-color: #fff;
+  padding: 30rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 0;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin-right: 30rpx;
+  border: 2rpx solid #eaeaea;
+}
+
+.user-detail {
+  flex: 1;
+}
+
+.user-nickname {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10rpx;
+}
+
+.user-motto {
+  display: block;
+  font-size: 24rpx;
+  color: #999;
+}
+
+.arrow-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.6;
+}
+
+/* 用户信息列表 */
+.info-list {
+  background-color: #fff;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 操作按钮 */
+.action-buttons {
+  padding: 0 30rpx;
+}
+
+.action-btn {
+  margin-bottom: 30rpx;
+  border-radius: 8rpx;
+  font-size: 32rpx;
+  height: 80rpx;
+  line-height: 80rpx;
+}

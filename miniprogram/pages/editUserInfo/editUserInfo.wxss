@@ -1,0 +1,109 @@
+/* pages/editUserInfo/editUserInfo.wxss */
+.edit-page {
+  background-color: #f6f6f6;
+  min-height: 100vh;
+}
+
+/* 页面标题 */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 0 30rpx;
+  height: 100rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn, .save-btn {
+  font-size: 28rpx;
+  color: #07c160;
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 编辑表单 */
+.edit-form {
+  background-color: #fff;
+  margin-top: 20rpx;
+}
+
+.form-item {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.form-label {
+  font-size: 32rpx;
+  color: #333;
+  width: 160rpx;
+  flex-shrink: 0;
+}
+
+.form-input, .form-textarea {
+  flex: 1;
+  font-size: 32rpx;
+  color: #333;
+}
+
+.form-textarea {
+  min-height: 120rpx;
+  line-height: 44rpx;
+  padding: 10rpx 0;
+}
+
+/* 头像上传 */
+.avatar-upload {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  margin-right: 30rpx;
+}
+
+.upload-btn {
+  padding: 20rpx 40rpx;
+  background-color: #f0f0f0;
+  border-radius: 8rpx;
+}
+
+.upload-btn text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+/* 性别选择 */
+.gender-select {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  margin-right: 60rpx;
+}
+
+.radio-item text {
+  font-size: 32rpx;
+  color: #333;
+  margin-left: 10rpx;
+}
+
+.radio-item.active text {
+  color: #07c160;
+}

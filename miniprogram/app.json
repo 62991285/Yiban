@@ -7,7 +7,8 @@
     "pages/aiDepartmentNavigation/aiDepartmentNavigation",
     "pages/aiPharmacyNavigation/aiPharmacyNavigation",
     "pages/record/record",
-    "pages/mine/mine"
+    "pages/mine/mine",
+    "pages/editUserInfo/editUserInfo"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",
@@ -18,5 +19,6 @@
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "subPackages": []
 }

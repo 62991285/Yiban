@@ -1,9 +1,7 @@
 <view class="page-container">
   <!-- 顶部定位栏（新增刷新按钮） -->
   <view class="location-bar">
-    <view class="location-icon">
-      <image src="/images/icons/location.png" mode="widthFix"></image>
-    </view>
+    
     <!-- 新增刷新按钮 -->
     <button class="refresh-btn" bindtap="onRefresh">刷新</button>
   </view>

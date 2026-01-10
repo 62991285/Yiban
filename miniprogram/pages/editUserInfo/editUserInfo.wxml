@@ -1,0 +1,54 @@
+<!--pages/editUserInfo/editUserInfo.wxml-->
+<view class="edit-page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="back-btn" bindtap="onBackTap">返回</text>
+    <text class="page-title">编辑个人信息</text>
+    <text class="save-btn" bindtap="onSaveTap">保存</text>
+  </view>
+  
+  <!-- 编辑表单 -->
+  <view class="edit-form">
+    <!-- 头像 -->
+    <view class="form-item">
+      <text class="form-label">头像</text>
+      <view class="avatar-upload">
+        <image class="user-avatar" src="{{userInfo.avatarUrl || '../../images/avatar.png'}}" mode="aspectFill"></image>
+        <view class="upload-btn" bindtap="onAvatarUploadTap">
+          <text>更换头像</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 昵称 -->
+    <view class="form-item">
+      <text class="form-label">昵称</text>
+      <input class="form-input" placeholder="请输入昵称" value="{{userInfo.nickName}}" bindinput="onNickNameInput"></input>
+    </view>
+    
+    <!-- 性别 -->
+    <view class="form-item">
+      <text class="form-label">性别</text>
+      <view class="gender-select">
+        <label class="radio-item {{userInfo.gender === 1 ? 'active' : ''}}">
+          <radio value="1" checked="{{userInfo.gender === 1}}" bindchange="onGenderChange"></radio>
+          <text>男</text>
+        </label>
+        <label class="radio-item {{userInfo.gender === 2 ? 'active' : ''}}">
+          <radio value="2" checked="{{userInfo.gender === 2}}" bindchange="onGenderChange"></radio>
+          <text>女</text>
+        </label>
+        <label class="radio-item {{userInfo.gender === 0 ? 'active' : ''}}">
+          <radio value="0" checked="{{userInfo.gender === 0}}" bindchange="onGenderChange"></radio>
+          <text>未知</text>
+        </label>
+      </view>
+    </view>
+    
+    <!-- 个人签名 -->
+    <view class="form-item">
+      <text class="form-label">个人签名</text>
+      <textarea class="form-textarea" placeholder="请输入个人签名" value="{{userInfo.motto}}" bindinput="onMottoInput" auto-height></textarea>
+    </view>
+  </view>
+</view>
