@@ -1,7 +1,5 @@
 {
-  "navigationBarTitleText": "智能助手",
-  "navigationBarBackgroundColor": "#00C853",
-  "navigationBarTextStyle": "white",
+  
   "usingComponents": {
     "cloud-tip-modal": "../../components/cloudTipModal/index"
   }

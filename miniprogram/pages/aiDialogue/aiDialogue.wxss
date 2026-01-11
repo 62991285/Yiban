@@ -1,37 +1,36 @@
-/* pages/registerHelper/registerHelper.wxss */
-.register-helper-page {
+.ai-dialogue-page {
   width: 100%;
   min-height: 100vh;
-  background-color: #F6F6F6;
+  background-color: #ffffff;
   display: flex;
   flex-direction: column;
+  position: relative; 
 }
 
-/* 对话历史区域 */
+/*聊天区*/
 .chat-history {
   flex: 1;
   padding: 20rpx;
   overflow-y: auto;
 }
 
-/* 消息气泡 */
 .message {
   display: flex;
   margin-bottom: 30rpx;
   align-items: flex-start;
 }
 
+/*AI消息*/
 .message.ai-message {
   flex-direction: row;
   justify-content: flex-start;
 }
-
+/*用户消息*/
 .message.user-message {
   flex-direction: row;
   justify-content: flex-end;
 }
 
-/* 消息内容 */
 .content {
   max-width: 70%;
   padding: 20rpx;
@@ -39,6 +38,7 @@
   position: relative;
 }
 
+/*AI内容*/
 .ai-message .content {
   background-color: #FFFFFF;
   border-bottom-left-radius: 5rpx;
@@ -46,13 +46,13 @@
   margin-left: 20rpx;
 }
 
+/*用户内容*/
 .user-message .content {
   background-color: #07C160;
   color: #FFFFFF;
   border-bottom-right-radius: 5rpx;
   margin-right: 20rpx;
 }
-
 .text {
   font-size: 28rpx;
   line-height: 1.6;
@@ -63,14 +63,12 @@
   color: #FFFFFF;
 }
 
-/* 选项区域 */
 .options {
   margin-top: 20rpx;
   display: flex;
   flex-wrap: wrap;
   gap: 15rpx;
 }
-
 .option {
   padding: 15rpx 25rpx;
   background-color: #F0F0F0;
@@ -81,13 +79,11 @@
   box-shadow: 0 2rpx 5rpx rgba(0, 0, 0, 0.05);
   transition: all 0.3s;
 }
-
 .option:active {
   transform: scale(0.95);
   background-color: #E0E0E0;
 }
 
-/* 输入区域 */
 .input-area {
   display: flex;
   align-items: flex-end;
@@ -96,7 +92,6 @@
   border-top: 1rpx solid #EEEEEE;
   box-sizing: border-box;
 }
-
 .input-box {
   width: 75%;
   min-height: 80rpx;
@@ -108,7 +103,6 @@
   box-sizing: border-box;
   line-height: 1.5;
 }
-
 .send-btn {
   width: 20%;
   height: 80rpx;
@@ -122,130 +116,11 @@
   justify-content: center;
   border-bottom-right-radius: 5rpx;
 }
-
 .send-btn::after {
   border: none;
 }
 
-/* 信息总结和挂号对话框 */
-.summary-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
 
-.modal-content {
-  background-color: #FFFFFF;
-  width: 90%;
-  max-width: 600rpx;
-  border-radius: 20rpx;
-  overflow: hidden;
-}
-
-.modal-header {
-  padding: 30rpx;
-  border-bottom: 1rpx solid #EEEEEE;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  color: #333;
-}
-
-.close-btn {
-  font-size: 48rpx;
-  color: #999;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.modal-body {
-  padding: 30rpx;
-}
-
-.summary-title {
-  font-size: 28rpx;
-  font-weight: bold;
-  color: #333;
-  display: block;
-  margin-bottom: 10rpx;
-}
-
-.summary-content {
-  font-size: 26rpx;
-  color: #666;
-  line-height: 1.6;
-  display: block;
-  margin-bottom: 30rpx;
-  padding: 20rpx;
-  background-color: #F9F9F9;
-  border-radius: 10rpx;
-}
-
-.form-group {
-  margin-bottom: 30rpx;
-}
-
-.label {
-  font-size: 28rpx;
-  color: #333;
-  display: block;
-  margin-bottom: 15rpx;
-}
-
-.form-input {
-  width: 100%;
-  height: 80rpx;
-  background-color: #F5F5F5;
-  border-radius: 10rpx;
-  padding: 0 20rpx;
-  font-size: 28rpx;
-  box-sizing: border-box;
-}
-
-.modal-footer {
-  padding: 30rpx;
-  border-top: 1rpx solid #EEEEEE;
-  display: flex;
-  gap: 20rpx;
-}
-
-.btn {
-  flex: 1;
-  height: 80rpx;
-  font-size: 30rpx;
-  border-radius: 10rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-cancel {
-  background-color: #F5F5F5;
-  color: #333;
-}
-
-.btn-confirm {
-  background-color: #07C160;
-  color: #FFFFFF;
-}
-
-.btn::after {
-  border: none;
-}
-
-/* 缴费提示弹窗 */
 .payment-modal {
   position: fixed;
   top: 0;
@@ -258,7 +133,6 @@
   justify-content: center;
   z-index: 1000;
 }
-
 .payment-content {
   font-size: 28rpx;
   color: #666;
@@ -267,13 +141,61 @@
   display: block;
   margin-bottom: 20rpx;
 }
+.modal-content {
+  background-color: #FFFFFF;
+  width: 90%;
+  max-width: 600rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+.modal-header {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #EEEEEE;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+.close-btn {
+  font-size: 48rpx;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+.modal-body {
+  padding: 30rpx;
+}
+.modal-footer {
+  padding: 30rpx;
+  border-top: 1rpx solid #EEEEEE;
+  display: flex;
+  gap: 20rpx;
+}
+.btn {
+  flex: 1;
+  height: 80rpx;
+  font-size: 30rpx;
+  border-radius: 10rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-confirm {
+  background-color: #07C160;
+  color: #FFFFFF;
+}
+.btn::after {
+  border: none;
+}
 
-/* 底部下一步按钮 */
 .bottom-btn-area {
   padding: 20rpx 40rpx 40rpx;
   background-color: #F6F6F6;
 }
-
 .next-btn {
   width: 100%;
   height: 100rpx;
@@ -288,25 +210,157 @@
   justify-content: center;
   box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.3);
 }
-
 .next-btn::after {
   border: none;
 }
 
-/* 滚动条样式 */
 ::-webkit-scrollbar {
   width: 4rpx;
 }
-
 ::-webkit-scrollbar-track {
   background: #F1F1F1;
 }
-
 ::-webkit-scrollbar-thumb {
   background: #C1C1C1;
   border-radius: 2rpx;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: #A8A8A8;
+}
+
+/* ============ 顶部功能栏 ============ */
+.top-functional-bar {
+  position: relative;
+  height: 60rpx;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  padding: 0 20rpx;
+  transition: height 0.3s ease;
+  overflow: hidden;
+  font-size: 26rpx;
+}
+.top-functional-bar.collapsed {
+  height: 0;
+  padding: 0;
+}
+.functional-items {
+  display: flex;
+  gap: 25rpx;
+  white-space: nowrap;
+}
+.functional-item {
+  padding: 10rpx 20rpx;
+  background-color: #e0e0e0;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+}
+.toggle-functional {
+  position: absolute;
+  right: 20rpx;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ============ 问诊任务描述区 ============ */
+.task-description-bar {
+  background-color: #fff;
+  padding: 20rpx;
+  border-bottom: 1rpx solid #eee;
+  font-size: 26rpx;
+  color: #333;
+}
+.task-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.task-text {
+  flex: 1;
+  word-break: break-word;
+}
+.toggle-task {
+  margin-left: 15rpx;
+  font-size: 24rpx;
+  color: #999;
+  cursor: pointer;
+}
+.task-detail {
+  margin-top: 15rpx;
+  padding-top: 10rpx;
+  border-top: 1rpx dashed #ddd;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* ============ 右下角圆形按钮（上移避免遮挡输入栏） ============ */
+.floating-plus-btn {
+  position: absolute;
+  /* 距离底部 = 输入区域高度(约130rpx) + 底部按钮高度(100rpx) + 间距(20rpx) = 约250rpx */
+  bottom: 400rpx;
+  right: 40rpx;
+  width: 80rpx;
+  height: 80rpx;
+  background-color: #07C160;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  font-weight: bold;
+  box-shadow: 0 6rpx 20rpx rgba(7, 193, 96, 0.5);
+  z-index: 999;
+  cursor: pointer;
+}
+
+/* ========== 功能按钮栏（位于输入框上方） ========== */
+.functional-bar-wrapper {
+  position: relative;
+  height: 90rpx; /* 高度容纳按钮 */
+  background-color: #fff;
+  border-top: 1rpx solid #eee;
+  display: flex;
+  align-items: center;
+  padding-right: 20rpx;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.functional-bar {
+  display: flex;
+  gap: 20rpx;
+  white-space: nowrap;
+  padding-left: 20rpx;
+  transition: transform 0.3s ease;
+  transform: translateX(-100%); /* 默认完全隐藏在左侧 */
+}
+
+.functional-bar.expanded {
+  transform: translateX(0);
+}
+
+.functional-item {
+  padding: 12rpx 24rpx;
+  background-color: #e0e0e0;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.functional-item:active {
+  background-color: #d0d0d0;
+}
+
+.toggle-functional {
+  position: absolute;
+  right: 20rpx;
+  font-weight: bold;
+  font-size: 32rpx;
+  color: #999;
+  z-index: 20;
+  cursor: pointer;
 }

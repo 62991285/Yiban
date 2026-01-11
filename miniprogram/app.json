@@ -3,7 +3,7 @@
     "pages/homepage/homepage",
     "pages/aiConsultStart/aiConsultStart",
     "pages/consultDetail/consultDetail",
-    "pages/registerHelper/registerHelper",
+    "pages/aiDialogue/aiDialogue",
     "pages/aiDepartmentNavigation/aiDepartmentNavigation",
     "pages/aiPharmacyNavigation/aiPharmacyNavigation",
     "pages/record/record",
@@ -13,10 +13,38 @@
   "window": {
     "backgroundColor": "#F6F6F6",
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#F6F6F6",
-    "navigationBarTitleText": "云开发 QuickStart",
-    "navigationBarTextStyle": "black"
+    "navigationBarBackgroundColor": "#00C853",
+    "navigationBarTitleText": "\"医伴\"智能助手",
+    "navigationBarTextStyle": "white"
+    
   },
+
+
+  "tabBar": {
+    "list": [
+    {
+      "pagePath": "pages/homepage/homepage",
+      "text": "AI聊天",
+      "iconPath": "images/icons/usercenter.png",
+      "selectedIconPath": "images/icons/usercenter-active.png"
+    },
+    {
+      "pagePath": "pages/record/record",
+      "text": "聊天记录",
+      "iconPath": "images/icons/usercenter.png",
+      "selectedIconPath": "images/icons/usercenter-active.png"
+    },
+    {
+      "pagePath": "pages/mine/mine",
+      "text": "我的",
+      "iconPath": "images/icons/usercenter.png",
+      "selectedIconPath": "images/icons/usercenter-active.png"
+    }
+    
+ 
+    ]
+    },
+
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",

@@ -12,19 +12,50 @@
 
   <!-- 助手欢迎语 -->
   <view class="welcome-area">
-    <text class="welcome-title">HI~我是XX</text>
-    <text class="welcome-desc">你身边的智能助手，可以为你xxxxxxxxxx</text>
+    <text class="welcome-title">HI~我是“医伴”小助手</text>
+    <text class="welcome-desc">你身边的智能陪伴者，可以为你保驾护航</text>
   </view>
 
-  <!-- 示例问题区域 -->
+  <!-- 示例问题区域 
   <view class="example-area">
     <text class="example-label">你可以这样问</text>
     <view class="example-btn">示例问题1。</view>
     <view class="example-btn">示例问题2</view>
     <view class="example-btn">示例问题3？</view>
+  </view>-->
+
+  
+  <!-- 对话历史区域 -->
+  <scroll-view class="chat-history" scroll-y="true">
+    <!-- 消息列表 -->
+    <view wx:for="{{messages}}" wx:key="index" class="message {{item.type}}-message">
+      <view class="content">
+        <text class="text">{{item.content}}</text>
+        <!-- 选项区域 -->
+        <view wx:if="{{item.options && item.options.length > 0}}" class="options">
+          <view wx:for="{{item.options}}" wx:for-item="option" wx:key="option" class="option" bindtap="selectOption">
+            {{option}}
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 用户输入区域 -->
+  <view class="input-area">
+    <textarea 
+      class="input-box" 
+      placeholder="请描述您的症状..." 
+      value="{{userInput}}"
+      bindinput="onInputChange"
+      auto-height="{{true}}"
+      maxlength="500"
+      placeholder-style="color:#999;"
+    />
+    <button class="send-btn" bindtap="sendMessage">发送</button>
   </view>
 
-  <!-- AI问诊流程图 -->
+  <!-- AI问诊流程图 
   <view class="flow-chart-container">
     <view class="flow-chart-title">AI问诊流程</view>
     <view class="flow-chart">
@@ -53,10 +84,10 @@
       </view>
     </view>
   </view>
-
+-->
   <!-- 操作按钮区域 -->
   <view class="action-buttons">
-    <button class="start-btn" bindtap="startFromBeginning">从头开始</button>
+    <button class="start-btn" bindtap="startFromBeginning">开始导诊</button>
   </view>
 
   <!-- 输入区域 -->

@@ -23,21 +23,9 @@ Page({
   // 前往AI问诊页面
   toConsult() {
     wx.navigateTo({
-      url: '/pages/aiConsultStart/aiConsultStart'
+      url: '/pages/aiDialogue/aiDialogue'
     })
   },
 
-  // 前往问诊记录页面
-  toRecord() {
-    wx.navigateTo({
-      url: '/pages/record/record'
-    })
-  },
 
-  // 前往“我的”页面
-  toMine() {
-    wx.navigateTo({
-      url: '/pages/mine/mine'
-    })
-  }
 })

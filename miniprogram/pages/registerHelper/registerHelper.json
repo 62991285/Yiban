@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "预约挂号助手",
-  "navigationBarBackgroundColor": "#F6F6F6",
-  "navigationBarTextStyle": "black",
-  "usingComponents": {
-    "cloud-tip-modal": "/components/cloudTipModal/index"
-  }
-}

@@ -1,13 +1,7 @@
 <view class="page-container">
-  <!-- 顶部定位栏（新增刷新按钮） -->
-  <view class="location-bar">
-    
-    <!-- 新增刷新按钮 -->
-    <button class="refresh-btn" bindtap="onRefresh">刷新</button>
-  </view>
 
-  <!-- 空内容区域 -->
-  <view class="empty-area"></view>
+
+ 
 
   <!-- AI问诊区域 -->
   <view class="consult-area">
@@ -15,19 +9,5 @@
     <button class="go-btn" bindtap="toConsult">前往</button>
   </view>
 
-  <!-- 底部导航栏 -->
-  <view class="tab-bar">
-    <view class="tab-item active">
-      <image src="/images/icons/home-active.png" mode="widthFix"></image>
-      <text>首页</text>
-    </view>
-    <view class="tab-item" bindtap="toRecord">
-      <image src="/images/icons/business-active.png" mode="widthFix"></image>
-      <text>问诊记录</text>
-    </view>
-    <view class="tab-item" bindtap="toMine">
-      <image src="/images/icons/usercenter-active.png" mode="widthFix"></image>
-      <text>我的</text>
-    </view>
-  </view>
+ 
 </view>
