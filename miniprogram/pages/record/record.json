@@ -1,6 +1,6 @@
 {
   "navigationBarTitleText": "问诊记录",
   "usingComponents": {
-    "cloud-tip-modal": "../../components/cloudTipModal/index"
+
   }
 }

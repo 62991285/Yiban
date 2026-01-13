@@ -1,0 +1,35 @@
+<view class="message {{speaker === 'ai' ? 'ai-message' : 'user-message'}}">
+  <view class="content">
+    <slot></slot>
+
+    <!-- AI 消息才显示选项或跳转图标 -->
+    <view wx:if="{{speaker === 'ai' && (options || actions)}}" class="actions-container">
+      <!-- 原始选项按钮 -->
+      <view wx:if="{{options && options.length > 0}}" class="options">
+        <view
+          wx:for="{{options}}"
+          wx:key="index"
+          class="option"
+          bindtap="onOptionTap"
+          data-option="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+
+      <!-- 新增的跳转图标区域 -->
+      <view wx:if="{{actions && actions.length > 0}}" class="action-icons">
+        <view
+          wx:for="{{actions}}"
+          wx:key="index"
+          class="action-icon"
+          bindtap="onActionTap"
+          data-url="{{item.url}}"
+        >
+          <!-- 可用 iconfont 或 base64 图标，这里用文字代替 -->
+          {{item.label}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

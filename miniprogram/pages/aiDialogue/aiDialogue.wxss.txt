@@ -298,7 +298,7 @@
 .floating-plus-btn {
   position: absolute;
   /* 距离底部 = 输入区域高度(约130rpx) + 底部按钮高度(100rpx) + 间距(20rpx) = 约250rpx */
-  bottom: 250rpx;
+  bottom: 240rpx;
   right: 40rpx;
   width: 80rpx;
   height: 80rpx;
@@ -315,13 +315,52 @@
   cursor: pointer;
 }
 
-/* ============ 以下为暂未使用样式，已注释 ============ */
-/*
-.summary-modal { ... }
-.summary-title { ... }
-.summary-content { ... }
-.form-group { ... }
-.label { ... }
-.form-input { ... }
-.btn-cancel { ... }
-*/
+/* ========== 功能按钮栏（位于输入框上方） ========== */
+.functional-bar-wrapper {
+  position: relative;
+  height: 90rpx; /* 高度容纳按钮 */
+  background-color: #fff;
+  border-top: 1rpx solid #eee;
+  display: flex;
+  align-items: center;
+  padding-right: 20rpx;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.functional-bar {
+  display: flex;
+  gap: 20rpx;
+  white-space: nowrap;
+  padding-left: 20rpx;
+  transition: transform 0.3s ease;
+  transform: translateX(-100%); /* 默认完全隐藏在左侧 */
+}
+
+.functional-bar.expanded {
+  transform: translateX(0);
+}
+
+.functional-item {
+  padding: 12rpx 24rpx;
+  background-color: #e0e0e0;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.functional-item:active {
+  background-color: #d0d0d0;
+}
+
+.toggle-functional {
+  position: absolute;
+  right: 20rpx;
+  font-weight: bold;
+  font-size: 32rpx;
+  color: #999;
+  z-index: 20;
+  cursor: pointer;
+}

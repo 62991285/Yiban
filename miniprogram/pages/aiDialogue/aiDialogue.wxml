@@ -1,6 +1,5 @@
-<!--pages/registerHelper/registerHelper.wxml-->
 <view class="ai-dialogue-page">
-  <!-- 问诊任务描述区（可展开） -->
+  <!--  问诊任务描述区（可展开） -->
   <view class="task-description-bar">
     <view class="task-summary">
       <text class="task-text">
@@ -33,32 +32,27 @@
 
   <!-- 对话历史区域 -->
   <scroll-view class="chat-history" scroll-y="true" scroll-with-animation scroll-top="{{scrollTop}}">
-    <view wx:for="{{messages}}" wx:key="index" class="message {{item.type}}-message">
-      <view class="content">
-        <text class="text">{{item.content}}</text>
-        <!-- 选项区域 -->
-        <view wx:if="{{item.options && item.options.length > 0}}" class="options">
-          <view
-            wx:for="{{item.options}}"
-            wx:for-item="option"
-            wx:key="option"
-            class="option"
-            bindtap="selectOption"
-          >
-            {{option}}
-          </view>
-        </view>
-      </view>
-    </view>
-  </scroll-view>
+  <block wx:for="{{messages}}" wx:key="index">
+    <message-item 
+      speaker="{{item.speaker === 'ai' ? 'ai' : 'user'}}"
+      options="{{item.options || []}}"
+      actions="{{item.actions || []}}"
+      bindselectoption="selectOption"
+    >
+      <text>{{item.content}}</text>
+    </message-item>
 
+  </block>
+</scroll-view>
+
+<text class="delete-chat-history" bind:tap="deleteChatHistory"> 删除聊天历史</text>
   <!-- 👇 功能按钮栏：放在输入框上方 -->
   <view class="functional-bar-wrapper">
     <view class="functional-bar {{showFunctionalBar ? 'expanded' : 'collapsed'}}">
-      <view class="functional-item" bindtap="gotoHistory">历史记录</view>
-      <view class="functional-item" bindtap="gotoVoiceInput">语音输入</view>
-      <view class="functional-item" bindtap="gotoReport">图文报告</view>
-      <view class="functional-item" bindtap="gotoAIExplanation">AI解释</view>
+      <view class="functional-item" bindtap="gotoHistory">院内导航</view>
+      <view class="functional-item" bindtap="gotoVoiceInput">挂号服务</view>
+      <view class="functional-item" bindtap="gotoReport">检查预约</view>
+      <view class="functional-item" bindtap="gotoAIExplanation">治疗预约</view>
     </view>
     <view class="toggle-functional" bindtap="toggleFunctionalBar">
       {{ showFunctionalBar ? '<' : '>' }}
@@ -81,5 +75,5 @@
 
 
   <!-- 右下角圆形按钮 -->
-  <view class="floating-plus-btn" bindtap="startNewTask">+</view>
+  <view class="floating-plus-btn" bindtap="startOrDeleteNewTask">{{isAIAssistedMode===true?"-":"+"}}</view>
 </view>

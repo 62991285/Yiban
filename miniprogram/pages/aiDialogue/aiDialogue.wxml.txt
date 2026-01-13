@@ -1,24 +1,9 @@
-<!--pages/registerHelper/registerHelper.wxml-->
 <view class="ai-dialogue-page">
-  <!-- 功能栏（可横向展开） -->
-  <view class="top-functional-bar {{showFunctionalBar ? 'expanded' : 'collapsed'}}">
-    <view class="functional-items">
-      <view class="functional-item">历史记录</view>
-      <view class="functional-item">语音输入</view>
-      <view class="functional-item">图文报告</view>
-      <view class="functional-item">AI解释</view>
-   
-    </view>
-    <view class="toggle-functional" bindtap="toggleFunctionalBar">
-      {{showFunctionalBar ? '<' : '>'}}
-    </view>
-  </view>
-
-  <!-- 问诊任务描述区（可展开） -->
+  <!--  问诊任务描述区（可展开） -->
   <view class="task-description-bar">
     <view class="task-summary">
       <text class="task-text">
-        {{ currentTaskSummary || '目前暂无任务，点击“+”开始一段新导诊任务' }}
+        {{ currentTaskSummary || '点击“+”开始一段新问诊任务' }}
       </text>
       <view class="toggle-task" bindtap="toggleTaskDescription">
         {{ showTaskDetail ? '∧' : '∨' }}
@@ -66,6 +51,19 @@
     </view>
   </scroll-view>
 
+  <!-- 👇 功能按钮栏：放在输入框上方 -->
+  <view class="functional-bar-wrapper">
+    <view class="functional-bar {{showFunctionalBar ? 'expanded' : 'collapsed'}}">
+      <view class="functional-item" bindtap="gotoHistory">院内导航</view>
+      <view class="functional-item" bindtap="gotoVoiceInput">挂号服务</view>
+      <view class="functional-item" bindtap="gotoReport">检查预约</view>
+      <view class="functional-item" bindtap="gotoAIExplanation">治疗预约</view>
+    </view>
+    <view class="toggle-functional" bindtap="toggleFunctionalBar">
+      {{ showFunctionalBar ? '<' : '>' }}
+    </view>
+  </view>
+
   <!-- 用户输入区域 -->
   <view class="input-area">
     <textarea
@@ -81,9 +79,6 @@
   </view>
 
 
-
   <!-- 右下角圆形按钮 -->
-  <view class="floating-plus-btn" bindtap="startNewTask">
-    +
-  </view>
+  <view class="floating-plus-btn" bindtap="startNewTask">+</view>
 </view>

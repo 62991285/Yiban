@@ -1,6 +1,6 @@
 {
   "navigationBarTitleText": "AI辅助药室导航",
   "usingComponents": {
-    "cloud-tip-modal": "/components/cloudTipModal/index"
+
   }
 }

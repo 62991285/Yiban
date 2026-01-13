@@ -293,12 +293,19 @@
   color: #666;
   line-height: 1.5;
 }
+/*================删除AI对话历史链接*/
+.delete-chat-history
+{
+  text-align: center;
+  border:  3px, solid, #07C160 ;
+  
+}
 
 /* ============ 右下角圆形按钮（上移避免遮挡输入栏） ============ */
 .floating-plus-btn {
   position: absolute;
   /* 距离底部 = 输入区域高度(约130rpx) + 底部按钮高度(100rpx) + 间距(20rpx) = 约250rpx */
-  bottom: 400rpx;
+  bottom: 240rpx;
   right: 40rpx;
   width: 80rpx;
   height: 80rpx;

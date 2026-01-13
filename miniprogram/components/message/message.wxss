@@ -1,0 +1,95 @@
+.message {
+  display: flex;
+  margin-bottom: 30rpx;
+  align-items: flex-start;
+}
+
+.message.ai-message {
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+.message.user-message {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.content {
+  max-width: 70%;
+  padding: 20rpx;
+  border-radius: 20rpx;
+  position: relative;
+}
+
+.ai-message .content {
+  background-color: #FFFFFF;
+  border-bottom-left-radius: 5rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-left: 20rpx;
+}
+
+.user-message .content {
+  background-color: #07C160;
+  color: #FFFFFF;
+  border-bottom-right-radius: 5rpx;
+  margin-right: 20rpx;
+}
+
+.message text {
+  font-size: 28rpx;
+  line-height: 1.6;
+  display: block;
+}
+
+.user-message .text {
+  color: #FFFFFF;
+}
+
+/* 选项区域 */
+.options {
+  margin-top: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15rpx;
+}
+
+.option {
+  padding: 15rpx 25rpx;
+  background-color: #F0F0F0;
+  border-radius: 25rpx;
+  font-size: 26rpx;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 2rpx 5rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.3s;
+}
+
+.option:active {
+  transform: scale(0.95);
+  background-color: #E0E0E0;
+}
+
+/* 跳转图标区域（新） */
+.action-icons {
+  margin-top: 15rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.action-icon {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  font-size: 24rpx;
+  color: #666;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-icon:active {
+  background-color: #e0e0e0;
+}

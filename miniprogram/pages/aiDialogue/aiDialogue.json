@@ -1,6 +1,8 @@
 {
 
-  "usingComponents": {
-    "cloud-tip-modal": "/components/cloudTipModal/index"
+  "usingComponents": 
+  {
+  "message-item":"/components/message/message"
+
   }
 }
