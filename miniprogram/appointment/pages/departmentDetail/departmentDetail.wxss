@@ -1,0 +1,166 @@
+.container {
+  padding: 20rpx;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 统一模块样式 */
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+  color: white;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 30rpx;
+}
+
+.department-name {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: white;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.status-tag {
+  padding: 8rpx 16rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  color: white;
+  margin-right: 20rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.follow-btn {
+  display: flex;
+  align-items: center;
+  padding: 8rpx 16rpx;
+  background-color: white;
+  border-radius: 16rpx;
+  border: 1rpx solid #00C853;
+}
+
+.follow-icon {
+  font-size: 24rpx;
+  margin-right: 8rpx;
+  color: #FF6B6B;
+}
+
+.follow-text {
+  font-size: 24rpx;
+  color: #FF6B6B;
+}
+
+.filter-tabs {
+  width: 100%;
+  display: flex;
+  background-color: #E8F5E9;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  margin-bottom: 30rpx;
+  overflow-x: auto;
+}
+
+.tab-item {
+  padding: 20rpx 30rpx;
+  flex-shrink: 0;
+  border-bottom: 3rpx solid transparent;
+  transition: all 0.3s;
+}
+
+.tab-item.active {
+  border-bottom-color: #00c853;
+  color: #00c853;
+  font-weight: bold;
+}
+
+.tab-text {
+  font-size: 28rpx;
+}
+
+.appointment-list {
+  width: 100%;
+  background-color: white;
+  border-radius: 10rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  padding: 20rpx;
+}
+
+.area-info {
+  padding: 20rpx 0;
+  border-bottom: 2rpx solid #C8E6C9;
+  margin-bottom: 20rpx;
+}
+
+.area-name {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #2E7D32;
+}
+
+.date-section {
+  margin-bottom: 30rpx;
+  padding: 20rpx;
+  background-color: #E3F2FD;
+  border-radius: 8rpx;
+  border-left: 4rpx solid #2196F3;
+}
+
+.date-header {
+  margin-bottom: 15rpx;
+}
+
+.date-full {
+  font-size: 28rpx;
+  color: #1976D2;
+  font-weight: bold;
+}
+
+.appointment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15rpx 0;
+  border-top: 1rpx dashed #BBDEFB;
+  background-color: white;
+  border-radius: 6rpx;
+  padding: 15rpx;
+}
+
+.department-text {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.price-text {
+  font-size: 26rpx;
+  color: #FF6B6B;
+  font-weight: bold;
+}
+
+.status-text {
+  font-size: 24rpx;
+  padding: 6rpx 16rpx;
+  border-radius: 12rpx;
+  font-weight: bold;
+}
+
+.status-text.available {
+  background-color: #E8F5E9;
+  color: #00C853;
+  border: 1rpx solid #A5D6A7;
+}
+
+.status-text.unavailable {
+  background-color: #F5F5F5;
+  color: #9E9E9E;
+  border: 1rpx solid #E0E0E0;
+}

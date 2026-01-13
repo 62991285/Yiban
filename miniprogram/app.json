@@ -41,5 +41,13 @@
   "sitemapLocation": "sitemap.json",
   "style": "v2",
   "lazyCodeLoading": "requiredComponents",
-  "subPackages": []
+  "subpackages": [
+    {
+      "root": "appointment",
+      "pages": [
+        "pages/appointment/appointment",
+        "pages/departmentDetail/departmentDetail"
+      ]
+    }
+  ]
 }
