@@ -30,9 +30,8 @@
   
   <!-- 操作按钮 -->
   <view class="action-buttons">
-    <button class="action-btn" type="primary" bindtap="onLoginTap" wx:if="!isLogin">登录</button>
+    <button class="action-btn" type="primary" bindtap="onLoginTap" wx:if="{{!isLogin}}">登录</button>
     <button class="action-btn" type="default" bindtap="onLogoutTap" wx:else>退出登录</button>
-    <button class="action-btn" type="default" bindtap="onEditInfoTap" wx:if="isLogin">编辑信息</button>
-
+    <button class="action-btn" type="default" bindtap="onEditInfoTap" wx:if="{{isLogin}}">编辑信息</button>
   </view>
 </view>

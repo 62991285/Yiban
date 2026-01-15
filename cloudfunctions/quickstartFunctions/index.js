@@ -296,7 +296,8 @@ const upsertUserInfo = async (event) => {
     
     // 准备要保存的用户信息（过滤掉敏感字段，只允许更新指定字段）
     const safeUserInfo = {
-      updatedAt: db.serverDate()
+      updatedAt: db.serverDate(),
+      motto: userInfo.motto || '这个人很懒，还没有设置签名~' // 补充默认值
     };
     
     // 只允许更新特定字段

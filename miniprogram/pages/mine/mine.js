@@ -83,21 +83,15 @@ Page({
   /**
    * 更新用户信息
    */
-  updateUserInfo() {
-    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
-    const openid = app.globalData.openid || wx.getStorageSync('openid');
-    const isLogin = !!openid;
-    
-    this.setData({
-      userInfo: userInfo,
-      isLogin: isLogin
-    });
-    
-    // 如果已登录，从云数据库获取最新用户信息
-    if (isLogin) {
-      this.getUserInfoFromCloud();
-    }
-  },
+// 页面的方法：更新用户信息到页面data + 同步登录状态
+updateUserInfo() {
+  const app = getApp();
+  this.setData({
+    openid: app.globalData.openid || wx.getStorageSync('openid'),
+    userInfo: app.globalData.userInfo || wx.getStorageSync('userInfo'),
+    isLogin: !!app.globalData.openid 
+  });
+},
 
   /**
    * 从云数据库获取用户信息
@@ -159,7 +153,8 @@ Page({
    */
   onLoginTap() {
     const that = this;
-    
+    const app = getApp(); // 
+  
     // 如果已经登录，直接返回
     if (this.data.isLogin) {
       wx.showToast({
@@ -168,35 +163,36 @@ Page({
       });
       return;
     }
-    
+  
     wx.showLoading({
       title: '登录中...',
     });
-    
-    // 先确保openid已获取
-    if (!app.globalData.openid && !wx.getStorageSync('openid')) {
+  
+    // 逻辑：没有openid（全局/缓存都没有），才执行登录流程
+    const hasOpenid = app.globalData.openid || wx.getStorageSync('openid');
+    if (!hasOpenid) {
       app.login((loginSuccess, openid) => {
         if (loginSuccess && openid) {
           // openid获取成功，登录状态已建立
-          // 获取用户信息（无论是否成功，登录都算成功）
-          app.getUserInfo((success, userInfo) => {
+          app.getUserInfo((success, res) => {
             wx.hideLoading();
-            
-            // 无论用户信息是否获取成功，都更新页面状态
+            that.setData({
+              isLogin: true
+            });
+            // 更新页面用户信息
             that.updateUserInfo();
-            
+  
             if (success) {
-              // 用户信息获取成功
               wx.showToast({
                 title: '登录成功',
                 icon: 'success'
               });
             } else {
-              // 用户信息获取失败，但登录已经成功
-              console.error('获取用户信息失败', userInfo);
+              console.error('登录成功，获取用户信息授权失败：用户拒绝授权', res);
               wx.showToast({
-                title: '登录成功',
-                icon: 'success'
+                title: '登录成功，可完善资料',
+                icon: 'success',
+                duration: 1500
               });
             }
           });
@@ -210,26 +206,26 @@ Page({
         }
       });
     } else {
-      // 已有openid，登录状态已建立
-      // 获取用户信息（无论是否成功，登录都算成功）
-      app.getUserInfo((success, userInfo) => {
+      // 已有openid，登录状态已建立，直接获取用户信息
+      app.getUserInfo((success, res) => {
         wx.hideLoading();
-        
-        // 无论用户信息是否获取成功，都更新页面状态
+        that.setData({
+          isLogin: true
+        });
+        // 更新页面用户信息
         that.updateUserInfo();
-        
+  
         if (success) {
-          // 用户信息获取成功
           wx.showToast({
             title: '登录成功',
             icon: 'success'
           });
         } else {
-          // 用户信息获取失败，但登录已经成功
-          console.error('获取用户信息失败', userInfo);
+          console.error('登录成功，获取用户信息授权失败：用户拒绝授权', res);
           wx.showToast({
-            title: '登录成功',
-            icon: 'success'
+            title: '登录成功，可完善资料',
+            icon: 'success',
+            duration: 1500
           });
         }
       });
