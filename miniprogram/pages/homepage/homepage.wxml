@@ -1,13 +1,73 @@
 <view class="page-container">
-
-
- 
-
-  <!-- AI问诊区域 -->
-  <view class="consult-area">
-    <view class="consult-title">AI辅助问诊</view>
-    <button class="go-btn" bindtap="toConsult">前往</button>
+  <!-- 顶部装饰条 -->
+  <view class="top-decoration">
+    <view class="decoration-line"></view>
+    <view class="ai-badge">AI POWERED</view>
+    <view class="decoration-line"></view>
   </view>
 
- 
+  <!-- 主要内容区域 -->
+  <view class="main-content">
+    <!-- AI头像区域 -->
+    <view class="ai-avatar-section">
+      <view class="avatar-container">
+        <view class="avatar-ring">
+          <view class="avatar-core">
+            <image class="ai-icon" src="/images/ai-brain.png" mode="aspectFit"></image>
+          </view>
+        </view>
+        <view class="pulse-ring pulse-1"></view>
+        <view class="pulse-ring pulse-2"></view>
+        <view class="pulse-ri ng pulse-3"></view>
+      </view>
+      <view class="ai-status">智能在线</view>
+    </view>
+
+    <!-- AI欢迎语 -->
+    <view class="welcome-section">
+      <view class="welcome-title">您好，我是您的AI健康助手</view>
+      <view class="welcome-subtitle">随时为您提供专业的医疗咨询服务</view>
+    </view>
+
+    <!-- 功能特性展示 -->
+    <view class="features-section">
+      <view class="feature-item">
+        <view class="feature-icon">🩺</view>
+        <view class="feature-text">症状分析</view>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">💊</view>
+        <view class="feature-text">用药建议</view>
+      </view>
+      <view class="feature-item">
+        <view class="feature-icon">🏥</view>
+        <view class="feature-text">就医指导</view>
+      </view>
+    </view>
+
+    <!-- AI问诊区域 -->
+    <view class="consult-area">
+      <view class="consult-card">
+        <view class="consult-header">
+          <view class="consult-icon">🤖</view>
+          <view class="consult-title">开始AI智能问诊</view>
+        </view>
+        <view class="consult-desc">基于先进AI技术，为您提供个性化健康建议</view>
+        <button class="go-btn" bindtap="toConsult">
+          <text class="btn-text">立即体验</text>
+          <text class="btn-arrow">→</text>
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部装饰 
+  <view class="bottom-decoration">
+    <view class="floating-dots">
+      <view class="dot dot-1"></view>
+      <view class="dot dot-2"></view>
+      <view class="dot dot-3"></view>
+      <view class="dot dot-4"></view>
+    </view>
+  </view>-->
 </view>

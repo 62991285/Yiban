@@ -1,7 +1,10 @@
 <view class="ai-dialogue-page">
-  <!--  问诊任务描述区（可展开） -->
+
+
+  <!-- 问诊任务描述区（可展开） -->
   <view class="task-description-bar">
     <view class="task-summary">
+      <view class="task-icon">🎯</view>
       <text class="task-text">
         {{ currentTaskSummary || '点击“+”开始一段新问诊任务' }}
       </text>
@@ -31,49 +34,108 @@
   </view>
 
   <!-- 对话历史区域 -->
-  <scroll-view class="chat-history" scroll-y="true" scroll-with-animation scroll-top="{{scrollTop}}">
-  <block wx:for="{{messages}}" wx:key="index">
-    <message-item 
-      speaker="{{item.speaker === 'ai' ? 'ai' : 'user'}}"
-      options="{{item.options || []}}"
-      actions="{{item.actions || []}}"
-      bindselectoption="selectOption"
-    >
-      <text>{{item.content}}</text>
-    </message-item>
-
-  </block>
-</scroll-view>
-
-<text class="delete-chat-history" bind:tap="deleteChatHistory"> 删除聊天历史</text>
-  <!-- 👇 功能按钮栏：放在输入框上方 -->
-  <view class="functional-bar-wrapper">
-    <view class="functional-bar {{showFunctionalBar ? 'expanded' : 'collapsed'}}">
-      <view class="functional-item" bindtap="gotoHistory">院内导航</view>
-      <view class="functional-item" bindtap="gotoVoiceInput">挂号服务</view>
-      <view class="functional-item" bindtap="gotoReport">检查预约</view>
-      <view class="functional-item" bindtap="gotoAIExplanation">治疗预约</view>
+  <scroll-view class="chat-history" scroll-y="true" scroll-with-animation scroll-top="{{scrollTop}}" enhanced="true" bounces="true">
+    <view class="chat-container">
+      <block wx:for="{{messages}}" wx:key="index">
+        <view class="message-wrapper {{item.speaker === 'ai' ? 'ai-wrapper' : 'user-wrapper'}}">
+          <message-item 
+            speaker="{{item.speaker === 'ai' ? 'ai' : 'user'}}"
+            options="{{item.options || []}}"
+            actions="{{item.actions || []}}"
+            bindselectoption="selectOption"
+            class="animated-message"
+          >
+            <text>{{item.content}}</text>
+          </message-item>
+        </view>
+      </block>
+      
+      <!-- AI正在输入指示器 -->
+      <view wx:if="{{isAITyping}}" class="typing-indicator">
+        <view class="typing-dots">
+          <view class="dot dot-1"></view>
+          <view class="dot dot-2"></view>
+          <view class="dot dot-3"></view>
+        </view>
+        <text class="typing-text">AI正在思考...</text>
+      </view>
     </view>
-    <view class="toggle-functional" bindtap="toggleFunctionalBar">
-      {{ showFunctionalBar ? '<' : '>' }}
+  </scroll-view>
+
+  <!-- 聊天操作区 -->
+  <view class="chat-controls">
+    <text class="delete-chat-history" bind:tap="deleteChatHistory"> 🗑️ 清空对话</text>
+    <view class="chat-stats">
+      <text class="message-count">消息 {{messages.length}}</text>
     </view>
   </view>
 
-  <!-- 用户输入区域 -->
-  <view class="input-area">
-    <textarea
-      class="input-box"
-      placeholder="请描述您的症状..."
-      value="{{userInput}}"
-      bindinput="onInputChange"
-      auto-height="{{true}}"
-      maxlength="500"
-      placeholder-style="color:#999;"
-    />
-    <button class="send-btn" bindtap="sendMessage">发送</button>
+  <!-- 👇 滑动式功能按钮栏 -->
+  <view class="scroll-functional-bar">
+    <scroll-view class="functional-scroll-view" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="functional-list">
+        <view class="functional-item" bindtap="gotoHistory">
+          <text class="func-icon">📍</text>
+          <text class="func-text">院内导航</text>
+        </view>
+        <view class="functional-item" bindtap="gotoVoiceInput">
+          <text class="func-icon">📞</text>
+          <text class="func-text">挂号服务</text>
+        </view>
+        <view class="functional-item" bindtap="gotoReport">
+          <text class="func-icon">📋</text>
+          <text class="func-text">检查预约</text>
+        </view>
+        <view class="functional-item" bindtap="gotoAIExplanation">
+          <text class="func-icon">⚕️</text>
+          <text class="func-text">治疗预约</text>
+        </view>
+        <view class="functional-item" bindtap="gotoHistory">
+          <text class="func-icon">🏥</text>
+          <text class="func-text">科室介绍</text>
+        </view>
+        <view class="functional-item" bindtap="gotoVoiceInput">
+          <text class="func-icon">💊</text>
+          <text class="func-text">药品查询</text>
+        </view>
+        <view class="functional-item" bindtap="gotoReport">
+          <text class="func-icon">🩺</text>
+          <text class="func-text">体检套餐</text>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="scroll-indicator">
+      <view class="scroll-dot active"></view>
+      <view class="scroll-dot"></view>
+      <view class="scroll-dot"></view>
+    </view>
   </view>
 
+  <!-- 用户输入区域 - AI风格 -->
+  <view class="ai-input-container">
+    <view class="input-wrapper-modern">
+      <textarea
+        class="modern-input-box"
+        placeholder="请详细描述您的症状，AI将为您提供专业建议..."
+        value="{{userInput}}"
+        bindinput="onInputChange"
+        auto-height="{{true}}"
+        maxlength="500"
+        placeholder-style="color:#999;"
+        show-confirm-bar="false"
+      />
+      <button class="modern-send-btn {{userInput.trim()==='' ? '' : 'send-btn-active'}}" bindtap="sendMessage" disabled="{{userInput.trim() === ''}}">
+        <text class="send-text-modern">发送</text>
+      </button>
+    </view>
+    <view class="outside-char-count">
+      <text class="char-count-modern">{{userInput.length}}/500</text>
+    </view>
+  </view>
 
-  <!-- 右下角圆形按钮 -->
-  <view class="floating-plus-btn" bindtap="startOrDeleteNewTask">{{isAIAssistedMode===true?"-":"+"}}</view>
+  <!-- 浮动按钮 - 重新定位 -->
+  <view class="floating-plus-btn-new {{isAIAssistedMode===true?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
+    <text class="fab-icon-new">{{isAIAssistedMode===true?'−':'+'}}</text>
+    <view class="fab-tooltip-new">{{isAIAssistedMode===true?'结束问诊':'新建问诊'}}</view>
+  </view>
 </view>

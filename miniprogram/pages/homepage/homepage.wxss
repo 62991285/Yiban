@@ -2,10 +2,12 @@
 /* 页面容器 */
 .page-container {
   width: 100%;
-  height: 100vh;
-  background-color: #fff;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8f5e8 0%, #c8f0c8 50%, #a8e6a8 100%);
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
 }
 
 /* 定位栏 */
@@ -50,34 +52,296 @@
   background-color: #87E8DE;
 }
 
-/* AI问诊区域 */
-.consult-area {
-  height: 100%;
-  background-color: #81C784;
+/* 顶部装饰条 */
+.top-decoration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 60rpx 20rpx;
+  gap: 30rpx;
+}
+.decoration-line {
+  flex: 1;
+  height: 2rpx;
+  background: linear-gradient(90deg, transparent 0%, #4CAF50 50%, transparent 100%);
+}
+.ai-badge {
+  background: linear-gradient(45deg, #4CAF50, #66BB6A);
+  color: white;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 20rpx;
+  font-weight: bold;
+  letter-spacing: 2rpx;
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.3);
+}
+
+/* 主要内容区域 */
+.main-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  padding: 40rpx 60rpx;
 }
-.consult-title {
-  font-size: 48rpx;
-  font-weight: bold;
+
+/* AI头像区域 */
+.ai-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 60rpx;
 }
+.avatar-container {
+  position: relative;
+  margin-bottom: 20rpx;
+}
+.avatar-ring {
+  width: 200rpx;
+  height: 200rpx;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #4CAF50, #81C784, #A5D6A7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 32rpx rgba(76, 175, 80, 0.4);
+  animation: rotate 10s linear infinite;
+}
+.avatar-core {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #ffffff, #f1f8e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+.ai-icon {
+  width: 80rpx;
+  height: 80rpx;
+}
+.pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2rpx solid #4CAF50;
+  border-radius: 50%;
+  opacity: 0;
+}
+.pulse-1 {
+  width: 240rpx;
+  height: 240rpx;
+  animation: pulse 2s ease-out infinite;
+}
+.pulse-2 {
+  width: 280rpx;
+  height: 280rpx;
+  animation: pulse 2s ease-out infinite 0.5s;
+}
+.pulse-3 {
+  width: 320rpx;
+  height: 320rpx;
+  animation: pulse 2s ease-out infinite 1s;
+}
+.ai-status {
+  background: rgba(255, 255, 255, 0.9);
+  color: #4CAF50;
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+/* 欢迎语区域 */
+.welcome-section {
+  text-align: center;
+  margin-bottom: 80rpx;
+}
+.welcome-title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #2E7D32;
+  margin-bottom: 20rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.1);
+}
+.welcome-subtitle {
+  font-size: 28rpx;
+  color: #4CAF50;
+  opacity: 0.8;
+  line-height: 1.5;
+}
+
+/* 功能特性展示 */
+.features-section {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+  margin-bottom: 80rpx;
+}
+.feature-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 30rpx 20rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10rpx);
+}
+.feature-icon {
+  font-size: 48rpx;
+  margin-bottom: 16rpx;
+}
+.feature-text {
+  font-size: 24rpx;
+  color: #2E7D32;
+  font-weight: bold;
+}
+
+/* AI问诊区域 */
+.consult-area {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.consult-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: 0 12rpx 40rpx rgba(76, 175, 80, 0.3);
+  backdrop-filter: blur(20rpx);
+  border: 1rpx solid rgba(255, 255, 255, 0.3);
+  width: 100%;
+  max-width: 600rpx;
+}
+.consult-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20rpx;
+  gap: 16rpx;
+}
+.consult-icon {
+  font-size: 36rpx;
+}
+.consult-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #2E7D32;
+}
+.consult-desc {
+  text-align: center;
+  color: #4CAF50;
+  font-size: 26rpx;
+  margin-bottom: 40rpx;
+  opacity: 0.8;
+}
 .go-btn {
-  font-size: 44rpx;
-  padding: 20rpx 50rpx;
-  background-color: transparent;
-  border: 2rpx solid #000;
-  border-radius: 8rpx;
+  background: linear-gradient(45deg, #4CAF50, #66BB6A);
+  color: white;
+  font-size: 32rpx;
+  padding: 24rpx 40rpx;
+  border: none;
+  border-radius: 50rpx;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.4);
+  transition: all 0.3s ease;
 }
 .go-btn::after {
   border: none;
 }
 .go-btn:active {
-  background-color: rgba(0, 0, 0, 0.1);
-  opacity: 0.8;
+  transform: translateY(2rpx);
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.4);
+}
+.btn-text {
+  font-weight: bold;
+}
+.btn-arrow {
+  font-size: 36rpx;
+  transition: transform 0.3s ease;
+}
+.go-btn:active .btn-arrow {
+  transform: translateX(4rpx);
+}
+
+/* 底部装饰 */
+.bottom-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 200rpx;
+  overflow: hidden;
+}
+.floating-dots {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.dot {
+  position: absolute;
+  background: rgba(76, 175, 80, 0.3);
+  border-radius: 50%;
+  animation: float 6s ease-in-out infinite;
+}
+.dot-1 {
+  width: 20rpx;
+  height: 20rpx;
+  left: 10%;
+  animation-delay: 0s;
+}
+.dot-2 {
+  width: 16rpx;
+  height: 16rpx;
+  left: 30%;
+  animation-delay: 1s;
+}
+.dot-3 {
+  width: 24rpx;
+  height: 24rpx;
+  left: 60%;
+  animation-delay: 2s;
+}
+.dot-4 {
+  width: 18rpx;
+  height: 18rpx;
+  left: 80%;
+  animation-delay: 3s;
+}
+
+/* 动画效果 */
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0;
+  }
+}
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-20px);
+    opacity: 0.8;
+  }
 }
 
 /* 底部导航栏 */
