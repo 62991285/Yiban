@@ -18,7 +18,7 @@
         </view>
         <view class="pulse-ring pulse-1"></view>
         <view class="pulse-ring pulse-2"></view>
-        <view class="pulse-ri ng pulse-3"></view>
+        <view class="pulse-ring pulse-3"></view>
       </view>
       <view class="ai-status">智能在线</view>
     </view>

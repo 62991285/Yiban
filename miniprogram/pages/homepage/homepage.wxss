@@ -94,11 +94,13 @@
 }
 .avatar-container {
   position: relative;
-  margin-bottom: 20rpx;
-}
-.avatar-ring {
   width: 200rpx;
   height: 200rpx;
+  margin: 0 auto 20rpx;
+}
+.avatar-ring {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: linear-gradient(45deg, #4CAF50, #81C784, #A5D6A7);
   display: flex;
@@ -106,6 +108,7 @@
   justify-content: center;
   box-shadow: 0 8rpx 32rpx rgba(76, 175, 80, 0.4);
   animation: rotate 10s linear infinite;
+  position: relative;
 }
 .avatar-core {
   width: 120rpx;

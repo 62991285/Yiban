@@ -1,8 +1,7 @@
 <view class="ai-dialogue-page">
 
-
-  <!-- 问诊任务描述区（可展开） -->
-  <view class="task-description-bar">
+  <!-- 问诊任务描述区（可展开）- 粘滞定位 -->
+  <view class="task-description-bar sticky-top">
     <view class="task-summary">
       <view class="task-icon">🎯</view>
       <text class="task-text">
@@ -14,22 +13,6 @@
     </view>
     <view wx:if="{{showTaskDetail}}" class="task-detail">
       {{ currentTaskDetail || '暂无任务描述。请选择症状开始问诊。' }}
-    </view>
-  </view>
-
-  <!-- 缴费提示弹窗 -->
-  <view class="payment-modal" wx:if="{{showPaymentModal}}">
-    <view class="modal-content">
-      <view class="modal-header">
-        <text class="modal-title">完成缴费</text>
-        <view class="close-btn" bindtap="closePaymentModal">×</view>
-      </view>
-      <view class="modal-body">
-        <text class="payment-content">支付功能正在开发中，点击完成继续。</text>
-      </view>
-      <view class="modal-footer">
-        <button class="btn btn-confirm" bindtap="onPaymentComplete">完成</button>
-      </view>
     </view>
   </view>
 
@@ -62,16 +45,21 @@
     </view>
   </scroll-view>
 
-  <!-- 聊天操作区 -->
-  <view class="chat-controls">
+  <!-- 聊天操作区 - 粘滞定位 -->
+  <view class="chat-controls sticky-controls">
     <text class="delete-chat-history" bind:tap="deleteChatHistory"> 🗑️ 清空对话</text>
     <view class="chat-stats">
       <text class="message-count">消息 {{messages.length}}</text>
     </view>
+    <!-- 浮动按钮 - 粘滞模式，位于右上角 -->
+    <view class="sticky-fab-btn {{isAIAssistedMode===true?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
+      <text class="fab-icon-new">{{isAIAssistedMode===true?'−':'+'}}</text>
+      <view class="fab-tooltip-new">{{isAIAssistedMode===true?'结束问诊':'新建问诊'}}</view>
+    </view>
   </view>
 
-  <!-- 👇 滑动式功能按钮栏 -->
-  <view class="scroll-functional-bar">
+  <!-- 滑动式功能按钮栏 - 粘滞定位 -->
+  <view class="scroll-functional-bar sticky-functional-bar">
     <scroll-view class="functional-scroll-view" scroll-x="true" enhanced="true" show-scrollbar="false">
       <view class="functional-list">
         <view class="functional-item" bindtap="gotoHistory">
@@ -104,15 +92,10 @@
         </view>
       </view>
     </scroll-view>
-    <view class="scroll-indicator">
-      <view class="scroll-dot active"></view>
-      <view class="scroll-dot"></view>
-      <view class="scroll-dot"></view>
-    </view>
   </view>
 
-  <!-- 用户输入区域 - AI风格 -->
-  <view class="ai-input-container">
+  <!-- 用户输入区域 - AI风格 - 粘滞定位 -->
+  <view class="ai-input-container sticky-input">
     <view class="input-wrapper-modern">
       <textarea
         class="modern-input-box"
@@ -133,9 +116,5 @@
     </view>
   </view>
 
-  <!-- 浮动按钮 - 重新定位 -->
-  <view class="floating-plus-btn-new {{isAIAssistedMode===true?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
-    <text class="fab-icon-new">{{isAIAssistedMode===true?'−':'+'}}</text>
-    <view class="fab-tooltip-new">{{isAIAssistedMode===true?'结束问诊':'新建问诊'}}</view>
-  </view>
+
 </view>

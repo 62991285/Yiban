@@ -1,0 +1,35 @@
+<view class="container">
+  <view class="header">
+    <text class="department-name">{{departmentName}}-详情</text>
+    <view class="header-actions">
+      <view class="status-tag">不定</view>
+      <view class="follow-btn" bindtap="toggleFollow">
+        <text class="follow-icon">{{isFollowed ? '❤️' : '🤍'}}</text>
+        <text class="follow-text">{{isFollowed ? '已关注' : '关注'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="filter-tabs">
+    <view class="tab-item {{activeTab === item.id ? 'active' : ''}}" wx:for="{{filterTabs}}" wx:key="id" bindtap="switchTab" data-id="{{item.id}}">
+      <text class="tab-text">{{item.name}}</text>
+    </view>
+  </view>
+
+  <view class="appointment-list">
+    <view class="area-info">
+      <text class="area-name">{{areaName}}</text>
+    </view>
+
+    <view class="date-section" wx:for="{{appointmentDates}}" wx:key="date">
+      <view class="date-header">
+        <text class="date-full">{{item.date}} {{item.week}}{{item.period}}</text>
+      </view>
+      <view class="appointment-item">
+        <text class="department-text">{{departmentName}}</text>
+        <text class="price-text">{{item.price}}元</text>
+        <text class="status-text {{item.status === '可约' ? 'available' : 'unavailable'}}">{{item.status}}</text>
+      </view>
+    </view>
+  </view>
+</view>

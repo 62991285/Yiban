@@ -5,6 +5,8 @@
     "pages/aiDialogue/aiDialogue",
     "pages/aiDepartmentNavigation/aiDepartmentNavigation",
     "pages/aiPharmacyNavigation/aiPharmacyNavigation",
+    "pages/appointment/appointment",
+    "pages/departmentDetail/departmentDetail",
     "pages/record/record",
     "pages/mine/mine",
     "pages/editUserInfo/editUserInfo"
