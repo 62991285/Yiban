@@ -23,7 +23,7 @@ Page({
       },
       {
         summary: '阶段 3：生活习惯与旅行史',
-        detail: '请说明近期旅行情况、饮食及作息习惯。',
+        detail: '  ',
         icon: '🌍',
         options: ['近期有长途旅行', '作息规律', '饮食偏油腻', '常熬夜']
       },
@@ -35,6 +35,7 @@ Page({
       }
     ],
     messages: [],
+    dialogueRecord: [], // 记录每轮问答的结构化数据
     scrollTop: 0,
 
   },
@@ -106,15 +107,31 @@ Page({
 
 
   sendMessage() {
-    console.log('[DEBUG] sendMessage called');
-    
-    if (!this.data.userInput.trim()) return;
+    console.log('CODEBUDDY_DEBUG sendMessage called');
+    console.log('CODEBUDDY_DEBUG sendMessage this.data.userInput=', this.data.userInput);
+
+    if (!this.data.userInput || !this.data.userInput.trim()) {
+      console.log('CODEBUDDY_DEBUG sendMessage userInput is empty or undefined, return');
+      return;
+    }
     const userContent = this.data.userInput.trim();
+    console.log('CODEBUDDY_DEBUG sendMessage userContent=', userContent);
     
     // 如果在AI辅助模式下，将用户的文字输入也作为回答处理
     if (this.data.isAIAssistedMode) {
       this.addMessage('user', userContent);
-      this.setData({ userInput: '' });
+      // 记录回答到 dialogueRecord
+      const curIdx = this.data.currentStageIndex;
+      const stageObj = this.data.aiStageList[curIdx];
+      const record = {
+        stage: curIdx + 1,
+        question: stageObj ? stageObj.detail : '',
+        answer: userContent
+      };
+      this.setData({
+        dialogueRecord: [...this.data.dialogueRecord, record],
+        userInput: ''  // 发送后清空输入框，避免保留选项内容
+      });
       
       // 显示AI正在输入
       this.setData({ isAITyping: true });
@@ -122,7 +139,7 @@ Page({
       
       // 延迟处理下一步
       setTimeout(() => {
-        this.processNextStage(userContent);
+        this.processNextStage(userContent, curIdx);
       }, 1000);
     } else {
       // 非AI模式下保持原有逻辑
@@ -131,6 +148,7 @@ Page({
       this.addMessage('ai', 'AI思考中...');
       this.scrollToBottom();
       this.getAIReply(userContent);
+      
     }
   },
 
@@ -155,25 +173,24 @@ Page({
   },
 
   async selectOption(e) {
-    const selectedOption = e.currentTarget.dataset.option || e.currentTarget.textContent;
-    console.log('[DEBUG] selectOption:', selectedOption);
-    
-    // 添加用户选择到消息列表
-    this.addMessage('user', selectedOption);
-    this.scrollToBottom();
-    
-    // 显示AI正在输入
-    this.setData({ isAITyping: true });
-    this.scrollToBottom();
-    
-    // 延迟一下再显示AI回复，模拟思考过程
-    setTimeout(() => {
-      this.processNextStage(selectedOption);
-    }, 1000);
+    console.log('CODEBUDDY_DEBUG selectOption event=', e);
+    console.log('CODEBUDDY_DEBUG selectOption e.detail=', e.detail);
+    console.log('CODEBUDDY_DEBUG selectOption e.currentTarget=', e.currentTarget);
+    const selectedOption = e.detail.option || e.currentTarget.dataset.option || e.currentTarget.textContent;
+    console.log('CODEBUDDY_DEBUG selectOption selectedOption=', selectedOption);
+
+    // 同步到输入框显示并触发发送
+    this.setData({
+      userInput: selectedOption
+    });
+    console.log('CODEBUDDY_DEBUG selectOption after setData userInput=', this.data.userInput);
+
+    // 自动发送到聊天流程
+    this.sendMessage();
   },
 
-  processNextStage(userAnswer) {
-    const currentIndex = this.data.currentStageIndex;
+  processNextStage(userAnswer, currentIndex) {
+    // 用传入的 currentIndex 防止时序问题
     const nextIndex = currentIndex + 1;
     
     // 将当前AI消息标记为已回答（清空选项并记录选择）
@@ -222,6 +239,18 @@ Page({
       lastAiMessage.options = []; // 清空选项，防止重复点击
     }
     
+    // 记录最后一问的答案（阶段4没有选项，仅记录）
+    const curIdx = this.data.currentStageIndex; // 此时是最后一个阶段的索引
+    const stageObj = this.data.aiStageList[curIdx];
+    const record = {
+      stage: curIdx + 1,
+      question: stageObj ? stageObj.detail : '',
+      answer: lastAnswer
+    };
+    this.setData({
+      dialogueRecord: [...this.data.dialogueRecord, record]
+    });
+
     const triageAdvice = `🏥 **分诊建议**\n\n根据您提供的信息，我的初步分析如下：\n\n1. **症状评估**：您描述的症状需要进一步专业评估\n2. **建议级别**：建议尽快就医咨询\n3. **推荐科室**：根据具体症状可选择内科或相应专科\n4. **注意事项**：\n   - 如症状加重请立即就医\n   - 保持良好的休息和饮食习惯\n   - 避免自行用药掩盖症状\n\n⚠️ **重要提醒**：此建议仅供参考，不能替代专业医生的诊断。如有紧急情况，请立即前往急诊科就诊。`;
     
     this.setData({ 
@@ -232,7 +261,11 @@ Page({
     });
     
     this.addMessage('ai', triageAdvice, []);
-    
+
+    // 输出完整对话记录，方便后续上传至AI大模型
+    console.log('[DIALOGUE RECORD]', this.data.dialogueRecord);
+    // TODO: 这里可以调用上传接口，例如 uploadDialogue(this.data.dialogueRecord)
+
     wx.showToast({ 
       title: '问诊完成！', 
       icon: 'success',
