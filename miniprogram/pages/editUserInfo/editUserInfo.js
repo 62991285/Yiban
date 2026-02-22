@@ -149,12 +149,19 @@ Page({
               }, 1500);
             }
           });
+        } else {
+          wx.showToast({
+            title: '保存失败，请稍后重试',
+            icon: 'none'
+          });
         }
       },
       fail: err => {
         console.error('[云函数] [upsertUserInfo] 调用失败', err);
+        
+        // 统一显示错误提示
         wx.showToast({
-          title: '保存失败',
+          title: '保存失败，请稍后重试',
           icon: 'none'
         });
       }
@@ -222,8 +229,10 @@ Page({
           },
           fail: err => {
             console.error('[上传文件] 失败：', err);
+            
+            // 统一显示错误提示
             wx.showToast({
-              title: '头像上传失败',
+              title: '头像上传失败，请稍后重试',
               icon: 'none'
             });
           }

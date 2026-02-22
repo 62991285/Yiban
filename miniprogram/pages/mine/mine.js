@@ -125,16 +125,11 @@ updateUserInfo() {
       },
       fail: err => {
         console.error('[云函数] [getUserInfo] 调用失败', err);
-        // 如果是云开发未开通或权限不足的错误，不显示错误提示
-        if (err.errCode === -601034) {
-          console.log('云开发未开通，使用本地用户信息');
-        } else {
-          // 其他错误可以显示提示
-          wx.showToast({
-            title: '获取用户信息失败',
-            icon: 'none'
-          });
-        }
+        // 统一处理错误
+        wx.showToast({
+          title: '获取用户信息失败',
+          icon: 'none'
+        });
       }
     });
   },

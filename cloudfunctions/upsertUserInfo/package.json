@@ -1,7 +1,7 @@
 {
-  "name": "quickstartFunctions",
+  "name": "upsertUserInfo",
   "version": "1.0.0",
-  "description": "",
+  "description": "创建或更新用户信息",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

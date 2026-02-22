@@ -1,4 +1,19 @@
 // app.js
+// 日志控制模块
+const isDev = true; // 开发环境为true，生产环境为false
+const logger = {
+  log: function(...args) {
+    if (isDev) {
+      console.log(...args);
+    }
+  },
+  error: function(...args) {
+    if (isDev) {
+      console.error(...args);
+    }
+  }
+};
+
 App({
   onLaunch: function () {
     this.globalData = {
@@ -10,7 +25,7 @@ App({
       openid: null
     };
     if (!wx.cloud) {
-      console.error("请使用 2.2.3 或以上的基础库以使用云能力");
+      logger.error("请使用 2.2.3 或以上的基础库以使用云能力");
     } else {
       wx.cloud.init({
         env: this.globalData.env,
@@ -35,10 +50,19 @@ App({
     }
     if (openid) {
       that.globalData.openid = openid;
-    }
-    
-    // 如果没有openid，执行登录获取openid
-    if (!openid) {
+      
+      // 检查登录态是否有效
+      wx.checkSession({
+        success: () => {
+          // session 未过期，继续使用当前登录态
+        },
+        fail: () => {
+          // session 已过期，重新登录
+          that.login();
+        }
+      });
+    } else {
+      // 如果没有openid，执行登录获取openid
       that.login();
     }
   },
@@ -46,72 +70,62 @@ App({
   // 用户登录
   login: function(callback) {
     const that = this;
-    console.log('开始登录流程');
     
     // 调用wx.login获取code
     wx.login({
       success: res => {
-        console.log('wx.login成功，code:', res.code);
         if (res.code) {
           // 发送code到云函数获取openid
           wx.cloud.callFunction({
-            name: 'quickstartFunctions',
-            data: {
-              type: 'getOpenId'
-            },
+            name: 'getOpenId',
+            data: {},
             success: res => {
-              console.log('云函数getOpenId调用成功，结果:', res);
               if (res.result && res.result.openid) {
                 that.globalData.openid = res.result.openid;
                 wx.setStorageSync('openid', res.result.openid);
-                console.log('openid已保存到全局和本地存储:', res.result.openid);
                 
-                // 创建用户集合（如果不存在）
-                that.createUserCollection();
-                
-                // 获取用户信息，添加回调函数处理结果
-                that.getUserInfo((success, userInfo) => {
-                  if (!success) {
-                    console.log('首次登录未获取到用户信息，等待用户主动授权');
-                  } else {
-                    console.log('首次登录成功获取用户信息', userInfo);
-                  }
-                });
-                // 登录成功的标志是获取到openid，而不是用户信息
+                // 登录成功的标志是获取到openid
                 if (callback) callback(true, res.result.openid);
               } else {
-                console.error('云函数getOpenId返回结果无效:', res);
+                logger.error('云函数getOpenId返回结果无效:', res);
+                wx.showToast({
+                  title: '登录失败，获取openid失败',
+                  icon: 'none',
+                  duration: 2000
+                });
                 if (callback) callback(false, null);
               }
             },
             fail: err => {
-              console.error('[云函数] [getOpenId] 调用失败', err);
-              
-              // 检查是否是云开发未开通的错误
-              if (err.errMsg && err.errMsg.includes('-601034')) {
-                console.log('云开发服务未开通或权限不足，使用临时方案继续登录流程');
-                
-                // 临时方案：使用时间戳和随机数生成临时openid
-                const tempOpenid = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                that.globalData.openid = tempOpenid;
-                wx.setStorageSync('openid', tempOpenid);
-                console.log('使用临时openid:', tempOpenid);
-                
-                // 虽然云开发不可用，但仍然允许用户继续使用小程序
-                if (callback) callback(true, tempOpenid);
-                return;
-              }
-              
-              if (callback) callback(false, null);
-            }
+        logger.error('[云函数] [getOpenId] 调用失败', err);
+        
+        // 统一显示错误提示
+        wx.showToast({
+          title: '登录失败，请稍后重试',
+          icon: 'none',
+          duration: 2000
+        });
+        
+        if (callback) callback(false, null);
+      }
           });
         } else {
-          console.error('登录失败！获取code失败:', res.errMsg);
+          logger.error('登录失败！获取code失败:', res.errMsg);
+          wx.showToast({
+            title: '登录失败，获取code失败',
+            icon: 'none',
+            duration: 2000
+          });
           if (callback) callback(false, null);
         }
       },
       fail: err => {
-        console.error('wx.login调用失败:', err);
+        logger.error('wx.login调用失败:', err);
+        wx.showToast({
+          title: '登录失败，请稍后重试',
+          icon: 'none',
+          duration: 2000
+        });
         if (callback) callback(false, null);
       }
     });
@@ -120,41 +134,30 @@ App({
   // 创建用户集合
   createUserCollection: function() {
     wx.cloud.callFunction({
-      name: 'quickstartFunctions',
-      data: {
-        type: 'createUserCollection'
-      },
+      name: 'createUserCollection',
+      data: {},
       success: res => {
-        console.log('创建用户集合成功', res);
+        logger.log('创建用户集合成功', res);
       },
       fail: err => {
-        console.error('[云函数] [createUserCollection] 调用失败', err);
-        // 如果是云开发未开通的错误，不影响程序继续运行
-        if (err.errMsg && err.errMsg.includes('-601034')) {
-          console.log('云开发服务未开通，跳过用户集合创建');
-        }
+        logger.error('[云函数] [createUserCollection] 调用失败', err);
       }
     });
   },
   
-  // 获取用户信息
+  // 获取用户信息（自动获取已授权的信息，未授权则返回需要授权的状态）
   getUserInfo: function(callback) {
     const that = this;
-    console.log('开始获取用户信息流程');
     
     // 检查用户授权状态
     wx.getSetting({
       success: res => {
-        console.log('获取授权状态结果:', res);
         if (res.authSetting['scope.userInfo']) {
           // 已授权，可以直接调用 getUserInfo 获取头像昵称
-          console.log('用户已授权，直接调用getUserInfo');
           wx.getUserInfo({
             success: res => {
-              console.log('wx.getUserInfo调用成功，用户信息:', res.userInfo);
               that.globalData.userInfo = res.userInfo;
               wx.setStorageSync('userInfo', res.userInfo);
-              console.log('用户信息已保存到全局和本地存储');
               
               // 将用户信息保存到云数据库
               that.saveUserInfoToCloud(res.userInfo);
@@ -162,20 +165,36 @@ App({
               if (callback) callback(true, res.userInfo);
             },
             fail: err => {
-              console.error('wx.getUserInfo调用失败:', err);
+              logger.error('wx.getUserInfo调用失败:', err);
               if (callback) callback(false, err);
             }
           });
         } else {
-          // 未授权，使用新的 getUserProfile API 获取用户信息
-          console.log('用户未授权，调用getUserProfile请求授权');
-          wx.getUserProfile({
-            desc: '用于完善用户资料', // 声明获取用户信息的用途
+          // 未授权，不能自动调用 wx.getUserProfile，需要通过按钮触发
+          // 这里返回一个特殊状态，让页面显示授权按钮
+          if (callback) callback('needAuth', null);
+        }
+      },
+      fail: err => {
+        logger.error('wx.getSetting调用失败:', err);
+        if (callback) callback(false, err);
+      }
+    });
+  },
+  
+  // 通过按钮点击触发的用户信息获取（仅用于用户手势触发）
+  getUserInfoByButton: function(callback) {
+    const that = this;
+    
+    // 检查用户授权状态
+    wx.getSetting({
+      success: res => {
+        if (res.authSetting['scope.userInfo']) {
+          // 已授权，可以直接调用 getUserInfo 获取头像昵称
+          wx.getUserInfo({
             success: res => {
-              console.log('wx.getUserProfile调用成功，用户信息:', res.userInfo);
               that.globalData.userInfo = res.userInfo;
               wx.setStorageSync('userInfo', res.userInfo);
-              console.log('用户信息已保存到全局和本地存储');
               
               // 将用户信息保存到云数据库
               that.saveUserInfoToCloud(res.userInfo);
@@ -183,16 +202,58 @@ App({
               if (callback) callback(true, res.userInfo);
             },
             fail: err => {
-              console.error('wx.getUserProfile调用失败:', err);
-              console.error('用户拒绝授权或授权流程中断');
+              logger.error('wx.getUserInfo调用失败:', err);
+              if (callback) callback(false, err);
+            }
+          });
+        } else {
+          // 未授权，通过按钮点击触发授权
+          wx.getUserProfile({
+            desc: '用于完善用户资料', // 声明获取用户信息的用途
+            success: res => {
+              that.globalData.userInfo = res.userInfo;
+              wx.setStorageSync('userInfo', res.userInfo);
+              
+              // 将用户信息保存到云数据库
+              that.saveUserInfoToCloud(res.userInfo);
+              
+              if (callback) callback(true, res.userInfo);
+            },
+            fail: err => {
+              logger.error('wx.getUserProfile调用失败:', err);
               if (callback) callback(false, err);
             }
           });
         }
       },
       fail: err => {
-        console.error('wx.getSetting调用失败:', err);
+        logger.error('wx.getSetting调用失败:', err);
         if (callback) callback(false, err);
+      }
+    });
+  },
+  
+  // 检查云开发状态
+  checkCloudStatus: function(callback) {
+    const that = this;
+    
+    // 调用云函数检查状态
+    wx.cloud.callFunction({
+      name: 'getOpenId',
+      data: {},
+      success: res => {
+        if (res.result && res.result.openid) {
+          if (callback) callback(true);
+        } else {
+          if (callback) callback(false, 'cloud_error');
+        }
+      },
+      fail: err => {
+        if (err.errMsg && err.errMsg.includes('-601034')) {
+          if (callback) callback(false, 'cloud_not_enabled');
+        } else {
+          if (callback) callback(false, 'cloud_error');
+        }
       }
     });
   },
@@ -201,15 +262,15 @@ App({
   saveUserInfoToCloud: function(userInfo) {
     const that = this;
     
-    // 确保用户信息和openid存在
-    if (!userInfo || !that.globalData.openid) {
-      console.error('保存用户信息失败：用户信息或openid不存在');
+    // 确保用户信息存在
+    if (!userInfo) {
+      logger.error('保存用户信息失败：用户信息不存在');
       return;
     }
     
-    // 检查openid是否是临时openid
-    if (that.globalData.openid.startsWith('temp_')) {
-      console.log('使用临时openid，跳过云数据库保存');
+    // 确保openid存在
+    if (!that.globalData.openid) {
+      logger.error('保存用户信息失败：openid不存在');
       return;
     }
     
@@ -225,21 +286,22 @@ App({
     };
     
     wx.cloud.callFunction({
-      name: 'quickstartFunctions',
+      name: 'upsertUserInfo',
       data: {
-        type: 'upsertUserInfo',
-        openid: that.globalData.openid,
         userInfo: safeUserInfo
       },
       success: res => {
-        console.log('保存用户信息成功', res);
+        logger.log('保存用户信息成功', res);
       },
       fail: err => {
-        console.error('[云函数] [upsertUserInfo] 调用失败', err);
-        // 如果是云开发未开通的错误，不影响程序继续运行
-        if (err.errMsg && err.errMsg.includes('-601034')) {
-          console.log('云开发服务未开通，跳过用户信息保存到云数据库');
-        }
+        logger.error('[云函数] [upsertUserInfo] 调用失败', err);
+        
+        // 统一显示错误提示
+        wx.showToast({
+          title: '保存用户信息失败，请稍后重试',
+          icon: 'none',
+          duration: 2000
+        });
       }
     });
   },

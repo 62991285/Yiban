@@ -1,7 +1,7 @@
 {
-  "name": "quickstartFunctions",
+  "name": "getOpenId",
   "version": "1.0.0",
-  "description": "",
+  "description": "获取用户openid",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

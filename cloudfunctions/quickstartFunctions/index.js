@@ -236,19 +236,11 @@ const getUserInfo = async (event) => {
 // 创建或更新用户信息
 const upsertUserInfo = async (event) => {
   try {
-    let { openid, userInfo } = event;
+    let { userInfo } = event;
     
     // 获取当前用户的真实openid
     const wxContext = cloud.getWXContext();
-    const realOpenid = wxContext.OPENID;
-    
-    // 安全检查：确保用户只能操作自己的信息
-    if (!openid || openid !== realOpenid) {
-      return {
-        success: false,
-        errMsg: "无权操作此用户信息"
-      };
-    }
+    const openid = wxContext.OPENID;
     
     // 数据验证
     if (!openid || openid.trim() === '') {
