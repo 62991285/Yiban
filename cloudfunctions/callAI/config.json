@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "openapi": [
+      "wx.cloud.callContainer"
+    ]
+  },
+  "usingComponents": false
+}

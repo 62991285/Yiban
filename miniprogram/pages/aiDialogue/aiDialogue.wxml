@@ -52,9 +52,9 @@
       <text class="message-count">消息 {{messages.length}}</text>
     </view>
     <!-- 浮动按钮 - 粘滞模式，位于右上角 -->
-    <view class="sticky-fab-btn {{isAIAssistedMode===true?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
-      <text class="fab-icon-new">{{isAIAssistedMode===true?'−':'+'}}</text>
-      <view class="fab-tooltip-new">{{isAIAssistedMode===true?'结束问诊':'新建问诊'}}</view>
+    <view class="sticky-fab-btn {{isGuideMode===true?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
+      <text class="fab-icon-new">{{isGuideMode===true?'−':'+'}}</text>
+      <view class="fab-tooltip-new">{{isGuideMode===true?'结束问诊':'新建问诊'}}</view>
     </view>
   </view>
 
