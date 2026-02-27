@@ -1,5 +1,9 @@
 import * as nav from '../../utils/navigation.js';
 
+// 初始化云数据库
+const db = wx.cloud.database();
+const dialogueCollection = db.collection('user_dialogues');
+
 Page({
   data: {
     isGuideMode: false,
@@ -70,12 +74,7 @@ Page({
   },
 
   // ========== 核心流程控制 ==========
-
   startNewTask() {
-    const sendUserMessage = (content) => {
-      this.addMessage('user', content);
-    };
-
     const firstBigStage = this.data.aiStageList[0];
     const firstSubTask = firstBigStage.subTasks[0];
     this.setData({
@@ -103,15 +102,19 @@ Page({
         content: "确定要退出AI导诊模式吗？当前的问诊进度将会丢失。",
         confirmText: "确定退出",
         cancelText: "继续问诊",
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
             console.log('用户确认退出AI导诊模式');
+            // 退出时保存对话记录到云数据库
+            await this.saveDialogueToDatabase();
+            
             this.setData({
               isGuideMode: false,
               currentStageIndex: 0,
-              messages: []
+              messages: [],
+              dialogueRecord: []
             });
-            wx.showToast({ title: '已退出AI导诊', icon: 'success' });
+            wx.showToast({ title: '已退出AI导诊，对话已保存', icon: 'success' });
           } else {
             console.log('用户取消退出');
           }
@@ -125,10 +128,7 @@ Page({
       return;
     }
     const userContent = this.data.userInput.trim();
-    const sendUserMessage = (content) => {
-      this.addMessage('user', content);
-    };
-    sendUserMessage(userContent);
+    this.addMessage('user', userContent);
     this.setData({ userInput: '' });
     this.processUserMessage(userContent);
   },
@@ -255,7 +255,6 @@ Page({
   },
 
   // ========== AI 调用与建议生成 ==========
-
   async callAIModel(userMessage) {
     try {
       const params = {
@@ -357,6 +356,9 @@ Page({
           isAITyping: false
         });
         wx.showToast({ title: '问诊完成！', icon: 'success', duration: 2000 });
+        
+        // 问诊完成后保存到云数据库
+        await this.saveDialogueToDatabase();
       } else {
         throw new Error(result.result.error || 'AI调用失败');
       }
@@ -374,6 +376,9 @@ Page({
         isAITyping: false
       });
       wx.showToast({ title: 'AI服务暂不可用，已使用预设建议', icon: 'none', duration: 3000 });
+      
+      // 即使AI调用失败，也保存到云数据库
+      await this.saveDialogueToDatabase();
     }
     this.scrollToBottom();
   },
@@ -414,7 +419,7 @@ Page({
       isAITyping: true
     });
     this.addMessage('ai', '🤔 AI 正在为您推荐挂号科室，请稍候...', []);
-    setTimeout(() => {
+    setTimeout(async () => {
       const updatedMessages = [...this.data.messages.slice(0, -1)];
       updatedMessages.push({
         speaker: 'ai',
@@ -429,11 +434,168 @@ Page({
       });
       wx.showToast({ title: '挂号建议已生成', icon: 'success', duration: 2000 });
       this.scrollToBottom();
+      
+      // 生成挂号建议后保存到云数据库
+      await this.saveDialogueToDatabase();
     }, 2000);
   },
 
-  // ========== 数据格式化与辅助方法 ==========
+  // ========== 云数据库操作 ==========
+  async saveDialogueToDatabase() {
+    try {
+      // 获取用户openid
+      let userInfo = {};
+      try {
+        const userRes = await wx.cloud.callFunction({
+          name: 'getOpenId',
+          data: {}
+        });
+        userInfo.openid = userRes.result.openid;
+      } catch (e) {
+        console.warn('获取openid失败', e);
+        userInfo.openid = 'unknown_' + new Date().getTime();
+      }
 
+      // 构建对话记录
+      const dialogueData = {
+        userId: userInfo.openid,
+        createTime: db.serverDate(),
+        updateTime: db.serverDate(),
+        sessionId: 'session_' + new Date().getTime() + '_' + Math.floor(Math.random() * 1000),
+        isCompleted: !this.data.isGuideMode || this.data.currentBigStageIndex >= this.data.aiStageList.length,
+        currentStage: this.data.currentTaskSummary,
+        fullDialogue: {
+          messages: this.data.messages,
+          dialogueRecord: this.data.dialogueRecord,
+          aiStageList: this.data.aiStageList,
+          formattedData: this.formatAllStagesForAI()
+        },
+        messageCount: this.data.messages.length,
+        questionCount: this.data.dialogueRecord.length,
+        stageCount: this.data.aiStageList.length,
+        symptomSummary: this.formatAllStagesForAI()?.symptomSummary || '',
+        medicalHistory: this.formatAllStagesForAI()?.medicalHistory || '',
+        timestamp: new Date().toISOString()
+      };
+
+      // 保存到云数据库
+      const result = await dialogueCollection.add({
+        data: dialogueData
+      });
+
+      console.log('对话记录保存成功', result);
+      return {
+        success: true,
+        id: result._id,
+        data: dialogueData
+      };
+    } catch (error) {
+      console.error('保存对话记录失败', error);
+      wx.showToast({
+        title: '对话记录保存失败',
+        icon: 'none',
+        duration: 2000
+      });
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  },
+
+  async loadHistoryDialogues() {
+    try {
+      wx.showLoading({ title: '加载历史记录...' });
+
+      // 获取用户openid
+      let userInfo = {};
+      try {
+        const userRes = await wx.cloud.callFunction({
+          name: 'getOpenId',
+          data: {}
+        });
+        userInfo.openid = userRes.result.openid;
+      } catch (e) {
+        console.warn('获取openid失败，无法加载个人历史记录', e);
+        wx.hideLoading();
+        wx.showToast({ title: '无法获取用户信息', icon: 'none' });
+        return { success: false, error: '获取用户信息失败' };
+      }
+
+      // 查询用户历史记录
+      const result = await dialogueCollection
+        .where({
+          userId: userInfo.openid
+        })
+        .orderBy('createTime', 'desc')
+        .get();
+
+      wx.hideLoading();
+
+      // 无历史记录
+      if (result.data.length === 0) {
+        console.log('暂无历史对话记录');
+        return { success: true, data: [], hasHistory: false };
+      }
+
+      // 加载最新记录
+      const lastDialogue = result.data[0];
+      console.log('加载最后一次对话记录：', lastDialogue);
+
+      // 还原到页面
+      this.setData({
+        messages: lastDialogue.fullDialogue?.messages || [],
+        dialogueRecord: lastDialogue.fullDialogue?.dialogueRecord || [],
+        isGuideMode: !lastDialogue.isCompleted,
+        currentBigStageIndex: this.getStageIndexByName(lastDialogue.currentStage),
+        currentSubTaskIndex: this.getSubTaskIndexByName(lastDialogue.currentStage),
+        currentTaskSummary: lastDialogue.currentStage || '',
+        currentTaskDetail: lastDialogue.fullDialogue?.formattedData?.symptomSummary || '',
+        showTaskDetail: true,
+        scrollTop: 999999
+      });
+
+      wx.showToast({ 
+        title: `加载成功，共${result.data.length}条历史记录`, 
+        icon: 'success',
+        duration: 2000
+      });
+
+      return {
+        success: true,
+        data: result.data,
+        currentDialogue: lastDialogue,
+        hasHistory: true
+      };
+
+    } catch (error) {
+      wx.hideLoading();
+      console.error('加载历史记录失败：', error);
+      wx.showToast({ 
+        title: `加载失败：${error.message || '未知错误'}`, 
+        icon: 'none',
+        duration: 3000
+      });
+      return { success: false, error: error.message };
+    }
+  },
+
+  // 辅助函数：还原阶段索引
+  getStageIndexByName(stageName) {
+    if (!stageName) return 0;
+    const bigStageName = stageName.split(' - ')[0];
+    return this.data.aiStageList.findIndex(stage => stage.bigStageName === bigStageName) || 0;
+  },
+
+  getSubTaskIndexByName(stageName) {
+    if (!stageName) return 0;
+    const subTaskName = stageName.split(' - ')[1];
+    const bigStageIdx = this.getStageIndexByName(stageName);
+    const subTasks = this.data.aiStageList[bigStageIdx]?.subTasks || [];
+    return subTasks.findIndex(task => task.subTaskName === subTaskName) || 0;
+  },
+
+  // ========== 数据格式化 ==========
   formatFirstStageForAI(bigStage, dialogueRecord) {
     if (!bigStage || !dialogueRecord || dialogueRecord.length === 0) {
       return null;
@@ -531,8 +693,7 @@ ${stage.records.map((r, rIdx) => `
     return completeData;
   },
 
-  // ========== UI 交互与事件处理 ==========
-
+  // ========== UI 交互 ==========
   addMessage(_speaker, _content, _options = []) {
     const newMsg = { speaker: _speaker, content: _content, options: _options };
     this.setData({
@@ -559,23 +720,23 @@ ${stage.records.map((r, rIdx) => `
   },
 
   // ========== 生命周期函数 ==========
-
   onLoad(options) {
-    const savedMessages = wx.getStorageSync('aiDialogue_messages') || [];
-    if (savedMessages.length > 0) {
-      this.setData({ messages: savedMessages });
-      this.scrollToBottom();
-      this.setData({ isGuideMode: true });
-    } else {
-      this.setData({
-        isGuideMode: false,
-        currentTaskSummary: '',
-        currentTaskDetail: '',
-        currentBigStageIndex: 0,
-        currentSubTaskIndex: 0,
-        messages: []
-      });
+    if (!wx.cloud) {
+      wx.showToast({ title: '请使用微信最新版本体验云开发功能', icon: 'none' });
+      return;
     }
+  
+    // 异步初始化云开发，等待完成后再加载历史记录
+    wx.cloud.init({
+      env: 'cloud1-9gl1btw18d22e719', 
+      traceUser: true,
+    }).then(() => {
+      // 云初始化完成后再加载历史记录
+      this.loadHistoryDialogues();
+    }).catch(err => {
+      console.error('云初始化失败', err);
+      wx.showToast({ title: '云服务初始化失败', icon: 'none' });
+    });
   },
 
   onShow() {
@@ -584,35 +745,27 @@ ${stage.records.map((r, rIdx) => `
 
   onReady() {},
 
-  onHide() {
-    try {
-      wx.setStorageSync('aiDialogue_messages', this.data.messages);
-    } catch (e) {
-      console.error('保存对话失败', e);
-    }
-  },
+
+  onHide() {},
 
   onUnload() {
-    wx.setStorageSync('aiDialogue_messages', this.data.messages);
+    // 仅保存到云数据库
+    this.saveDialogueToDatabase().then(res => {
+      console.log('页面卸载时保存对话:', res);
+    });
   },
 
-  // ========== 页面跳转功能 ==========
-
+  // ========== 页面跳转 ==========
   gotoHistory: nav.gotoHistory,
   gotoVoiceInput: nav.gotoVoiceInput,
   gotoReport: nav.gotoReport,
   gotoAIExplanation: nav.gotoAIExplanation,
 
-  // ========== 预留功能接口 ==========
-
+  // ========== 预留接口 ==========
   toggleFunctionalBar() {
     this.setData({
       showFunctionalBar: !this.data.showFunctionalBar
     });
-  },
-
-  deleteChatHistory() {
-    this.setData({ messages: [] });
   },
 
   startSession() {},
@@ -622,5 +775,4 @@ ${stage.records.map((r, rIdx) => `
   onSubTaskCompleted(userAnswer, bigStageIdx, subTaskIdx) {
     console.log('[DEBUG] onSubTaskCompleted 被调用', { userAnswer, bigStageIdx, subTaskIdx });
   }
-
 });
