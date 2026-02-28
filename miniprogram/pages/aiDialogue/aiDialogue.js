@@ -10,75 +10,119 @@ Page({
     currentBigStageIndex: 0,
     currentSubTaskIndex: 0,
     isAITyping: false,
-    aiStageList: [
-      {
-        bigStageId: 1,
-        bigStageName: '智能问诊',
-        icon: '🩺',
-        description: '通过多轮对话收集您的症状信息',
-        subTasks: [
-          {
-            subTaskId: 1,
-            subTaskName: '主诉采集',
-            detail: '请您详细描述主要症状，如疼痛部位、持续时间、严重程度等。',
-            options: ['头痛发热', '胸闷气促', '腹痛腹泻', '皮疹瘙痒']
-          },
-          {
-            subTaskId: 2,
-            subTaskName: '既往病史询问',
-            detail: '请告知是否有慢性疾病、过敏史、近期用药情况等。',
-            options: ['高血压', '糖尿病', '药物过敏', '无特殊病史']
-          },
-          {
-            subTaskId: 3,
-            subTaskName: '生活习惯与旅行史',
-            detail: '请提供您的生活习惯、近期旅行史等信息。',
-            options: ['近期有长途旅行', '作息规律', '饮食偏油腻', '常熬夜']
-          },
-          {
-            subTaskId: 4,
-            subTaskName: '分诊建议生成',
-            detail: 'AI 正在分析您的资料，稍后将给出分诊建议。',
-            options: [],
-            taskFun: (userAnswer, bigStageIdx, subTaskIdx, pageContext) => {
-              pageContext.generateTriageAdvice(userAnswer, bigStageIdx, subTaskIdx);
-            }
-          }
-        ]
-      },
-      {
-        bigStageId: 2,
-        bigStageName: '挂号建议',
-        icon: '📊',
-        description: '对您的健康状况进行综合评估',
-        subTasks: [
-          {
-            subTaskId: 1,
-            subTaskName: '分诊建议生成',
-            detail: 'AI 正在分析您的资料，稍后将给出分诊建议。',
-            options: [],
-            taskFun: (userAnswer, bigStageIdx, subTaskIdx, pageContext) => {
-              pageContext.generateAppointmentAdvice(userAnswer, bigStageIdx, subTaskIdx);
-            }
-          }
-        ]
-      }
-    ],
+    aiStageList: [],
     messages: [],
     dialogueRecord: [],
     scrollTop: 0,
+    // 全局变量：当前阶段ID
+    currentBigStageId: 0,
+    currentSubTaskId: 0,
+    // 全局变量：最近一次用户发送内容
+    currentUserMessage: '',
+  },
+
+  // ========== 初始化 AI 阶段任务 ==========
+
+  initAISTageList() {
+    this.setData({
+      aiStageList: [
+        {
+          bigStageId: 1,
+          bigStageName: '智能问诊',
+          icon: '🩺',
+          description: '通过多轮对话收集您的症状信息',
+          subTasks: [
+            {
+              subTaskId: 1,
+              subTaskName: '主诉采集',
+              detail: '请您详细描述主要症状，如疼痛部位、持续时间、严重程度等。',
+              options: ['头痛发热', '胸闷气促', '腹痛腹泻', '皮疹瘙痒'],
+              taskFun:this.continueToNextStage
+              },
+            
+            {
+              subTaskId: 2,
+              subTaskName: '既往病史询问',
+              detail: '请告知是否有慢性疾病、过敏史、近期用药情况等。',
+              options: ['高血压', '糖尿病', '药物过敏', '无特殊病史'],
+              taskFun: this.continueToNextStage
+            },
+            {
+              subTaskId: 3,
+              subTaskName: '生活习惯与旅行史',
+              detail: '请提供您的生活习惯、近期旅行史等信息。',
+              options: ['近期有长途旅行', '作息规律', '饮食偏油腻', '常熬夜'],
+              taskFun: this.continueToNextStage
+            },
+            {
+              subTaskId: 4,
+              subTaskName: '分诊建议生成',
+              detail: 'AI 正在分析您的资料，稍后将给出分诊建议。',
+              options: [],
+              taskFun: this.generateTriageAdvice
+            }
+          ]
+        },
+        {
+          bigStageId: 2,
+          bigStageName: '挂号建议',
+          icon: '📊',
+          description: '对您的健康状况进行综合评估',
+          subTasks: [
+            {
+              subTaskId: 1,
+              subTaskName: '分诊建议生成',
+              detail: 'AI 正在分析您的资料，稍后将给出分诊建议。',
+              options: [],
+              taskFun: generateAppointmentAdvice
+              
+            }
+          ]
+        }
+      ]
+    });
   },
 
   // ========== 核心流程控制 ==========
 
-  startNewTask() {
-    const sendUserMessage = (content) => {
-      this.addMessage('user', content);
+  /**
+   * 记录对话答案
+   * @param {string} answer - 用户回答
+   * @param {number} bigStageIdx - 大阶段索引
+   * @param {number} subTaskIdx - 子任务索引
+   */
+  recordDialogueAnswer(answer, bigStageIdx, subTaskIdx) {
+    const bigStage = this.data.aiStageList[bigStageIdx];
+    const subTask = bigStage ? bigStage.subTasks[subTaskIdx] : null;
+    if (!subTask) {
+      console.error('子任务不存在:', bigStageIdx, subTaskIdx);
+      return;
+    }
+    const record = {
+      bigStageId: subTask.bigStageId,
+      subTaskId: subTask.subTaskId,
+      bigStageName: bigStage ? bigStage.bigStageName : '',
+      subTaskName: subTask ? subTask.subTaskName : '',
+      question: subTask ? subTask.detail : '',
+      answer: answer
     };
+    const exists = this.data.dialogueRecord.some(
+      r => r.bigStageId === record.bigStageId && r.subTaskId === record.subTaskId
+    );
+    if (!exists) {
+      this.setData({
+        dialogueRecord: [...this.data.dialogueRecord, record]
+      });
+      console.log('[DEBUG] 记录对话答案:', record);
+    }
+  },
 
+  startNewTask() {
     const firstBigStage = this.data.aiStageList[0];
     const firstSubTask = firstBigStage.subTasks[0];
     this.setData({
+      currentBigStageId: firstBigStage.bigStageId,
+      currentSubTaskId: firstSubTask.subTaskId,
       currentTaskSummary: `${firstBigStage.bigStageName} - ${firstSubTask.subTaskName}`,
       currentTaskDetail: firstSubTask.detail,
       showTaskDetail: true,
@@ -108,7 +152,8 @@ Page({
             console.log('用户确认退出AI导诊模式');
             this.setData({
               isGuideMode: false,
-              currentStageIndex: 0,
+              currentBigStageId: 0,
+              currentSubTaskId: 0,
               messages: []
             });
             wx.showToast({ title: '已退出AI导诊', icon: 'success' });
@@ -125,66 +170,40 @@ Page({
       return;
     }
     const userContent = this.data.userInput.trim();
-    const sendUserMessage = (content) => {
-      this.addMessage('user', content);
-    };
-    sendUserMessage(userContent);
-    this.setData({ userInput: '' });
+    this.addMessage('user', userContent);
+    this.setData({
+      userInput: '',
+      currentUserMessage: userContent
+    });
     this.processUserMessage(userContent);
   },
 
-  processUserMessage(userContent) {
+  processUserMessage() {
     if (this.data.isGuideMode) {
-      this.handleGuideModeMessage(userContent);
+      this.handleGuideModeMessage();
     } else {
-      this.handleChatModeMessage(userContent);
+      this.handleChatModeMessage();
     }
   },
 
-  handleGuideModeMessage(userAnswer) {
-    const recordDialogueAnswer = (answer, bigStageIdx, subTaskIdx) => {
-      const bigStage = this.data.aiStageList[bigStageIdx];
-      const subTask = bigStage ? bigStage.subTasks[subTaskIdx] : null;
-      if (!subTask) {
-        console.error('子任务不存在:', bigStageIdx, subTaskIdx);
-        return;
-      }
-      const record = {
-        bigStageId: bigStageIdx + 1,
-        bigStageName: bigStage ? bigStage.bigStageName : '',
-        subTaskId: subTaskIdx + 1,
-        subTaskName: subTask ? subTask.subTaskName : '',
-        question: subTask ? subTask.detail : '',
-        answer: answer
-      };
-      const exists = this.data.dialogueRecord.some(
-        r => r.bigStageId === record.bigStageId && r.subTaskId === record.subTaskId
-      );
-      if (!exists) {
-        this.setData({
-          dialogueRecord: [...this.data.dialogueRecord, record]
-        });
-        console.log('[DEBUG] 记录对话答案:', record);
-      }
-    };
-
+  handleGuideModeMessage() {
     const bigStageIdx = this.data.currentBigStageIndex;
-    const subTaskIdx = this.data.currentSubTaskIdx;
-    recordDialogueAnswer(userAnswer, bigStageIdx, subTaskIdx);
+    const subTaskIdx = this.data.currentSubTaskIndex;
+    this.recordDialogueAnswer(this.data.currentUserMessage, bigStageIdx, subTaskIdx);
     this.setData({ isAITyping: true });
     this.scrollToBottom();
     setTimeout(() => {
-      this.handleSubTaskCompleted(userAnswer, bigStageIdx, subTaskIdx);
+      this.handleSubTaskCompleted();
     }, 1000);
   },
 
-  handleChatModeMessage(userMessage) {
+  handleChatModeMessage() {
     this.addMessage('ai', 'AI思考中...');
     this.scrollToBottom();
-    this.getAIReply(userMessage);
+    this.getAIReply();
   },
 
-  handleSubTaskCompleted(userAnswer, bigStageIdx, subTaskIdx) {
+  handleSubTaskCompleted() {
     const markCurrentMessageAnswered = (answer) => {
       const lastAiMessage = this.data.messages[this.data.messages.length - 1];
       if (lastAiMessage && lastAiMessage.speaker === 'ai') {
@@ -193,27 +212,31 @@ Page({
       }
     };
 
+    const bigStageIdx = this.data.currentBigStageIndex;
+    const subTaskIdx = this.data.currentSubTaskIndex;
     const currentBigStage = this.data.aiStageList[bigStageIdx];
     const subTask = currentBigStage ? currentBigStage.subTasks[subTaskIdx] : null;
     if (!subTask) {
       console.error('子任务不存在:', bigStageIdx, subTaskIdx);
       return;
     }
-    markCurrentMessageAnswered(userAnswer);
+    markCurrentMessageAnswered(this.data.currentUserMessage);
     const taskFun = subTask.taskFun;
     if (taskFun && typeof taskFun === 'function') {
       console.log(`[DEBUG] 调用子任务 lambda 函数`);
-      taskFun(userAnswer, bigStageIdx, subTaskIdx, this);
+      taskFun();
     } else if (taskFun) {
       console.error(`[ERROR] taskFun 不是函数类型`);
-      this.processNextStage(userAnswer, bigStageIdx, subTaskIdx);
+      this.continueToNextStage();
     } else {
       console.log(`[DEBUG] 子任务未指定 taskFun，继续下一个`);
-      this.processNextStage(userAnswer, bigStageIdx, subTaskIdx);
+      this.continueToNextStage();
     }
   },
 
-  processNextStage(userAnswer, bigStageIdx, subTaskIdx) {
+  continueToNextStage() {
+    const bigStageIdx = this.data.currentBigStageIndex;
+    const subTaskIdx = this.data.currentSubTaskIndex;
     const currentBigStage = this.data.aiStageList[bigStageIdx];
     const nextSubTaskIdx = subTaskIdx + 1;
     if (nextSubTaskIdx < currentBigStage.subTasks.length) {
@@ -228,6 +251,8 @@ Page({
         options: nextSubTask.options
       };
       this.setData({
+        currentBigStageId: nextSubTask.bigStageId,
+        currentSubTaskId: nextSubTask.subTaskId,
         currentSubTaskIndex: nextSubTaskIdx,
         currentTaskSummary: `${currentBigStage.bigStageName} - ${nextSubTask.subTaskName}`,
         currentTaskDetail: nextSubTask.detail,
@@ -240,6 +265,8 @@ Page({
         const nextBigStage = this.data.aiStageList[nextBigStageIdx];
         const firstSubTask = nextBigStage.subTasks[0];
         this.setData({
+          currentBigStageId: firstSubTask.bigStageId,
+          currentSubTaskId: firstSubTask.subTaskId,
           currentBigStageIndex: nextBigStageIdx,
           currentSubTaskIndex: 0,
           currentTaskSummary: `${nextBigStage.bigStageName} - ${firstSubTask.subTaskName}`,
@@ -248,7 +275,7 @@ Page({
         });
         this.addMessage('ai', `${nextBigStage.description}\n\n${firstSubTask.detail}`, firstSubTask.options);
       } else {
-        this.generateTriageAdvice(userAnswer);
+        this.generateTriageAdvice();
       }
     }
     this.scrollToBottom();
@@ -256,7 +283,21 @@ Page({
 
   // ========== AI 调用与建议生成 ==========
 
-  async callAIModel(userMessage) {
+ 
+
+  getAIReply() {
+    if (!this.data.isGuideMode) {
+      setTimeout(async () => {
+        const aiReply = await this.callAIModel(this.data.currentUserMessage);
+        const updatedMessages = [...this.data.messages.slice(0, -1), { speaker: 'ai', content: aiReply }];
+        this.setData({ messages: updatedMessages });
+        this.scrollToBottom();
+      }, 800);
+    }
+
+    
+  },
+ async callAIModel(userMessage) {
     try {
       const params = {
         name: 'callAI',
@@ -278,49 +319,14 @@ Page({
     }
   },
 
-  getAIReply(userContent) {
-    if (!this.data.isGuideMode) {
-      setTimeout(async () => {
-        const aiReply = await this.callAIModel(userContent);
-        const updatedMessages = [...this.data.messages.slice(0, -1), { speaker: 'ai', content: aiReply }];
-        this.setData({ messages: updatedMessages });
-        this.scrollToBottom();
-      }, 800);
-    }
-  },
-
-  async generateTriageAdvice(lastAnswer, bigStageIdx, subTaskIdx) {
-    const recordDialogueAnswer = (answer, bigStageIdx, subTaskIdx) => {
-      const bigStage = this.data.aiStageList[bigStageIdx];
-      const subTask = bigStage ? bigStage.subTasks[subTaskIdx] : null;
-      if (!subTask) {
-        console.error('子任务不存在:', bigStageIdx, subTaskIdx);
-        return;
-      }
-      const record = {
-        bigStageId: bigStageIdx + 1,
-        bigStageName: bigStage ? bigStage.bigStageName : '',
-        subTaskId: subTaskIdx + 1,
-        subTaskName: subTask ? subTask.subTaskName : '',
-        question: subTask ? subTask.detail : '',
-        answer: answer
-      };
-      const exists = this.data.dialogueRecord.some(
-        r => r.bigStageId === record.bigStageId && r.subTaskId === record.subTaskId
-      );
-      if (!exists) {
-        this.setData({
-          dialogueRecord: [...this.data.dialogueRecord, record]
-        });
-        console.log('[DEBUG] 记录对话答案:', record);
-      }
-    };
-
+  async generateTriageAdvice() {
+    const bigStageIdx = this.data.currentBigStageIndex;
+    const subTaskIdx = this.data.currentSubTaskIndex;
     const needsRecord = !this.data.dialogueRecord.some(
-      r => r.bigStageId === bigStageIdx + 1 && r.subTaskId === subTaskIdx + 1
+      r => r.bigStageId === this.data.currentBigStageId && r.subTaskId === this.data.currentSubTaskId
     );
     if (needsRecord) {
-      recordDialogueAnswer(lastAnswer, bigStageIdx, subTaskIdx);
+      this.recordDialogueAnswer(this.data.currentUserMessage, bigStageIdx, subTaskIdx);
     }
     const updatedDialogueRecord = this.data.dialogueRecord;
     this.setData({
@@ -330,7 +336,7 @@ Page({
       currentTaskDetail: 'AI正在分析您的症状',
       isAITyping: true
     });
-    this.addMessage('ai', '🤔 AI 正在综合分析您的症状，请稍候...', []);
+    this.addMessage('ai', '🤔 AI 正在综合分析您的症状，请稍候...');
     const firstBigStage = this.data.aiStageList[0];
     const formattedData = this.formatFirstStageForAI(firstBigStage, updatedDialogueRecord);
     try {
@@ -378,34 +384,10 @@ Page({
     this.scrollToBottom();
   },
 
-  generateAppointmentAdvice(userAnswer, bigStageIdx, subTaskIdx) {
-    const recordDialogueAnswer = (answer, bigStageIdx, subTaskIdx) => {
-      const bigStage = this.data.aiStageList[bigStageIdx];
-      const subTask = bigStage ? bigStage.subTasks[subTaskIdx] : null;
-      if (!subTask) {
-        console.error('子任务不存在:', bigStageIdx, subTaskIdx);
-        return;
-      }
-      const record = {
-        bigStageId: bigStageIdx + 1,
-        bigStageName: bigStage ? bigStage.bigStageName : '',
-        subTaskId: subTaskIdx + 1,
-        subTaskName: subTask ? subTask.subTaskName : '',
-        question: subTask ? subTask.detail : '',
-        answer: answer
-      };
-      const exists = this.data.dialogueRecord.some(
-        r => r.bigStageId === record.bigStageId && r.subTaskId === record.subTaskId
-      );
-      if (!exists) {
-        this.setData({
-          dialogueRecord: [...this.data.dialogueRecord, record]
-        });
-        console.log('[DEBUG] 记录对话答案:', record);
-      }
-    };
-
-    recordDialogueAnswer(userAnswer, bigStageIdx, subTaskIdx);
+  generateAppointmentAdvice() {
+    const bigStageIdx = this.data.currentBigStageIndex;
+    const subTaskIdx = this.data.currentSubTaskIndex;
+    this.recordDialogueAnswer(this.data.currentUserMessage, bigStageIdx, subTaskIdx);
     this.setData({
       currentBigStageIndex: this.data.aiStageList.length,
       currentSubTaskIndex: 0,
@@ -413,7 +395,7 @@ Page({
       currentTaskDetail: 'AI正在为您推荐挂号科室',
       isAITyping: true
     });
-    this.addMessage('ai', '🤔 AI 正在为您推荐挂号科室，请稍候...', []);
+    this.addMessage('ai', '🤔 AI 正在为您推荐挂号科室，请稍候...');
     setTimeout(() => {
       const updatedMessages = [...this.data.messages.slice(0, -1)];
       updatedMessages.push({
@@ -432,105 +414,7 @@ Page({
     }, 2000);
   },
 
-  // ========== 数据格式化与辅助方法 ==========
-
-  formatFirstStageForAI(bigStage, dialogueRecord) {
-    if (!bigStage || !dialogueRecord || dialogueRecord.length === 0) {
-      return null;
-    }
-    const firstStageRecords = dialogueRecord.filter(record => record.bigStageId === bigStage.bigStageId);
-    if (firstStageRecords.length === 0) {
-      return null;
-    }
-    const formattedData = {
-      stageInfo: {
-        bigStageId: bigStage.bigStageId,
-        bigStageName: bigStage.bigStageName,
-        description: bigStage.description,
-        subTaskCount: bigStage.subTasks.length
-      },
-      qaRecords: firstStageRecords.map(record => ({
-        subTaskId: record.subTaskId,
-        subTaskName: record.subTaskName,
-        question: record.question,
-        answer: record.answer
-      })),
-      symptomSummary: firstStageRecords
-        .filter(r => r.subTaskName === '主诉采集')
-        .map(r => r.answer)
-        .join('，') || '未提供主诉信息',
-      medicalHistory: firstStageRecords
-        .filter(r => r.subTaskName === '既往病史询问')
-        .map(r => r.answer)
-        .join('，') || '未提供病史信息',
-      lifestyle: firstStageRecords
-        .filter(r => r.subTaskName === '生活习惯与旅行史')
-        .map(r => r.answer)
-        .join('，') || '未提供生活习惯信息',
-      fullDescription: `
-【大阶段】${bigStage.bigStageName}
-【阶段描述】${bigStage.description}
-
-【问答详情】
-${firstStageRecords.map((record, index) => `
-${index + 1}. ${record.subTaskName}
-   问题：${record.question}
-   回答：${record.answer}
-`).join('\n')}
-      `.trim(),
-      timestamp: new Date().toISOString(),
-      recordCount: firstStageRecords.length
-    };
-    return formattedData;
-  },
-
-  formatAllStagesForAI() {
-    const { aiStageList, dialogueRecord } = this.data;
-    if (!aiStageList || aiStageList.length === 0 || !dialogueRecord || dialogueRecord.length === 0) {
-      return null;
-    }
-    const formattedStages = aiStageList.map(stage => ({
-      stageId: stage.bigStageId,
-      stageName: stage.bigStageName,
-      records: dialogueRecord
-        .filter(r => r.bigStageId === stage.bigStageId)
-        .map(r => ({
-          subTaskId: r.subTaskId,
-          subTaskName: r.subTaskName,
-          question: r.question,
-          answer: r.answer
-        }))
-    })).filter(stage => stage.records.length > 0);
-    const completeData = {
-      summary: {
-        totalStages: formattedStages.length,
-        totalQuestions: dialogueRecord.length,
-        timestamp: new Date().toISOString()
-      },
-      stages: formattedStages,
-      quickSummary: formattedStages.map(stage => ({
-        stageName: stage.stageName,
-        answerCount: stage.records.length,
-        mainAnswers: stage.records.map(r => r.answer).join('，')
-      })),
-      aiPrompt: `
-【患者智能问诊记录】
-
-${formattedStages.map((stage, idx) => `
-=== 第${idx + 1}阶段：${stage.stageName} ===
-${stage.records.map((r, rIdx) => `
-问题${rIdx + 1}（${r.subTaskName}）：${r.question}
-患者回答：${r.answer}
-`).join('\n')}
-`).join('\n')}
-
----
-请根据以上信息提供医疗建议。
-      `.trim()
-    };
-    return completeData;
-  },
-
+  
   // ========== UI 交互与事件处理 ==========
 
   addMessage(_speaker, _content, _options = []) {
@@ -560,7 +444,8 @@ ${stage.records.map((r, rIdx) => `
 
   // ========== 生命周期函数 ==========
 
-  onLoad(options) {
+  onLoad(_options) {
+    this.initAISTageList();
     const savedMessages = wx.getStorageSync('aiDialogue_messages') || [];
     if (savedMessages.length > 0) {
       this.setData({ messages: savedMessages });
@@ -569,6 +454,8 @@ ${stage.records.map((r, rIdx) => `
     } else {
       this.setData({
         isGuideMode: false,
+        currentBigStageId: 0,
+        currentSubTaskId: 0,
         currentTaskSummary: '',
         currentTaskDetail: '',
         currentBigStageIndex: 0,
