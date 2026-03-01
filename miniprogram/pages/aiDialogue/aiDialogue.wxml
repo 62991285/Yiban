@@ -2,17 +2,22 @@
 
   <!-- 问诊任务描述区（可展开）- 粘滞定位 -->
   <view class="task-description-bar sticky-top">
-    <view class="task-summary">
+    <view class="stage-summary">
       <view class="task-icon">🎯</view>
       <text class="task-text">
-        {{ currentTaskSummary || '点击“+”开始一段新问诊任务' }}
+        {{ stageSummary || '点击"+"开始一段新问诊任务' }}
       </text>
       <view class="toggle-task" bindtap="toggleTaskDescription">
         {{ showTaskDetail ? '∧' : '∨' }}
       </view>
     </view>
+    <view wx:if="{{mode === 'guide'}}" class="progress-bar-container">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{completedTaskCount > 0 && totalTaskCount > 0 ? (completedTaskCount / totalTaskCount * 100) + '%' : '0%'}}"></view>
+      </view>
+    </view>
     <view wx:if="{{showTaskDetail}}" class="task-detail">
-      {{ currentTaskDetail || '暂无任务描述。请选择症状开始问诊。' }}
+      {{ taskName || taskDetail || '暂无任务描述。请选择症状开始问诊。' }}
     </view>
   </view>
 
@@ -20,16 +25,29 @@
   <scroll-view class="chat-history" scroll-y="true" scroll-with-animation scroll-top="{{scrollTop}}" enhanced="true" bounces="true">
     <view class="chat-container">
       <block wx:for="{{messages}}" wx:key="index">
-        <view class="message-wrapper {{item.speaker === 'ai' ? 'ai-wrapper' : 'user-wrapper'}}">
-          <message-item 
-            speaker="{{item.speaker === 'ai' ? 'ai' : 'user'}}"
-            options="{{item.options || []}}"
-            actions="{{item.actions || []}}"
-            bindselectoption="selectOption"
-            class="animated-message"
-          >
-            <text>{{item.content}}</text>
-          </message-item>
+        <view wx:if="{{item.speaker === 'system'}}" class="message-wrapper system-wrapper">
+          <text class="system-message">{{item.content}}</text>
+        </view>
+        <view wx:else class="message-wrapper {{item.speaker === 'ai' ? 'ai-wrapper' : 'user-wrapper'}}">
+          <view class="message-content-wrapper">
+            <message-item
+              speaker="{{item.speaker === 'ai' ? 'ai' : 'user'}}"
+              options="{{item.options || []}}"
+              navigations="{{item.navigations || []}}"
+              bindselectoption="selectOption"
+              class="animated-message"
+            >
+              <text>{{item.content}}</text>
+            </message-item>
+            <!-- 消息导航按钮 -->
+            <view wx:if="{{item.speaker === 'ai' && item.navigations && item.navigations.length > 0}}" class="message-navigations">
+              <block wx:for="{{item.navigations}}" wx:key="index" wx:for-item="nav">
+                <view class="nav-btn" bindtap="navigateTo" data-url="{{nav.url}}">
+                  <text class="nav-text">{{nav.name}}</text>
+                </view>
+              </block>
+            </view>
+          </view>
         </view>
       </block>
       
@@ -48,17 +66,17 @@
   <!-- 聊天操作区 - 粘滞定位 -->
   <view class="chat-controls sticky-controls">
     <text class="delete-chat-history" bind:tap="deleteChatHistory"> 🗑️ 清空对话</text>
-    <view class="chat-stats">
-      <text class="message-count">消息 {{messages.length}}</text>
-    </view>
+    <view class="chat-stats"></view>
     <!-- 浮动按钮 - 粘滞模式，位于右上角 -->
-    <view class="sticky-fab-btn {{isGuideMode===true?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
-      <text class="fab-icon-new">{{isGuideMode===true?'−':'+'}}</text>
-      <view class="fab-tooltip-new">{{isGuideMode===true?'结束问诊':'新建问诊'}}</view>
+    <view class="sticky-fab-btn {{mode==='guide'?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
+      <text class="fab-icon-new">{{mode==='guide'?'−':'+'}}</text>
+      <view class="fab-tooltip-new">{{mode==='guide'?'结束问诊':'新建问诊'}}</view>
     </view>
   </view>
 
   <!-- 滑动式功能按钮栏 - 粘滞定位 -->
+  <!-- 暂时禁用 -->
+  <!--
   <view class="scroll-functional-bar sticky-functional-bar">
     <scroll-view class="functional-scroll-view" scroll-x="true" enhanced="true" show-scrollbar="false">
       <view class="functional-list">
@@ -93,18 +111,19 @@
       </view>
     </scroll-view>
   </view>
+  -->
 
   <!-- 用户输入区域 - AI风格 - 粘滞定位 -->
   <view class="ai-input-container sticky-input">
     <view class="input-wrapper-modern">
       <textarea
         class="modern-input-box"
-        placeholder="请详细描述您的症状，AI将为您提供专业建议..."
+        placeholder="请输入您的问题，AI将为您提供专业建议"
         value="{{userInput}}"
         bindinput="onInputChange"
         auto-height="{{true}}"
         maxlength="500"
-        placeholder-style="color:#999;"
+        placeholder-style="color:#999;line-height:80rpx;"
         show-confirm-bar="false"
       />
       <button class="modern-send-btn {{userInput.trim()==='' ? '' : 'send-btn-active'}}" bindtap="sendMessage" disabled="{{userInput.trim() === ''}}">
