@@ -148,7 +148,7 @@ updateUserInfo() {
    */
   onLoginTap() {
     const that = this;
-    const app = getApp(); // 
+    const app = getApp(); 
   
     // 如果已经登录，直接返回
     if (this.data.isLogin) {
@@ -267,6 +267,15 @@ updateUserInfo() {
       url: '/pages/editUserInfo/editUserInfo'
     });
   },
-  
 
-})
+  /**
+   * 挂号记录点击事件
+   */
+  goToAppointmentRecords() {
+    wx.navigateTo({
+      url: '/pages/appointmentRecords/appointmentRecords'
+    });
+  }
+
+
+});

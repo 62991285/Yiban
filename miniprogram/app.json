@@ -5,11 +5,10 @@
     "pages/aiDialogue/aiDialogue",
     "pages/aiDepartmentNavigation/aiDepartmentNavigation",
     "pages/aiPharmacyNavigation/aiPharmacyNavigation",
-    "pages/appointment/appointment",
-    "pages/departmentDetail/departmentDetail",
     "pages/mine/mine",
     "pages/editUserInfo/editUserInfo",
-    "pages/utilities/utilities"
+    "pages/utilities/utilities",
+    "pages/appointmentRecords/appointmentRecords"
   ],
   "window": {
     "backgroundColor": "#F6F6F6",

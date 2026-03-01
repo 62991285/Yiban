@@ -1,0 +1,169 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #F0F9F1 0%, #F5F5F5 100%);
+  padding: 30rpx;
+  padding-bottom: 100rpx;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #999;
+  margin-bottom: 60rpx;
+}
+
+.btn-booking {
+  width: 400rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+  color: white;
+  font-size: 32rpx;
+  font-weight: bold;
+  border-radius: 44rpx;
+  border: none;
+  box-shadow: 0 4rpx 16rpx rgba(0, 200, 83, 0.3);
+}
+
+.btn-booking::after {
+  border: none;
+}
+
+/* 记录列表 */
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+}
+
+.record-card {
+  background: white;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+.record-card:active {
+  transform: scale(0.98);
+}
+
+.record-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 24rpx;
+  border-bottom: 1rpx solid #F0F0F0;
+  margin-bottom: 24rpx;
+}
+
+.record-status {
+  padding: 8rpx 24rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.record-status.active {
+  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  color: #00C853;
+}
+
+.record-status.cancelled {
+  background: #F5F5F5;
+  color: #999;
+}
+
+.status-text {
+  font-size: 24rpx;
+}
+
+.record-no {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.record-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.record-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.record-label {
+  font-size: 28rpx;
+  color: #999;
+  width: 140rpx;
+}
+
+.record-value {
+  font-size: 30rpx;
+  color: #1A1A1A;
+  font-weight: 500;
+  flex: 1;
+  text-align: right;
+}
+
+.record-footer {
+  display: flex;
+  gap: 20rpx;
+  margin-top: 30rpx;
+  padding-top: 24rpx;
+  border-top: 1rpx solid #F0F0F0;
+}
+
+.btn-detail,
+.btn-cancel {
+  flex: 1;
+  height: 72rpx;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  font-weight: bold;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-detail {
+  background: #F5F5F5;
+  color: #666;
+}
+
+.btn-detail::after {
+  border: none;
+}
+
+.btn-cancel {
+  background: linear-gradient(135deg, #FF5252 0%, #FF1744 100%);
+  color: white;
+  box-shadow: 0 4rpx 12rpx rgba(255, 82, 82, 0.3);
+}
+
+.btn-cancel::after {
+  border: none;
+}
+
+.btn-detail:active,
+.btn-cancel:active {
+  opacity: 0.8;
+  transform: scale(0.98);
+}

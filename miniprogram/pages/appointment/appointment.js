@@ -1,115 +1,238 @@
+const hospitalData = require('../../config/hospitalData.json');
+
 Page({
   data: {
-    selectedArea: 1,
-    selectedMainDepartment: 1,
-    areas: [
-      { id: 1, name: '汉口院区' },
-      { id: 2, name: '光谷院区' },
-      { id: 3, name: '中法院区' },
-      { id: 4, name: '军山医院' }
-    ],
-    mainDepartments: [
-      { id: 1, name: '内科' },
-      { id: 2, name: '外科' },
-      { id: 3, name: '妇产科' },
-      { id: 4, name: '儿科' },
-      { id: 5, name: '眼科' },
-      { id: 6, name: '耳鼻喉科' },
-      { id: 7, name: '口腔科' },
-      { id: 8, name: '皮肤科' }
-    ],
-    subDepartments: [
-      { id: 101, name: '普通门诊' },
-      { id: 102, name: '心血管内科' },
-      { id: 103, name: '呼吸与重症医学科' },
-      { id: 104, name: '消化内科' },
-      { id: 105, name: '神经内科' },
-      { id: 106, name: '内分泌科' },
-      { id: 107, name: '血液内科' },
-      { id: 108, name: '肾内科' }
-    ]
+    // 流程步骤: 1-院区选择, 2-科室选择, 3-时段选择, 4-确认信息
+    currentStep: 1,
+
+    // 选择数据
+    selectedArea: null,
+    selectedDepartment: null,
+    selectedSubDepartment: null,
+    selectedTimeSlot: null,
+    selectedPeriod: null,
+
+    // 配置数据
+    areas: [],
+    departments: [],
+    subDepartments: [],
+    timeSlots: [],
+
+    // 日期信息
+    currentDate: '',
+    bookingInfo: {}
   },
 
   onLoad: function () {
-    // 页面加载时的初始化逻辑
+    this.initData();
+    this.setCurrentDate();
+  },
+
+  initData() {
+    this.setData({
+      areas: hospitalData.areas,
+      departments: hospitalData.departments,
+      timeSlots: hospitalData.timeSlots
+    });
+  },
+
+  setCurrentDate() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const weekDay = weekDays[now.getDay()];
+    this.setData({
+      currentDate: `${year}-${month}-${day} ${weekDay}`
+    });
   },
 
   // 选择院区
-  selectArea: function (e) {
+  selectArea(e) {
     const id = e.currentTarget.dataset.id;
+    const area = this.data.areas.find(a => a.id === id);
     this.setData({
-      selectedArea: id
+      selectedArea: area,
+      selectedDepartment: null,
+      selectedSubDepartment: null,
+      selectedTimeSlot: null,
+      selectedPeriod: null
     });
+    wx.vibrateShort({ type: 'light' });
+  },
+
+  // 确认院区选择，进入下一步
+  confirmArea() {
+    if (!this.data.selectedArea) {
+      wx.showToast({ title: '请选择院区', icon: 'none' });
+      return;
+    }
+    this.goToStep(2);
   },
 
   // 选择大科室
-  selectMainDepartment: function (e) {
+  selectMainDepartment(e) {
     const id = e.currentTarget.dataset.id;
+    const department = this.data.departments.find(dept => dept.id === id);
     this.setData({
-      selectedMainDepartment: id,
-      // 根据选择的大科室更新子科室列表
-      subDepartments: this.getSubDepartments(id)
+      selectedDepartment: department,
+      selectedSubDepartment: null
+    });
+    wx.vibrateShort({ type: 'light' });
+  },
+
+  // 选择子科室
+  selectSubDepartment(e) {
+    const id = parseInt(e.currentTarget.dataset.id);
+    const subDepartment = this.data.subDepartments.find(sd => sd.id === id);
+    this.setData({
+      selectedSubDepartment: subDepartment
+    });
+    wx.vibrateShort({ type: 'light' });
+  },
+
+  // 确认科室选择，进入下一步
+  confirmDepartment() {
+    if (!this.data.selectedDepartment) {
+      wx.showToast({ title: '请选择科室', icon: 'none' });
+      return;
+    }
+    if (!this.data.selectedSubDepartment) {
+      wx.showToast({ title: '请选择具体科室', icon: 'none' });
+      return;
+    }
+    this.goToStep(3);
+  },
+
+  // 选择时段
+  selectTimeSlot(e) {
+    const id = parseInt(e.currentTarget.dataset.id);
+    this.setData({
+      selectedTimeSlot: id,
+      selectedPeriod: null
     });
   },
 
-  // 获取子科室列表
-  getSubDepartments: function (mainDepartmentId) {
-    // 这里可以根据不同的大科室返回不同的子科室
-    // 实际项目中可能从服务器获取数据
-    const departmentMap = {
-      1: [ // 内科
-        { id: 101, name: '普通门诊' },
-        { id: 102, name: '心血管内科' },
-        { id: 103, name: '呼吸与重症医学科' },
-        { id: 104, name: '消化内科' },
-        { id: 105, name: '神经内科' },
-        { id: 106, name: '内分泌科' }
-      ],
-      2: [ // 外科
-        { id: 201, name: '普通外科' },
-        { id: 202, name: '骨科' },
-        { id: 203, name: '心胸外科' },
-        { id: 204, name: '泌尿外科' },
-        { id: 205, name: '神经外科' }
-      ],
-      3: [ // 妇产科
-        { id: 301, name: '妇科' },
-        { id: 302, name: '产科' },
-        { id: 303, name: '生殖医学中心' }
-      ],
-      4: [ // 儿科
-        { id: 401, name: '儿科门诊' },
-        { id: 402, name: '儿童保健科' },
-        { id: 403, name: '新生儿科' }
-      ]
+  // 选择具体时间
+  selectPeriod(e) {
+    const id = e.currentTarget.dataset.id;
+    const timeSlot = this.data.timeSlots.find(ts => ts.id === this.data.selectedTimeSlot);
+    const period = timeSlot ? timeSlot.periods.find(p => p.id === id) : null;
+    this.setData({
+      selectedPeriod: period
+    });
+    wx.vibrateShort({ type: 'light' });
+  },
+
+  // 确认时段选择，进入下一步
+  confirmTimeSlot() {
+    if (!this.data.selectedTimeSlot) {
+      wx.showToast({ title: '请选择时段', icon: 'none' });
+      return;
+    }
+    if (!this.data.selectedPeriod) {
+      wx.showToast({ title: '请选择具体时间', icon: 'none' });
+      return;
+    }
+    this.goToStep(4);
+  },
+
+  // 生成挂号信息对象
+  generateBookingInfo() {
+    const timeSlot = this.data.timeSlots.find(ts => ts.id === this.data.selectedTimeSlot);
+    const info = {
+      id: Date.now(),
+      area: this.data.selectedArea,
+      department: this.data.selectedDepartment,
+      subDepartment: this.data.selectedSubDepartment,
+      timeSlot: timeSlot,
+      period: this.data.selectedPeriod,
+      date: this.data.currentDate,
+      status: '已预约',
+      createTime: new Date().toLocaleString(),
+      bookingNo: this.generateBookingNo()
     };
-
-    return departmentMap[mainDepartmentId] || [];
+    this.setData({ bookingInfo: info });
+    return info;
   },
 
-  // 进入科室详情页
-  goToDepartmentDetail: function (e) {
-    const departmentId = e.currentTarget.dataset.id;
-    const departmentName = e.currentTarget.dataset.name;
-    const selectedArea = this.data.selectedArea;
-    const areaName = this.data.areas.find(area => area.id === selectedArea).name;
+  // 生成挂号编号
+  generateBookingNo() {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    return `BH${timestamp}${random}`;
+  },
 
-    wx.navigateTo({
-      url: `/appointment/pages/departmentDetail/departmentDetail?departmentId=${departmentId}&departmentName=${departmentName}&areaName=${areaName}`
+  // 确认预约
+  confirmBooking() {
+    const info = this.generateBookingInfo();
+
+    // 保存到本地存储
+    this.saveBookingRecord(info);
+
+    wx.showLoading({ title: '正在提交...' });
+    setTimeout(() => {
+      wx.hideLoading();
+      wx.showToast({
+        title: '预约成功',
+        icon: 'success',
+        duration: 2000
+      });
+      setTimeout(() => {
+        wx.navigateBack();
+      }, 2000);
+    }, 1500);
+  },
+
+  // 保存预约记录
+  saveBookingRecord(info) {
+    let records = wx.getStorageSync('bookingRecords') || [];
+    records.unshift(info);
+    wx.setStorageSync('bookingRecords', records);
+  },
+
+  // 步骤导航
+  goToStep(step) {
+    this.setData({
+      currentStep: step
+    });
+
+    // 如果进入科室选择步骤，更新子科室列表
+    if (step === 2 && this.data.selectedDepartment) {
+      this.setData({
+        subDepartments: this.data.selectedDepartment.subDepartments || []
+      });
+    }
+  },
+
+  // 返回上一步
+  goToPrevStep() {
+    const prevStep = this.data.currentStep - 1;
+    if (prevStep >= 1) {
+      this.goToStep(prevStep);
+    }
+  },
+
+  // 重新开始
+  restart() {
+    this.setData({
+      currentStep: 1,
+      selectedArea: null,
+      selectedDepartment: null,
+      selectedSubDepartment: null,
+      selectedTimeSlot: null,
+      selectedPeriod: null,
+      bookingInfo: {}
     });
   },
 
-  // 进入我的预约
-  goToMyAppointments: function () {
-    wx.navigateTo({
-      url: '/appointment/pages/appointment/myAppointments'
-    });
-  },
-
-  // 进入我的医生
-  goToMyDoctors: function () {
-    wx.navigateTo({
-      url: '/appointment/pages/appointment/myDoctors'
-    });
+  // 更新子科室列表
+  updateSubDepartments() {
+    if (this.data.selectedDepartment) {
+      this.setData({
+        subDepartments: this.data.selectedDepartment.subDepartments || []
+      });
+    }
   }
 });

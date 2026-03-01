@@ -1,0 +1,48 @@
+<view class="container">
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{isEmpty}}">
+    <text class="empty-icon">📋</text>
+    <text class="empty-text">暂无挂号记录</text>
+    <button class="btn-booking" bindtap="goToBooking">立即预约</button>
+  </view>
+
+  <!-- 挂号记录列表 -->
+  <view class="records-list" wx:else>
+    <view class="record-card" wx:for="{{records}}" wx:key="id">
+      <view class="record-header">
+        <view class="record-status {{item.status === '已预约' ? 'active' : 'cancelled'}}">
+          <text class="status-text">{{item.status}}</text>
+        </view>
+        <text class="record-no">{{item.bookingNo}}</text>
+      </view>
+
+      <view class="record-body">
+        <view class="record-row">
+          <text class="record-label">院区</text>
+          <text class="record-value">{{item.area.name}}</text>
+        </view>
+        <view class="record-row">
+          <text class="record-label">科室</text>
+          <text class="record-value">{{item.department.name}} - {{item.subDepartment.name}}</text>
+        </view>
+        <view class="record-row">
+          <text class="record-label">日期</text>
+          <text class="record-value">{{item.date}}</text>
+        </view>
+        <view class="record-row">
+          <text class="record-label">时段</text>
+          <text class="record-value">{{item.timeSlot.name}} {{item.period.name}}</text>
+        </view>
+        <view class="record-row" wx:if="{{item.cancelTime}}">
+          <text class="record-label">取消时间</text>
+          <text class="record-value">{{item.cancelTime}}</text>
+        </view>
+      </view>
+
+      <view class="record-footer">
+        <button class="btn-detail" bindtap="viewDetail" data-index="{{index}}">查看详情</button>
+        <button class="btn-cancel" wx:if="{{item.status === '已预约'}}" bindtap="cancelBooking" data-index="{{index}}">取消预约</button>
+      </view>
+    </view>
+  </view>
+</view>

@@ -349,12 +349,13 @@ Page({
       console.error('任务不存在:', this.data.stageIndex, this.data.taskIndex);
       return;
     }
-    this.aiMessageToSend={
+
+    const aiMessageToSend = {
       speaker: 'ai',
       content: task.detail,
       options: task.options,
       navigations: task.navigations
-    }
+    };
 
     const taskFun = task.taskFun;
     if (taskFun && typeof taskFun === 'function') {
@@ -363,11 +364,9 @@ Page({
     } else {
       console.log(`[DEBUG] 子任务未指定 taskFun，继续下一个`);
     }
-    
-    this.addAIMessage(this.aiMessageToSend);
-    this.aiMessageToSend={};
-    this.scrollToBottom();  
 
+    this.addAIMessage(aiMessageToSend);
+    this.scrollToBottom();
   },
 
   continueToNextTask() {
@@ -399,16 +398,15 @@ Page({
  
 
   getAIReply() {
-    if (this.data.mode !== 'guide') {
-      setTimeout(async () => {
-        const aiReply = await this.callAIModel(this.data.currentUserMessage);
-        const updatedMessages = [...this.data.messages.slice(0, -1), { speaker: 'ai', content: aiReply }];
-        this.setData({ messages: updatedMessages });
-        this.scrollToBottom();
-      }, 800);
-    }
-
-
+    setTimeout(async () => {
+      const aiReply = await this.callAIModel(this.data.currentUserMessage);
+      const messages = this.data.messages;
+      if (messages.length > 0 && messages[messages.length - 1].speaker === 'ai') {
+        messages[messages.length - 1] = { speaker: 'ai', content: aiReply };
+        this.setData({ messages });
+      }
+      this.scrollToBottom();
+    }, 800);
   },
  async callAIModel(userMessage) {
     try {
@@ -541,27 +539,26 @@ Page({
 
   // ========== UI 交互与事件处理 ==========
 
-  addMessage(_speaker, _content, _options = [],_navigations=[]) {
-    const newMsg = { speaker: _speaker, content: _content, options: _options,navigations:_navigations };
+  addMessage(_speaker, _content, _options = [], _navigations = []) {
+    const newMsg = { speaker: _speaker, content: _content, options: _options, navigations: _navigations };
     this.setData({
-      messages: this.data.messages.concat(newMsg)
+      messages: [...this.data.messages, newMsg]
     });
   },
 
   addSystemMessage(_content) {
     const newMsg = { speaker: 'system', content: _content, options: [], navigations: [] };
     this.setData({
-      messages: this.data.messages.concat(newMsg)
+      messages: [...this.data.messages, newMsg]
     });
   },
 
-  addAIMessage(_message)
-  {
-    this.addMessage('ai',_message.content,_message.options,_message.navigations)
+  addAIMessage(_message) {
+    this.addMessage('ai', _message.content, _message.options, _message.navigations);
   },
 
   replaceLastAIMessage(_message) {
-    const messages = this.data.messages;
+    const messages = [...this.data.messages];
     if (messages.length > 0 && messages[messages.length - 1].speaker === 'ai') {
       messages[messages.length - 1] = {
         speaker: 'ai',
@@ -569,9 +566,7 @@ Page({
         options: _message.options,
         navigations: _message.navigations
       };
-      this.setData({
-        messages: messages
-      });
+      this.setData({ messages });
     } else {
       this.addAIMessage(_message);
     }
@@ -648,7 +643,11 @@ Page({
   },
 
   onUnload() {
-    wx.setStorageSync('aiDialogue_messages', this.data.messages);
+    try {
+      wx.setStorageSync('aiDialogue_messages', this.data.messages);
+    } catch (e) {
+      console.error('保存对话失败', e);
+    }
   },
 
   // ========== 页面跳转功能 ==========
@@ -667,12 +666,22 @@ Page({
   },
 
   deleteChatHistory() {
-    this.setData({ messages: [] });
+    wx.showModal({
+      title: '清空聊天记录',
+      content: '确定要清空所有聊天记录吗？',
+      confirmText: '确定',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          this.setData({ messages: [] });
+          wx.showToast({ title: '已清空聊天记录', icon: 'success' });
+        }
+      }
+    });
   },
 
 
   onSubTaskCompleted(userAnswer, bigStageIdx, subTaskIdx) {
     console.log('[DEBUG] onSubTaskCompleted 被调用', { userAnswer, bigStageIdx, subTaskIdx });
   }
-
-});
+})
