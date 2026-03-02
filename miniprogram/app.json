@@ -1,10 +1,10 @@
 {
   "pages": [
     "pages/homepage/homepage",
-    "pages/consultDetail/consultDetail",
     "pages/aiDialogue/aiDialogue",
     "pages/aiDepartmentNavigation/aiDepartmentNavigation",
     "pages/aiPharmacyNavigation/aiPharmacyNavigation",
+    "pages/appointment/appointment",
     "pages/mine/mine",
     "pages/editUserInfo/editUserInfo",
     "pages/utilities/utilities",
@@ -41,14 +41,5 @@
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",
-  "lazyCodeLoading": "requiredComponents",
-  "subpackages": [
-    {
-      "root": "appointment",
-      "pages": [
-        "pages/appointment/appointment",
-        "pages/departmentDetail/departmentDetail"
-      ]
-    }
-  ]
+  "lazyCodeLoading": "requiredComponents"
 }

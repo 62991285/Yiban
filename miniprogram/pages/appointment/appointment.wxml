@@ -1,44 +1,9 @@
 <view class="container">
-  <!-- 步骤指示器 -->
-  <view class="steps-indicator">
-    <view class="step-item {{currentStep >= 1 ? 'active' : ''}} {{currentStep > 1 ? 'completed' : ''}}">
-      <view class="step-circle">
-        <text wx:if="{{currentStep > 1}}">✓</text>
-        <text wx:else>1</text>
-      </view>
-      <text class="step-text">选择院区</text>
-    </view>
-    <view class="step-line {{currentStep >= 2 ? 'active' : ''}}"></view>
-    <view class="step-item {{currentStep >= 2 ? 'active' : ''}} {{currentStep > 2 ? 'completed' : ''}}">
-      <view class="step-circle">
-        <text wx:if="{{currentStep > 2}}">✓</text>
-        <text wx:else>2</text>
-      </view>
-      <text class="step-text">选择科室</text>
-    </view>
-    <view class="step-line {{currentStep >= 3 ? 'active' : ''}}"></view>
-    <view class="step-item {{currentStep >= 3 ? 'active' : ''}} {{currentStep > 3 ? 'completed' : ''}}">
-      <view class="step-circle">
-        <text wx:if="{{currentStep > 3}}">✓</text>
-        <text wx:else>3</text>
-      </view>
-      <text class="step-text">选择时段</text>
-    </view>
-    <view class="step-line {{currentStep >= 4 ? 'active' : ''}}"></view>
-    <view class="step-item {{currentStep >= 4 ? 'active' : ''}}">
-      <view class="step-circle">
-        <text wx:if="{{currentStep > 4}}">✓</text>
-        <text wx:else>4</text>
-      </view>
-      <text class="step-text">确认信息</text>
-    </view>
-  </view>
-
   <!-- 步骤1: 选择院区 -->
   <view class="step-content" wx:if="{{currentStep === 1}}">
     <view class="step-title">
       <text class="step-icon">🏥</text>
-      <text class="step-title-text">选择就诊院区</text>
+      <text class="step-title-text">步骤1/3：选择就诊院区</text>
     </view>
     <view class="area-list">
       <view
@@ -67,9 +32,9 @@
   <view class="step-content" wx:if="{{currentStep === 2}}">
     <view class="step-title">
       <text class="step-icon">🩺</text>
-      <text class="step-title-text">选择就诊科室</text>
+      <text class="step-title-text">步骤2/3：选择就诊科室</text>
     </view>
-    <view class="department-container">
+    <view class="department-container {{currentStep === 2 ? 'current' : ''}}">
       <scroll-view class="department-left" scroll-y>
         <view
           class="department-main {{selectedDepartment.id == item.id ? 'active' : ''}}"
@@ -83,21 +48,63 @@
         </view>
       </scroll-view>
       <scroll-view class="department-right" scroll-y>
-        <view
-          class="department-sub {{selectedSubDepartment.id == item.id ? 'selected' : ''}}"
-          wx:for="{{subDepartments}}"
-          wx:key="id"
-          bindtap="selectSubDepartment"
-          data-id="{{item.id}}"
-        >
-          <view class="sub-dept-content">
-            <text class="sub-dept-name">{{item.name}}</text>
-            <text class="sub-dept-desc">{{item.description}}</text>
-          </view>
-          <text class="selected-icon">{{selectedSubDepartment.id == item.id ? '✓' : ''}}</text>
+        <!-- 时段选择页返回按钮 -->
+        <view class="back-to-sub" wx:if="{{rightPanelType === 'timeSlots'}}" bindtap="backToSubDepartments">
+          <text class="back-icon">‹</text>
+          <text class="back-text">返回科室选择</text>
         </view>
-        <view class="empty-tip" wx:if="{{subDepartments.length === 0}}">
-          请先选择左侧科室
+
+        <!-- 显示子科室列表 -->
+        <view wx:if="{{rightPanelType === 'subDepartments'}}">
+          <view
+            class="department-sub {{selectedSubDepartment.id == item.id ? 'selected' : ''}}"
+            wx:for="{{subDepartments}}"
+            wx:key="id"
+            bindtap="selectSubDepartment"
+            data-id="{{item.id}}"
+          >
+            <view class="sub-dept-content">
+              <text class="sub-dept-name">{{item.name}}</text>
+              <text class="sub-dept-desc">{{item.description}}</text>
+            </view>
+            <text class="selected-icon">{{selectedSubDepartment.id == item.id ? '✓' : ''}}</text>
+          </view>
+          <view class="empty-tip" wx:if="{{subDepartments.length === 0}}">
+            请先选择左侧科室
+          </view>
+        </view>
+        <!-- 显示时段选择 -->
+        <view wx:if="{{rightPanelType === 'timeSlots'}}" class="time-slots-panel">
+          <view class="time-slots-header">
+            <text class="time-slots-title">选择时段</text>
+            <text class="current-date">{{currentDate}}</text>
+          </view>
+          <view
+            class="time-slot-section {{selectedTimeSlot == item.id ? 'selected' : ''}}"
+            wx:for="{{timeSlots}}"
+            wx:key="id"
+            bindtap="selectTimeSlot"
+            data-id="{{item.id}}"
+          >
+            <view class="time-slot-header">
+              <text class="time-slot-name">{{item.name}}</text>
+              <text class="time-slot-count">{{item.periods.length}}个时段</text>
+            </view>
+            <view class="time-periods" wx:if="{{selectedTimeSlot == item.id}}">
+              <view
+                class="time-period {{selectedPeriod.id == p.id ? 'selected' : ''}}"
+                wx:for="{{item.periods}}"
+                wx:for-item="p"
+                wx:key="id"
+                bindtap="selectPeriod"
+                data-id="{{p.id}}"
+                catchtap="stopPropagation"
+              >
+                <text class="period-time">{{p.name}}</text>
+                <text class="period-status">可预约</text>
+              </view>
+            </view>
+          </view>
         </view>
       </scroll-view>
     </view>
@@ -107,52 +114,11 @@
     </view>
   </view>
 
-  <!-- 步骤3: 选择时段 -->
+  <!-- 步骤3: 确认信息 -->
   <view class="step-content" wx:if="{{currentStep === 3}}">
     <view class="step-title">
-      <text class="step-icon">⏰</text>
-      <text class="step-title-text">选择就诊时段</text>
-      <text class="current-date">{{currentDate}}</text>
-    </view>
-    <view class="time-slots">
-      <view
-        class="time-slot-section {{selectedTimeSlot == item.id ? 'selected' : ''}}"
-        wx:for="{{timeSlots}}"
-        wx:key="id"
-        bindtap="selectTimeSlot"
-        data-id="{{item.id}}"
-      >
-        <view class="time-slot-header">
-          <text class="time-slot-name">{{item.name}}</text>
-          <text class="time-slot-count">{{item.periods.length}}个时段</text>
-        </view>
-        <view class="time-periods" wx:if="{{selectedTimeSlot == item.id}}">
-          <view
-            class="time-period {{selectedPeriod.id == p.id ? 'selected' : ''}}"
-            wx:for="{{item.periods}}"
-            wx:for-item="p"
-            wx:key="id"
-            bindtap="selectPeriod"
-            data-id="{{p.id}}"
-            catchtap="true"
-          >
-            <text class="period-time">{{p.name}}</text>
-            <text class="period-status">可预约</text>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="step-actions">
-      <button class="btn-prev" bindtap="goToPrevStep">上一步</button>
-      <button class="btn-next" bindtap="confirmTimeSlot">下一步</button>
-    </view>
-  </view>
-
-  <!-- 步骤4: 确认信息 -->
-  <view class="step-content" wx:if="{{currentStep === 4}}">
-    <view class="step-title">
       <text class="step-icon">✅</text>
-      <text class="step-title-text">确认预约信息</text>
+      <text class="step-title-text">步骤3/3：确认预约信息</text>
     </view>
     <view class="confirm-card">
       <view class="confirm-info-row">
@@ -161,7 +127,7 @@
       </view>
       <view class="confirm-info-row">
         <text class="confirm-label">就诊科室</text>
-        <text class="confirm-value">{{department.name}} - {{subDepartment.name}}</text>
+        <text class="confirm-value">{{selectedDepartment.name}} - {{selectedSubDepartment.name}}</text>
       </view>
       <view class="confirm-info-row">
         <text class="confirm-label">就诊日期</text>
@@ -169,7 +135,8 @@
       </view>
       <view class="confirm-info-row">
         <text class="confirm-label">就诊时段</text>
-        <text class="confirm-value">{{timeSlot.name}} {{period.name}}</text>
+        <text class="confirm-value" wx:if="{{timeSlot}}">{{timeSlot.name}} {{period.name}}</text>
+        <text class="confirm-value" wx:else>请选择时段</text>
       </view>
       <view class="confirm-tip">
         <text class="tip-icon">💡</text>

@@ -1,8 +1,10 @@
 .container {
   min-height: 100vh;
   background: linear-gradient(180deg, #F0F9F1 0%, #F5F5F5 100%);
-  padding: 30rpx;
-  padding-bottom: 100rpx;
+  /*padding: 20rpx;
+  padding-bottom: 80rpx;*/
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* 步骤指示器 */
@@ -10,39 +12,41 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 40rpx 20rpx;
+  padding: 24rpx 30rpx;
   background: white;
-  border-radius: 20rpx;
-  margin-bottom: 30rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
 }
 
 .step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  gap: 8rpx;
   flex: 1;
 }
 
 .step-circle {
-  width: 60rpx;
-  height: 60rpx;
+  width: 44rpx;
+  height: 44rpx;
   border-radius: 50%;
-  background: #E8E8E8;
+  background: #F0F0F0;
   color: #999;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
+  font-size: 20rpx;
   font-weight: bold;
-  margin-bottom: 12rpx;
   transition: all 0.3s;
+  flex-shrink: 0;
 }
 
 .step-item.active .step-circle {
   background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
   color: white;
-  box-shadow: 0 4rpx 12rpx rgba(0, 200, 83, 0.4);
+  box-shadow: 0 2rpx 8rpx rgba(0, 200, 83, 0.3);
 }
 
 .step-item.completed .step-circle {
@@ -51,7 +55,7 @@
 }
 
 .step-text {
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: #999;
   transition: all 0.3s;
 }
@@ -63,9 +67,8 @@
 
 .step-line {
   flex: 1;
-  height: 4rpx;
-  background: #E8E8E8;
-  margin: 0 10rpx;
+  height: 2rpx;
+  background: #F0F0F0;
   transition: all 0.3s;
 }
 
@@ -102,7 +105,7 @@
 }
 
 .step-title-text {
-  font-size: 36rpx;
+  font-size: 32rpx;
   font-weight: bold;
   color: #1A1A1A;
 }
@@ -190,37 +193,47 @@
 /* 科室选择 */
 .department-container {
   display: flex;
-  height: 600rpx;
+  height: 60%;
   background: white;
-  border-radius: 20rpx;
+  border-radius: 16rpx;
   overflow: hidden;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
+  margin-bottom: 40rpx;
+  transition: border-color 0.3s;
+}
+
+.department-container.current {
+  border-color: #00C853;
+  box-shadow: 0 6rpx 24rpx rgba(0, 200, 83, 0.15);
 }
 
 .department-left {
-  width: 35%;
-  background: #FAFAFA;
-  border-right: 1rpx solid #E8E8E8;
+  width: 28%;
+  background: #f5f7f4;
+ 
 }
 
 .department-main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30rpx 20rpx;
-  border-bottom: 1rpx solid #E8E8E8;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 24rpx 16rpx;
+  border-bottom: 1rpx solid #F0F0F0;
   transition: all 0.3s;
+  text-align: center;
 }
 
 .dept-icon {
-  font-size: 36rpx;
-  margin-bottom: 10rpx;
+  font-size: 32rpx;
+  flex-shrink: 0;
 }
 
 .department-main.active {
   background: white;
   border-left: 4rpx solid #00C853;
+  background: linear-gradient(90deg, #F0F9F1 0%, #FFFFFF 100%);
 }
 
 .department-main.active .department-name {
@@ -231,28 +244,32 @@
 .department-name {
   font-size: 26rpx;
   color: #666;
-  text-align: center;
   line-height: 1.4;
 }
 
 .department-right {
-  width: 65%;
-  padding: 20rpx;
+  width: 60%;
+  
+  background: white;
+  box-sizing: border-box;
 }
 
 .department-sub {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx 24rpx;
-  background: #FAFAFA;
-  border-radius: 12rpx;
+  padding: 28rpx 20rpx;
+  background: #F8F8F8;
+  border-radius: 16rpx;
   margin-bottom: 16rpx;
+  border: 2rpx solid transparent;
   transition: all 0.3s;
 }
 
 .department-sub.selected {
   background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+  border-color: #00C853;
+  transform: scale(1.02);
 }
 
 .sub-dept-content {
@@ -264,7 +281,7 @@
 .sub-dept-name {
   font-size: 28rpx;
   color: #1A1A1A;
-  font-weight: 500;
+  font-weight: 600;
   margin-bottom: 8rpx;
 }
 
@@ -282,23 +299,79 @@
 }
 
 .selected-icon {
-  width: 48rpx;
-  height: 48rpx;
-  background: #00C853;
+  width: 44rpx;
+  height: 44rpx;
+  background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
+  font-size: 22rpx;
   color: white;
   margin-left: 16rpx;
+  flex-shrink: 0;
+  box-shadow: 0 2rpx 8rpx rgba(0, 200, 83, 0.25);
 }
 
 .empty-tip {
   text-align: center;
   color: #999;
   font-size: 28rpx;
-  padding: 100rpx 0;
+  padding: 120rpx 0;
+}
+
+/* 返回按钮 */
+.back-to-sub {
+  display: flex;
+  align-items: center;
+  padding: 20rpx 24rpx;
+  margin-bottom: 16rpx;
+  background: #F8F8F8;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.back-to-sub:active {
+  background: #E8E8E8;
+}
+
+.back-icon {
+  font-size: 36rpx;
+  color: #00C853;
+  margin-right: 8rpx;
+}
+
+.back-text {
+  font-size: 26rpx;
+  color: #666;
+}
+
+/* 时段选择面板（在科室右侧） */
+.time-slots-panel {
+  padding: 16rpx;
+  box-sizing: border-box;
+}
+
+.time-slots-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+  padding: 0 4rpx;
+}
+
+.time-slots-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #1A1A1A;
+}
+
+.time-slots-panel .time-slot-section {
+  margin-bottom: 20rpx;
+}
+
+.time-slots-panel .time-slot-section:last-child {
+  margin-bottom: 0;
 }
 
 /* 时段选择 */
@@ -325,8 +398,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx;
-  background: #FAFAFA;
+  padding: 20rpx;
+  background: #F8F8F8;
 }
 
 .time-slot-section.selected .time-slot-header {
@@ -350,21 +423,23 @@
 
 .time-periods {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16rpx;
-  padding: 24rpx;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10rpx;
+  padding: 16rpx;
   background: white;
+  box-sizing: border-box;
 }
 
 .time-period {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24rpx 12rpx;
-  background: #FAFAFA;
+  padding: 20rpx 16rpx;
+  background: #F8F8F8;
   border-radius: 12rpx;
   border: 2rpx solid #E8E8E8;
   transition: all 0.3s;
+  cursor: pointer;
 }
 
 .time-period.selected {
@@ -451,18 +526,25 @@
 
 /* 按钮区域 */
 .step-actions {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  gap: 20rpx;
-  margin-top: 40rpx;
+  gap: 16rpx;
+  padding: 20rpx 30rpx;
+  background: linear-gradient(180deg, rgba(240, 249, 241, 0.95) 0%, rgba(245, 245, 245, 0.95) 100%);
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
 }
 
 .btn-prev,
 .btn-next,
 .btn-confirm {
   flex: 1;
-  height: 96rpx;
-  border-radius: 48rpx;
-  font-size: 32rpx;
+  height: 70rpx;
+  border-radius: 35rpx;
+  font-size: 28rpx;
   font-weight: bold;
   border: none;
   display: flex;
@@ -483,7 +565,7 @@
 .btn-next {
   background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
   color: white;
-  box-shadow: 0 4rpx 16rpx rgba(0, 200, 83, 0.3);
+  box-shadow: 0 2rpx 12rpx rgba(0, 200, 83, 0.25);
 }
 
 .btn-next::after {
@@ -493,7 +575,7 @@
 .btn-confirm {
   background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
   color: white;
-  box-shadow: 0 4rpx 16rpx rgba(0, 200, 83, 0.3);
+  box-shadow: 0 2rpx 12rpx rgba(0, 200, 83, 0.25);
   flex: 2;
 }
 
@@ -504,6 +586,11 @@
 .btn-prev:active,
 .btn-next:active,
 .btn-confirm:active {
-  opacity: 0.8;
-  transform: scale(0.98);
+  opacity: 0.85;
+  transform: scale(0.97);
+}
+
+/* 底部占位 - 为粘滞按钮预留空间 */
+.bottom-placeholder {
+  height: 180rpx;
 }

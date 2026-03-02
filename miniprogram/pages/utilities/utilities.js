@@ -32,7 +32,7 @@ Page({
         title: '预约挂号',
         desc: '快速预约专家门诊',
         icon: '/images/icons/examples.png',
-        url: '/pages/Appointment/Appointment'
+        url: '/pages/appointment/appointment'
       },
       {
         id: 5,

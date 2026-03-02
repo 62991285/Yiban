@@ -1,8 +1,8 @@
-const hospitalData = require('../../config/hospitalData.json');
+const hospitalData = require('../../config/hospitalData.js');
 
 Page({
   data: {
-    // 流程步骤: 1-院区选择, 2-科室选择, 3-时段选择, 4-确认信息
+    // 流程步骤: 1-院区选择, 2-科室选择, 3-确认信息
     currentStep: 1,
 
     // 选择数据
@@ -17,6 +17,9 @@ Page({
     departments: [],
     subDepartments: [],
     timeSlots: [],
+
+    // 右侧面板显示类型: 'subDepartments' 或 'timeSlots'
+    rightPanelType: 'subDepartments',
 
     // 日期信息
     currentDate: '',
@@ -59,7 +62,6 @@ Page({
       selectedTimeSlot: null,
       selectedPeriod: null
     });
-    wx.vibrateShort({ type: 'light' });
   },
 
   // 确认院区选择，进入下一步
@@ -77,9 +79,12 @@ Page({
     const department = this.data.departments.find(dept => dept.id === id);
     this.setData({
       selectedDepartment: department,
-      selectedSubDepartment: null
+      subDepartments: department.subDepartments || [],
+      selectedSubDepartment: null,
+      rightPanelType: 'subDepartments',
+      selectedTimeSlot: null,
+      selectedPeriod: null
     });
-    wx.vibrateShort({ type: 'light' });
   },
 
   // 选择子科室
@@ -87,12 +92,14 @@ Page({
     const id = parseInt(e.currentTarget.dataset.id);
     const subDepartment = this.data.subDepartments.find(sd => sd.id === id);
     this.setData({
-      selectedSubDepartment: subDepartment
+      selectedSubDepartment: subDepartment,
+      rightPanelType: 'timeSlots',
+      selectedTimeSlot: null,
+      selectedPeriod: null
     });
-    wx.vibrateShort({ type: 'light' });
   },
 
-  // 确认科室选择，进入下一步
+  // 确认科室和时段选择，进入下一步
   confirmDepartment() {
     if (!this.data.selectedDepartment) {
       wx.showToast({ title: '请选择科室', icon: 'none' });
@@ -100,6 +107,14 @@ Page({
     }
     if (!this.data.selectedSubDepartment) {
       wx.showToast({ title: '请选择具体科室', icon: 'none' });
+      return;
+    }
+    if (!this.data.selectedTimeSlot) {
+      wx.showToast({ title: '请选择时段', icon: 'none' });
+      return;
+    }
+    if (!this.data.selectedPeriod) {
+      wx.showToast({ title: '请选择具体时间', icon: 'none' });
       return;
     }
     this.goToStep(3);
@@ -116,13 +131,12 @@ Page({
 
   // 选择具体时间
   selectPeriod(e) {
-    const id = e.currentTarget.dataset.id;
+    const id = String(e.currentTarget.dataset.id);
     const timeSlot = this.data.timeSlots.find(ts => ts.id === this.data.selectedTimeSlot);
-    const period = timeSlot ? timeSlot.periods.find(p => p.id === id) : null;
+    const period = timeSlot ? timeSlot.periods.find(p => String(p.id) === id) : null;
     this.setData({
       selectedPeriod: period
     });
-    wx.vibrateShort({ type: 'light' });
   },
 
   // 确认时段选择，进入下一步
@@ -135,7 +149,7 @@ Page({
       wx.showToast({ title: '请选择具体时间', icon: 'none' });
       return;
     }
-    this.goToStep(4);
+    this.goToStep(3);
   },
 
   // 生成挂号信息对象
@@ -153,7 +167,11 @@ Page({
       createTime: new Date().toLocaleString(),
       bookingNo: this.generateBookingNo()
     };
-    this.setData({ bookingInfo: info });
+    this.setData({
+      bookingInfo: info,
+      timeSlot: timeSlot,
+      period: this.data.selectedPeriod
+    });
     return info;
   },
 
@@ -206,12 +224,29 @@ Page({
     }
   },
 
+  // 获取当前步骤的class
+  getStepClass(step) {
+    return this.data.currentStep === step ? 'current' : '';
+  },
+
+  // 阻止事件冒泡
+  stopPropagation() {
+    // 空函数，仅用于阻止事件冒泡
+  },
+
   // 返回上一步
   goToPrevStep() {
     const prevStep = this.data.currentStep - 1;
     if (prevStep >= 1) {
       this.goToStep(prevStep);
     }
+  },
+
+  // 返回科室列表
+  backToSubDepartments() {
+    this.setData({
+      rightPanelType: 'subDepartments'
+    });
   },
 
   // 重新开始
@@ -223,7 +258,8 @@ Page({
       selectedSubDepartment: null,
       selectedTimeSlot: null,
       selectedPeriod: null,
-      bookingInfo: {}
+      bookingInfo: {},
+      rightPanelType: 'subDepartments'
     });
   },
 
