@@ -1,7 +1,10 @@
 Page({
   data: {
-    selectedArea: 1,
-    selectedMainDepartment: 1,
+    selectedArea: 1,          // 选中的院区ID
+    selectedMainDepartment: 1,// 选中的大科室ID
+    selectedSubDepartment: '',// 选中的子科室ID
+    selectedSubDepartmentName: '',// 选中的子科室名称
+    openId: '',               // 用户OpenID
     areas: [
       { id: 1, name: '汉口院区' },
       { id: 2, name: '光谷院区' },
@@ -30,13 +33,39 @@ Page({
     ]
   },
 
-  onLoad: function () {
-    // 页面加载时的初始化逻辑
+  onLoad: async function () {
+    // 页面加载时先获取用户OpenID
+    await this.getOpenId();
+  },
+
+  // 调用云函数获取OpenID
+  getOpenId: async function () {
+    try {
+      wx.showLoading({ title: '获取用户信息中...' });
+      const res = await wx.cloud.callFunction({
+        name: 'getOpenId', // 云函数名称
+        data: {} // 无需传参
+      });
+
+      if (res.result.code === 0) {
+        this.setData({
+          openId: res.result.data.openId // 存储OpenID到页面数据
+        });
+      } else {
+        wx.showToast({ title: '获取用户信息失败', icon: 'none' });
+        console.error('获取OpenID失败：', res.result.msg);
+      }
+    } catch (error) {
+      wx.showToast({ title: '网络错误，请重试', icon: 'none' });
+      console.error('调用云函数失败：', error);
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   // 选择院区
   selectArea: function (e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     this.setData({
       selectedArea: id
     });
@@ -44,18 +73,37 @@ Page({
 
   // 选择大科室
   selectMainDepartment: function (e) {
-    const id = e.currentTarget.dataset.id;
+    const id = Number(e.currentTarget.dataset.id);
     this.setData({
       selectedMainDepartment: id,
-      // 根据选择的大科室更新子科室列表
-      subDepartments: this.getSubDepartments(id)
+      subDepartments: this.getSubDepartments(id),
+      selectedSubDepartment: '', // 切换大科室清空子科室选择
+      selectedSubDepartmentName: ''
     });
+  },
+
+  // 选择子科室
+  selectSubDepartment: function (e) {
+    const id = Number(e.currentTarget.dataset.id);
+    const name = e.currentTarget.dataset.name;
+    this.setData({
+      selectedSubDepartment: id,
+      selectedSubDepartmentName: name
+    });
+  },
+
+  // 医生姓名输入
+  inputDoctorName: function () {
+  
+  },
+
+  // 选择挂号时间段
+  selectTimeSlot: function () {
+   
   },
 
   // 获取子科室列表
   getSubDepartments: function (mainDepartmentId) {
-    // 这里可以根据不同的大科室返回不同的子科室
-    // 实际项目中可能从服务器获取数据
     const departmentMap = {
       1: [ // 内科
         { id: 101, name: '普通门诊' },
@@ -83,11 +131,74 @@ Page({
         { id: 403, name: '新生儿科' }
       ]
     };
-
     return departmentMap[mainDepartmentId] || [];
   },
 
-  // 进入科室详情页
+  submitRegistration: async function () {
+    // 1. 表单校验
+    const { 
+      selectedArea, selectedMainDepartment, selectedSubDepartment, 
+      openId 
+    } = this.data;
+
+    // 校验OpenID是否获取成功
+    if (!openId) {
+      wx.showToast({ title: '用户信息获取失败，请刷新页面', icon: 'none' });
+      return;
+    }
+
+    // 获取院区名称
+    const areaItem = this.data.areas.find(area => area.id === selectedArea);
+    const hospitalName = areaItem ? areaItem.name : '';
+    // 获取大科室名称
+    const mainDeptItem = this.data.mainDepartments.find(dept => dept.id === selectedMainDepartment);
+    const mainDeptName = mainDeptItem ? mainDeptItem.name : '';
+
+    // 校验必填项
+    if (!hospitalName) {
+      wx.showToast({ title: '请选择院区', icon: 'none' });
+      return;
+    }
+    if (!mainDeptName) {
+      wx.showToast({ title: '请选择大科室', icon: 'none' });
+      return;
+    }
+    if (!this.data.selectedSubDepartmentName) {
+      wx.showToast({ title: '请选择子科室', icon: 'none' });
+      return;
+    }
+
+    // 2. 构造挂号数据（医生姓名、时间段置为null）
+    const registrationData = {
+      openId: openId,                  // 用户唯一标识
+      hospitalName: hospitalName,      // 挂号医院（院区）
+      department: `${mainDeptName}-${this.data.selectedSubDepartmentName}`, // 挂号科目
+      doctorName: null,                // 医生名称暂置为null
+      timeSlot: null,                  // 挂号时间段暂置为null
+      createTime: new Date().getTime(),// 提交时间戳
+      registrationId: 'REG' + Date.now() + Math.floor(Math.random() * 1000) // 唯一挂号ID
+    };
+
+    try {
+      // 3. 上传到云数据库
+      await wx.cloud.database().collection('registrations').add({
+        data: registrationData
+      });
+
+      wx.showToast({ title: '挂号信息上传成功', icon: 'success' });
+      
+      // 4. 清空表单
+      this.setData({
+        selectedSubDepartment: '',
+        selectedSubDepartmentName: ''
+      });
+
+    } catch (error) {
+      console.error('挂号信息上传失败：', error);
+      wx.showToast({ title: '上传失败，请重试', icon: 'none' });
+    }
+  },
+
   goToDepartmentDetail: function (e) {
     const departmentId = e.currentTarget.dataset.id;
     const departmentName = e.currentTarget.dataset.name;
@@ -98,15 +209,11 @@ Page({
       url: `/appointment/pages/departmentDetail/departmentDetail?departmentId=${departmentId}&departmentName=${departmentName}&areaName=${areaName}`
     });
   },
-
-  // 进入我的预约
   goToMyAppointments: function () {
     wx.navigateTo({
       url: '/appointment/pages/appointment/myAppointments'
     });
   },
-
-  // 进入我的医生
   goToMyDoctors: function () {
     wx.navigateTo({
       url: '/appointment/pages/appointment/myDoctors'
