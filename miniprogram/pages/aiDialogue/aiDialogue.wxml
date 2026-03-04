@@ -1,5 +1,6 @@
 <view class="ai-dialogue-page">
 
+
   <!-- 问诊任务描述区（可展开）- 粘滞定位 -->
   <view class="task-description-bar sticky-top">
     <view class="stage-summary">
@@ -15,9 +16,11 @@
       <view class="progress-bar">
         <view class="progress-fill" style="width: {{completedTaskCount > 0 && totalTaskCount > 0 ? (completedTaskCount / totalTaskCount * 100) + '%' : '0%'}}"></view>
       </view>
+      <text class="progress-text">{{completedTaskCount}}/{{totalTaskCount}}</text>
     </view>
     <view wx:if="{{showTaskDetail}}" class="task-detail">
-      {{ taskName || taskDetail || '暂无任务描述。请选择症状开始问诊。' }}
+      <view class="task-detail-icon">💡</view>
+      <text class="task-detail-text">{{ taskName || taskDetail || '暂无任务描述。请选择症状开始问诊。' }}</text>
     </view>
   </view>
 
@@ -41,8 +44,9 @@
             </message-item>
             <!-- 消息导航按钮 -->
             <view wx:if="{{item.speaker === 'ai' && item.navigations && item.navigations.length > 0}}" class="message-navigations">
-              <block wx:for="{{item.navigations}}" wx:key="index" wx:for-item="nav">
+              <block wx:for="{{item.navigations}}" wx:key="name" wx:for-item="nav">
                 <view class="nav-btn" bindtap="navigateTo" data-url="{{nav.url}}">
+                  <view class="nav-icon">🔗</view>
                   <text class="nav-text">{{nav.name}}</text>
                 </view>
               </block>
@@ -58,15 +62,19 @@
           <view class="dot dot-2"></view>
           <view class="dot dot-3"></view>
         </view>
-        <text class="typing-text">AI正在思考...</text>
+        <text class="typing-text">AI 正在思考...</text>
       </view>
     </view>
   </scroll-view>
 
   <!-- 聊天操作区 - 粘滞定位 -->
   <view class="chat-controls sticky-controls">
-    <text class="delete-chat-history" bind:tap="deleteChatHistory"> 🗑️ 清空对话</text>
-    <view class="chat-stats"></view>
+    <view class="control-group">
+      <text class="delete-chat-history" bind:tap="deleteChatHistory">🗑️ 清空对话</text>
+      <view class="chat-stats">
+        <text class="message-count">{{messages.length}} 条消息</text>
+      </view>
+    </view>
     <!-- 浮动按钮 - 粘滞模式，位于右上角 -->
     <view class="sticky-fab-btn {{mode==='guide'?'mode-delete':'mode-add'}}" bindtap="startOrDeleteNewTask">
       <text class="fab-icon-new">{{mode==='guide'?'−':'+'}}</text>
@@ -116,6 +124,7 @@
   <!-- 用户输入区域 - AI风格 - 粘滞定位 -->
   <view class="ai-input-container sticky-input">
     <view class="input-wrapper-modern">
+      <view class="input-icon">✨</view>
       <textarea
         class="modern-input-box"
         placeholder="请输入您的问题，AI将为您提供专业建议"

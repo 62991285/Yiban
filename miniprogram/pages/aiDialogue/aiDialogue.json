@@ -1,8 +1,5 @@
 {
-
-  "usingComponents": 
-  {
-  "message-item":"/components/message/message"
-
+  "usingComponents": {
+    "message-item": "../../components/message/message"
   }
 }

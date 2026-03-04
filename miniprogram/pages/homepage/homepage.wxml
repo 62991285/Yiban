@@ -13,7 +13,7 @@
       <view class="avatar-container">
         <view class="avatar-ring">
           <view class="avatar-core">
-            <image class="ai-icon" src="/images/ai-brain.png" mode="aspectFit"></image>
+            <view class="ai-icon">🧠</view>
           </view>
         </view>
         <view class="pulse-ring pulse-1"></view>
