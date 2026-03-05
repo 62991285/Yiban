@@ -1,5 +1,5 @@
-// 任务处理器集合
-const taskHandlers = {
+// 步骤动作处理器集合
+const stepActions = {
   // 生成分诊建议
   generateTriageAdvice: async (pageInstance) => {
     const { dialogueRecord } = pageInstance.data;
@@ -16,7 +16,7 @@ const taskHandlers = {
       if (result.result.success) {
         pageInstance.setData({
           stageSummary: "问诊完成 - 分诊建议已生成",
-          taskDetail: "AI已完成症状采集和分析",
+          stepDetail: "AI已完成症状采集和分析",
           isAITyping: false,
         });
         pageInstance.replaceLastAIMessage(
@@ -57,7 +57,7 @@ const taskHandlers = {
     setTimeout(() => {
       pageInstance.setData({
         stageSummary: "挂号建议已生成",
-        taskDetail: "已推荐挂号科室",
+        stepDetail: "已推荐挂号科室",
         isAITyping: false,
       });
 
@@ -82,7 +82,7 @@ const taskHandlers = {
   endGuideMode: (pageInstance) => {
     pageInstance.setData({
       stageSummary: "导诊完成",
-      taskDetail: "感谢您的使用",
+      stepDetail: "感谢您的使用",
       isAITyping: true,
     });
 
@@ -113,38 +113,38 @@ const GUIDE_STAGES = [
     stageName: "智能问诊",
     icon: "🩺",
     description: "通过多轮对话收集您的症状信息",
-    tasks: [
+    steps: [
       {
-        taskIndex: 0,
-        taskName: "主诉采集",
+        stepIndex: 0,
+        stepName: "主诉采集",
         detail: "请您详细描述主要症状，如疼痛部位、持续时间、严重程度等。",
         options: ["头痛发热", "胸闷气促", "腹痛腹泻", "皮疹瘙痒"],
         navigations: null,
-        taskHandler: null,
+        stepHandler: null,
       },
       {
-        taskIndex: 1,
-        taskName: "既往病史询问",
+        stepIndex: 1,
+        stepName: "既往病史询问",
         detail: "请告知是否有慢性疾病、过敏史、近期用药情况等。",
         options: ["高血压", "糖尿病", "药物过敏", "无特殊病史"],
         navigations: null,
-        taskHandler: null,
+        stepHandler: null,
       },
       {
-        taskIndex: 2,
-        taskName: "生活习惯与旅行史",
+        stepIndex: 2,
+        stepName: "生活习惯与旅行史",
         detail: "请提供您的生活习惯、近期旅行史等信息。",
         options: ["近期有长途旅行", "作息规律", "饮食偏油腻", "常熬夜"],
         navigations: null,
-        taskHandler: null,
+        stepHandler: null,
       },
       {
-        taskIndex: 3,
-        taskName: "分诊建议生成",
+        stepIndex: 3,
+        stepName: "分诊建议生成",
         detail: "需要我为您提供挂号服务吗？",
         options: ["需要", "不需要"],
         navigations: null,
-        taskHandler: "generateTriageAdvice",
+        stepHandler: "generateTriageAdvice",
       },
     ],
   },
@@ -153,17 +153,17 @@ const GUIDE_STAGES = [
     stageName: "挂号建议",
     icon: "📊",
     description: "前往挂号页面完成挂号",
-    tasks: [
+    steps: [
       {
-        taskIndex: 0,
-        taskName: "挂号建议生成",
+        stepIndex: 0,
+        stepName: "挂号建议生成",
         detail: "AI 正在分析您的资料，稍后将给出分诊建议。",
         options: [],
         navigations: [
           { name: "挂号建议", url: "/pages/appointment/appointment" },
           { name: "报告", url: "/pages/report/report" },
         ],
-        taskHandler: "generateAppointmentAdvice",
+        stepHandler: "generateAppointmentAdvice",
       },
     ],
   },
@@ -172,16 +172,16 @@ const GUIDE_STAGES = [
     stageName: "科室导航",
     icon: "🗺️",
     description: "引导您前往相应科室",
-    tasks: [
+    steps: [
       {
-        taskIndex: 0,
-        taskName: "根据室内导航界面到达相应科室",
+        stepIndex: 0,
+        stepName: "根据室内导航界面到达相应科室",
         detail: "请根据室内导航界面到达相应科室",
         options: ["是", "否"],
         navigations: [
           { name: "室内导航", url: "/pages/navigation/navigation" },
         ],
-        taskHandler: null,
+        stepHandler: null,
       },
     ],
   },
@@ -190,14 +190,14 @@ const GUIDE_STAGES = [
     stageName: "等待候诊",
     icon: "⏰",
     description: "耐心等待候诊与接收医生诊断",
-    tasks: [
+    steps: [
       {
-        taskIndex: 0,
-        taskName: "等待候诊",
+        stepIndex: 0,
+        stepName: "等待候诊",
         detail: "请耐心等待候诊与接收医生诊断。",
         options: ["候诊完成"],
         navigations: null,
-        taskHandler: null,
+        stepHandler: null,
       },
     ],
   },
@@ -206,16 +206,16 @@ const GUIDE_STAGES = [
     stageName: "前往药学门诊",
     icon: "💊",
     description: "前往药学门诊取药或咨询",
-    tasks: [
+    steps: [
       {
-        taskIndex: 0,
-        taskName: "前往药学门诊",
+        stepIndex: 0,
+        stepName: "前往药学门诊",
         detail: "如需取药或咨询，请前往药学门诊",
         options: [],
         navigations: [
           { name: "药学门诊导航", url: "/pages/pharmacy/pharmacy" },
         ],
-        taskHandler: "endGuideMode",
+        stepHandler: "endGuideMode",
       },
     ],
   },
@@ -223,5 +223,5 @@ const GUIDE_STAGES = [
 
 module.exports = {
   guideStages: GUIDE_STAGES,
-  taskHandlers: taskHandlers,
+  stepActions: stepActions,
 };

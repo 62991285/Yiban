@@ -1,4 +1,5 @@
 import * as nav from "../../utils/navigation.js";
+import { callAIModel } from "../../utils/aiUtils.js";
 
 // 常量定义
 const STORAGE_KEYS = {
@@ -12,27 +13,29 @@ const WELCOME_MESSAGE =
 const WELCOME_OPTIONS = ["医院科室介绍", "挂号流程说明", "医院导航"];
 
 // 导诊阶段配置 - 从配置文件加载
-const GUIDE_STAGES = require("../../config/guideStages.js").guideStages;
+const { guideStages, stepActions } = require("../../config/guideStages.js");
+
+const STEP_ACTIONS = stepActions;
 
 Page({
   data: {
     mode: "chat",
-    showTaskDetail: false,
+    isStepDetailExpanded: false,
     stageSummary: "",
-    taskDetail: "",
-    taskName: "",
+    stepDetail: "",
+    stepName: "",
     userInput: "",
     stageIndex: 0,
-    taskIndex: 0,
-    isAITyping: false,
+    stepIndex: 0,
+    isProcessing: false,
     guideStages: [],
     messages: [],
-    dialogueRecord: [],
+    sessionRecords: [],
     scrollTop: 0,
-    currentUserMessage: "",
-    totalTaskCount: 0,
-    completedTaskCount: 0,
-    showFunctionalBar: false,
+    pendingUserInput: "",
+    totalStepCount: 0,
+    completedStepCount: 0,
+    isToolbarVisible: false,
   },
 
   // ========== 生命周期函数 ==========
@@ -61,7 +64,7 @@ Page({
   // ========== 初始化与状态管理 ==========
 
   initAISTageList() {
-    this.setData({ guideStages: GUIDE_STAGES });
+    this.setData({ guideStages: guideStages });
   },
 
   loadSavedState() {
@@ -71,9 +74,7 @@ Page({
 
       if (savedMessages.length > 0 && savedMode === "guide") {
         this.setData({ messages: savedMessages, mode: "guide" });
-        this.calculateTotalTasks();
-        this.calculateCompletedTasks();
-        this.scrollToBottom();
+        this.updateStepDisplay();
       } else {
         this.setData({
           mode: "chat",
@@ -97,7 +98,7 @@ Page({
 
   // ========== 核心流程控制 ==========
 
-  startNewTask() {
+  startGuideSession() {
     const { guideStages } = this.data;
 
     if (!guideStages?.length) {
@@ -107,40 +108,39 @@ Page({
     }
 
     const firstStage = guideStages[0];
-    if (!firstStage?.tasks?.length) {
-      console.error("第一个阶段或任务未定义:", firstStage);
-      wx.showToast({ title: "任务数据异常，请重试", icon: "none" });
+    if (!firstStage?.steps?.length) {
+      console.error("第一个阶段或步骤未定义:", firstStage);
+      wx.showToast({ title: "步骤数据异常，请重试", icon: "none" });
       return;
     }
 
-    const firstTask = firstStage.tasks[0];
+    const firstStep = firstStage.steps[0];
 
     this.setData({
       stageSummary: `阶段 1/${guideStages.length}：${firstStage.stageName}`,
-      taskDetail: firstTask.detail,
-      taskName: firstTask.taskName,
-      showTaskDetail: true,
+      stepDetail: firstStep.detail,
+      stepName: firstStep.stepName,
+      isStepDetailExpanded: true,
       stageIndex: 0,
-      taskIndex: 0,
+      stepIndex: 0,
       messages: [],
-      dialogueRecord: [],
+      sessionRecords: [],
       mode: "guide",
     });
 
     this.addSystemMessage("导诊模式已开启");
-    this.calculateTotalTasks();
-    this.calculateCompletedTasks();
+    this.updateStepDisplay();
     this.addMessage(
       "ai",
-      `您好！我是AI健康助手，${firstStage.description}\n\n${firstTask.detail}`,
-      firstTask.options,
+      `您好！我是AI健康助手，${firstStage.description}\n\n${firstStep.detail}`,
+      firstStep.options,
     );
     this.scrollToBottom();
   },
 
-  startOrDeleteNewTask() {
+  toggleGuideSession() {
     if (this.data.mode !== "guide") {
-      this.startNewTask();
+      this.startGuideSession();
       return;
     }
 
@@ -162,11 +162,11 @@ Page({
     this.setData({
       mode: "chat",
       stageSummary: "",
-      taskDetail: "",
-      showTaskDetail: false,
+      stepDetail: "",
+      isStepDetailExpanded: false,
       stageIndex: 0,
-      taskIndex: 0,
-      dialogueRecord: [],
+      stepIndex: 0,
+      sessionRecords: [],
     });
     wx.showToast({ title: "已退出AI导诊", icon: "success" });
   },
@@ -182,7 +182,7 @@ Page({
     this.addMessage("user", trimmedInput);
     this.setData({
       userInput: "",
-      currentUserMessage: trimmedInput,
+      pendingUserInput: trimmedInput,
     });
 
     this.processUserMessage();
@@ -192,106 +192,103 @@ Page({
     const { mode } = this.data;
 
     if (mode === "guide") {
-      this.handleGuideModeMessage();
+      this.processGuideResponse();
     } else {
-      this.handleChatModeMessage();
+      this.processChatMessage();
     }
   },
 
-  handleGuideModeMessage() {
-    const { currentUserMessage, stageIndex, taskIndex } = this.data;
+  processGuideResponse() {
+    const { pendingUserInput, stageIndex, stepIndex } = this.data;
 
-    this.recordDialogueAnswer(currentUserMessage, stageIndex, taskIndex);
-    this.setData({ isAITyping: true });
+    this.recordUserResponse(pendingUserInput, stageIndex, stepIndex);
+    this.setData({ isProcessing: true });
     this.scrollToBottom();
-
-    setTimeout(() => {
-      this.handleSubTaskCompleted();
-      this.continueToNextTask();
-    }, 1000);
+    this.executeCurrentStep();
+    this.continueToNextStep();
   },
 
-  handleChatModeMessage() {
-    const { currentUserMessage } = this.data;
+  processChatMessage() {
+    const { pendingUserInput } = this.data;
 
-    this.setData({ isAITyping: true });
+    this.setData({ isProcessing: true });
     this.scrollToBottom();
 
     setTimeout(async () => {
       try {
-        const aiReply = await this.callAIModel(currentUserMessage);
+        const aiReply = await callAIModel(pendingUserInput);
         this.replaceLastAIMessage(aiReply);
       } catch (error) {
         console.error("AI调用失败:", error);
         this.replaceLastAIMessage("抱歉，AI服务暂时不可用，请稍后重试。");
       } finally {
-        this.setData({ isAITyping: false });
+        this.setData({ isProcessing: false });
         this.scrollToBottom();
       }
     }, 800);
   },
 
-  recordDialogueAnswer(answer, stageIdx, taskIdx) {
-    const { guideStages, dialogueRecord } = this.data;
+  recordUserResponse(response, stageIdx, stepIdx) {
+    const { guideStages, sessionRecords } = this.data;
     const stage = guideStages[stageIdx];
-    const task = stage?.tasks[taskIdx];
+    const step = stage?.steps[stepIdx];
 
-    if (!task) {
-      console.error("任务不存在:", stageIdx, taskIdx);
+    if (!step) {
+      console.error("步骤不存在:", stageIdx, stepIdx);
       return;
     }
 
     const record = {
-      bigStageIndex: stageIdx,
-      subTaskIndex: taskIdx,
-      bigStageName: stage.stageName,
-      subTaskName: task.taskName,
-      question: task.detail,
-      answer,
+      stageIndex: stageIdx,
+      stepIndex: stepIdx,
+      stageName: stage.stageName,
+      stepName: step.stepName,
+      question: step.detail,
+      response,
     };
 
-    const exists = dialogueRecord.some(
+    const exists = sessionRecords.some(
       (r) =>
-        r.bigStageIndex === record.bigStageIndex &&
-        r.subTaskIndex === record.subTaskIndex,
+        r.stageIndex === record.stageIndex && r.stepIndex === record.stepIndex,
     );
 
     if (!exists) {
       this.setData({
-        dialogueRecord: [...dialogueRecord, record],
+        sessionRecords: [...sessionRecords, record],
       });
     }
   },
 
-  handleSubTaskCompleted() {
-    const { guideStages, stageIndex, taskIndex } = this.data;
+  executeCurrentStep() {
+    const { guideStages, stageIndex, stepIndex } = this.data;
     const currentStage = guideStages[stageIndex];
-    const task = currentStage?.tasks[taskIndex];
+    const step = currentStage?.steps[stepIndex];
 
-    if (!task) {
-      console.error("任务不存在:", stageIndex, taskIndex);
+    if (!step) {
+      console.error("步骤不存在:", stageIndex, stepIndex);
       return;
     }
 
-    if (task.taskFun && typeof this[task.taskFun] === "function") {
-      this[task.taskFun]();
+    // 使用配置文件中的步骤动作处理器
+    if (step.stepHandler && STEP_ACTIONS[step.stepHandler]) {
+      STEP_ACTIONS[step.stepHandler](this);
     }
 
-    this.addMessage("ai", task.detail, task.options, task.navigations);
+    this.addMessage("ai", step.detail, step.options, step.navigations);
     this.scrollToBottom();
   },
 
-  continueToNextTask() {
-    const { guideStages, stageIndex, taskIndex } = this.data;
+  continueToNextStep() {
+    const { guideStages, stageIndex, stepIndex } = this.data;
     const currentStage = guideStages[stageIndex];
-    const nextTaskIdx = taskIndex + 1;
+    const nextStepIdx = stepIndex + 1;
 
-    if (nextTaskIdx < currentStage.tasks.length) {
+    if (nextStepIdx < currentStage.steps.length) {
       this.setData({
-        taskIndex: nextTaskIdx,
-        isAITyping: false,
+        stepIndex: nextStepIdx,
+        isProcessing: false,
       });
-      this.updateTaskDisplay();
+      this.updateStepDisplay();
       return;
     }
 
@@ -299,278 +296,55 @@ Page({
     if (nextStageIdx < guideStages.length) {
       this.setData({
         stageIndex: nextStageIdx,
-        taskIndex: 0,
-        isAITyping: false,
+        stepIndex: 0,
+        isProcessing: false,
       });
-      this.updateTaskDisplay();
+      this.updateStepDisplay();
     }
   },
 
-  updateTaskDisplay() {
-    const { guideStages, stageIndex, taskIndex } = this.data;
+  updateStepDisplay() {
+    const { guideStages, stageIndex, stepIndex } = this.data;
     const currentStage = guideStages[stageIndex];
 
     if (!currentStage) {
       return;
     }
 
-    const task = currentStage.tasks[taskIndex];
-    if (task) {
+    // 计算总步骤数的局部函数
+    const calculateTotalSteps = () => {
+      const total = guideStages.reduce(
+        (sum, stage) => sum + stage.steps.length,
+        0,
+      );
+      this.setData({ totalStepCount: total });
+    };
+
+    // 计算已完成步骤数的局部函数
+    const calculateCompletedSteps = () => {
+      let completed = 0;
+      for (let i = 0; i < stageIndex; i++) {
+        completed += guideStages[i].steps.length;
+      }
+      completed += stepIndex + 1;
+      this.setData({ completedStepCount: completed });
+    };
+
+    const step = currentStage.steps[stepIndex];
+    if (step) {
       this.setData({
         stageSummary: `阶段 ${stageIndex + 1}/${guideStages.length}：${currentStage.stageName}`,
-        taskDetail: task.detail,
-        taskName: task.taskName,
+        stepDetail: step.detail,
+        stepName: step.stepName,
       });
-      this.calculateCompletedTasks();
+      calculateCompletedSteps();
     }
 
+    calculateTotalSteps();
     this.scrollToBottom();
-  },
-
-  calculateTotalTasks() {
-    const { guideStages } = this.data;
-    const total = guideStages.reduce(
-      (sum, stage) => sum + stage.tasks.length,
-      0,
-    );
-    this.setData({ totalTaskCount: total });
-  },
-
-  calculateCompletedTasks() {
-    const { guideStages, stageIndex, taskIndex } = this.data;
-    let completed = 0;
-
-    for (let i = 0; i < stageIndex; i++) {
-      completed += guideStages[i].tasks.length;
-    }
-    completed += taskIndex + 1;
-
-    this.setData({ completedTaskCount: completed });
   },
 
   // ========== AI 调用与建议生成 ==========
-
-  async callAIModel(userMessage, retryCount = 0) {
-    const MAX_RETRIES = 2;
-    const TIMEOUT = 15000;
-
-    try {
-      if (!wx.cloud || !wx.cloud.extend || !wx.cloud.extend.AI) {
-        throw new Error("AI服务未初始化，请检查云开发配置");
-      }
-
-      const model = wx.cloud.extend.AI.createModel("hunyuan-exp");
-
-      const aiCallPromise = (async () => {
-        const result = await model.streamText({
-          data: {
-            model: "hunyuan-turbos-latest",
-            messages: [{ role: "user", content: userMessage }],
-          },
-        });
-
-        let fullText = "";
-        for await (let event of result.eventStream) {
-          if (event.data === "[DONE]") {
-            break;
-          }
-          const data = JSON.parse(event.data);
-
-          const think = data?.choices?.[0]?.delta?.reasoning_content;
-          if (think) {
-            console.log(think);
-          }
-
-          const text = data?.choices?.[0]?.delta?.content;
-          if (text) {
-            console.log(text);
-            fullText += text;
-          }
-        }
-        return fullText;
-      })();
-
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("timeout")), TIMEOUT);
-      });
-
-      const text = await Promise.race([aiCallPromise, timeoutPromise]);
-
-      if (!text || text.trim() === "") {
-        throw new Error("AI返回内容为空");
-      }
-
-      return text;
-    } catch (error) {
-      console.error(
-        `callAIModel 错误 (重试 ${retryCount}/${MAX_RETRIES}):`,
-        error,
-      );
-
-      if (retryCount < MAX_RETRIES && this.shouldRetry(error)) {
-        console.log(`正在重试第 ${retryCount + 1} 次...`);
-        await this.delay(1000 * (retryCount + 1));
-        return this.callAIModel(userMessage, retryCount + 1);
-      }
-
-      throw error;
-    }
-  },
-
-  // 获取网络类型
-  getNetworkType() {
-    return new Promise((resolve) => {
-      wx.getNetworkType({
-        success: (res) => resolve(res.networkType),
-        fail: () => resolve("unknown"),
-      });
-    });
-  },
-
-  // 判断是否应该重试
-  shouldRetry(error) {
-    const retryableErrors = [
-      "request:fail",
-      "timeout",
-      "网络错误",
-      "网络不可用",
-      "ECONNRESET",
-      "ETIMEDOUT",
-    ];
-
-    const errorMessage = error.message || error.errMsg || String(error);
-    return retryableErrors.some((keyword) => errorMessage.includes(keyword));
-  },
-
-  // 延迟函数
-  delay(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  },
-
-  // 获取友好的错误信息
-  getErrorMessage(error) {
-    const errorMessage = error.message || error.errMsg || String(error);
-
-    if (errorMessage.includes("超时") || errorMessage.includes("timeout")) {
-      return "⏰ AI服务响应超时，请稍后重试或检查网络连接。";
-    }
-
-    if (errorMessage.includes("网络") || errorMessage.includes("network")) {
-      return "📡 网络连接异常，请检查网络设置后重试。";
-    }
-
-    if (errorMessage.includes("云函数") || errorMessage.includes("cloud")) {
-      return "☁️ 云服务暂时不可用，请稍后重试。";
-    }
-
-    if (errorMessage.includes("未开通") || errorMessage.includes("not found")) {
-      return "🔧 AI服务未配置或已停用，请联系管理员。";
-    }
-
-    return (
-      "😔 抱歉，AI服务暂时无法使用，请稍后再试。\n\n错误详情: " + errorMessage
-    );
-  },
-
-  async generateTriageAdvice() {
-    const { dialogueRecord } = this.data;
-
-    this.setData({ isAITyping: true });
-    this.addMessage("ai", "🤔 AI 正在综合分析您的症状，请稍候...");
-
-    try {
-      const result = await wx.cloud.callFunction({
-        name: "callAI",
-        data: { type: "triage", dialogueRecord },
-      });
-
-      if (result.result.success) {
-        this.setData({
-          stageSummary: "问诊完成 - 分诊建议已生成",
-          taskDetail: "AI已完成症状采集和分析",
-          isAITyping: false,
-        });
-        this.replaceLastAIMessage(`🏥 **分诊建议**\n\n${result.result.advice}`);
-      } else {
-        throw new Error(result.result.error || "AI调用失败");
-      }
-    } catch (error) {
-      console.error("生成分诊建议失败:", error);
-      this.setData({ isAITyping: false });
-      this.replaceLastAIMessage(
-        `🏥 **分诊建议**\n\n根据您提供的信息，我的初步分析如下：\n\n` +
-          `1. **症状评估**：您描述的症状需要进一步专业评估\n` +
-          `2. **建议级别**：建议尽快就医咨询\n` +
-          `3. **推荐科室**：根据具体症状可选择内科或相应专科\n` +
-          `4. **注意事项**：\n` +
-          `   - 如症状加重请立即就医\n` +
-          `   - 保持良好的休息和饮食习惯\n` +
-          `   - 避免自行用药掩盖症状\n\n` +
-          `⚠️ **重要提醒**：此建议仅供参考，不能替代专业医生的诊断。如有紧急情况，请立即前往急诊科就诊。\n\n` +
-          `（注：AI服务暂不可用，以上为预设建议）`,
-      );
-      wx.showToast({
-        title: "AI服务暂不可用，已使用预设建议",
-        icon: "none",
-        duration: 3000,
-      });
-    }
-
-    this.scrollToBottom();
-  },
-
-  generateAppointmentAdvice() {
-    this.addMessage("ai", "🤔 AI 正在为您推荐挂号科室，请稍候...");
-
-    setTimeout(() => {
-      this.setData({
-        stageSummary: "挂号建议已生成",
-        taskDetail: "已推荐挂号科室",
-        isAITyping: false,
-      });
-
-      this.replaceLastAIMessage(
-        `📋 **挂号建议**\n\n根据您的症状，建议您挂：\n\n` +
-          `• 科室：内科\n` +
-          `• 医生：普通号\n` +
-          `• 预计等待时间：15-30分钟\n\n` +
-          `如需预约，请点击下方的"挂号服务"按钮。`,
-      );
-
-      wx.showToast({
-        title: "挂号建议已生成",
-        icon: "success",
-        duration: 2000,
-      });
-      this.scrollToBottom();
-    }, 2000);
-  },
-
-  endGuideMode() {
-    this.setData({
-      stageSummary: "导诊完成",
-      taskDetail: "感谢您的使用",
-      isAITyping: true,
-    });
-
-    this.addMessage("ai", "🤔 AI 正在生成结束语...");
-
-    setTimeout(() => {
-      this.setData({ isAITyping: false });
-      this.replaceLastAIMessage(
-        `🎉 **导诊流程已完成**\n\n感谢您完成本次智能导诊！\n\n` +
-          `✨ 祝您身体早日康复！\n\n` +
-          `如果后续有任何健康问题，欢迎随时咨询。祝您生活愉快！`,
-      );
-
-      wx.showToast({ title: "导诊完成！", icon: "success", duration: 3000 });
-      this.scrollToBottom();
-
-      setTimeout(() => {
-        this.exitGuideMode();
-      }, 2000);
-    }, 1500);
-  },
 
   // ========== UI 交互与事件处理 ==========
 
@@ -626,9 +400,9 @@ Page({
     }
   },
 
-  toggleTaskDescription() {
-    const { showTaskDetail } = this.data;
-    this.setData({ showTaskDetail: !showTaskDetail });
+  toggleStepDescription() {
+    const { isStepDetailExpanded } = this.data;
+    this.setData({ isStepDetailExpanded: !isStepDetailExpanded });
   },
 
   // ========== 页面跳转功能 ==========
@@ -641,8 +415,8 @@ Page({
   // ========== 功能接口 ==========
 
   toggleFunctionalBar() {
-    const { showFunctionalBar } = this.data;
-    this.setData({ showFunctionalBar: !showFunctionalBar });
+    const { isToolbarVisible } = this.data;
+    this.setData({ isToolbarVisible: !isToolbarVisible });
   },
 
   deleteChatHistory() {
