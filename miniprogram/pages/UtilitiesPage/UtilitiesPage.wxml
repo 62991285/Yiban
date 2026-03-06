@@ -1,0 +1,24 @@
+<!--pages/UtilitiesPage/UtilitiesPage.wxml-->
+<view class="container">
+  <!-- 顶部标题 -->
+  <view class="header">
+    <text class="header-title">选择您需要的服务</text>
+  </view>
+
+  <!-- 功能网格 -->
+  <view class="grid-container">
+    <view
+      class="grid-item"
+      wx:for="{{functionList}}"
+      wx:key="id"
+      bindtap="navigateToPage"
+      data-url="{{item.url}}"
+    >
+      <view class="icon-wrapper">
+        <image class="icon" src="{{item.icon}}" mode="aspectFit"></image>
+      </view>
+      <text class="item-title">{{item.title}}</text>
+      <text class="item-desc">{{item.desc}}</text>
+    </view>
+  </view>
+</view>

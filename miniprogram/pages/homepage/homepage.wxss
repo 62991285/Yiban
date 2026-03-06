@@ -1,4 +1,4 @@
-/* pages/homepage/homepage.wxss */
+/* pages/HomePage/HomePage.wxss */
 /* 页面容器 */
 .page-container {
   width: 100%;

@@ -1,73 +1,211 @@
-// 步骤动作处理器集合
-const stepActions = {
-  // 生成分诊建议
-  generateTriageAdvice: async (pageInstance) => {
-    const { dialogueRecord } = pageInstance.data;
-
-    pageInstance.setData({ isAITyping: true });
-    pageInstance.addMessage("ai", "🤔 AI 正在综合分析您的症状，请稍候...");
-
-    try {
-      const result = await wx.cloud.callFunction({
-        name: "callAI",
-        data: { type: "triage", dialogueRecord },
-      });
-
-      if (result.result.success) {
-        pageInstance.setData({
-          stageSummary: "问诊完成 - 分诊建议已生成",
-          stepDetail: "AI已完成症状采集和分析",
-          isAITyping: false,
-        });
-        pageInstance.replaceLastAIMessage(
-          `🏥 **分诊建议**\n\n${result.result.advice}`,
-        );
-      } else {
-        throw new Error(result.result.error || "AI调用失败");
-      }
-    } catch (error) {
-      console.error("生成分诊建议失败:", error);
-      pageInstance.setData({ isAITyping: false });
-      pageInstance.replaceLastAIMessage(
-        `🏥 **分诊建议**\n\n根据您提供的信息，我的初步分析如下：\n\n` +
-          `1. **症状评估**：您描述的症状需要进一步专业评估\n` +
-          `2. **建议级别**：建议尽快就医咨询\n` +
-          `3. **推荐科室**：根据具体症状可选择内科或相应专科\n` +
-          `4. **注意事项**：\n` +
-          `   - 如症状加重请立即就医\n` +
-          `   - 保持良好的休息和饮食习惯\n` +
-          `   - 避免自行用药掩盖症状\n\n` +
-          `⚠️ **重要提醒**：此建议仅供参考，不能替代专业医生的诊断。如有紧急情况，请立即前往急诊科就诊。\n\n` +
-          `（注：AI服务暂不可用，以上为预设建议）`,
-      );
-      wx.showToast({
-        title: "AI服务暂不可用，已使用预设建议",
-        icon: "none",
-        duration: 3000,
-      });
-    }
-
-    pageInstance.scrollToBottom();
+const GUIDE_STAGES = [
+  {
+    stageIndex: 0,
+    stageName: "情况资讯",
+    icon: "📋",
+    description: "采集您的症状信息",
+    steps: [
+      {
+        stepIndex: 0,
+        stepName: "主要症状",
+        detail: "请问您哪里不舒服？请描述您的主要症状。",
+        options: ["头痛", "发热", "腹痛", "胸闷", "其他症状"],
+        pagelinks: null,
+        stepHandler: null,
+      },
+      {
+        stepIndex: 1,
+        stepName: "症状详情",
+        detail: "请问这个症状是什么时候开始的？持续了多久？",
+        options: ["今天刚开始", "持续1-3天", "持续4-7天", "超过一周"],
+        pagelinks: null,
+        stepHandler: null,
+      },
+      {
+        stepIndex: 2,
+        stepName: "症状程度",
+        detail: "请问症状的严重程度如何？",
+        options: ["轻微", "中等", "严重", "非常严重"],
+        pagelinks: null,
+        stepHandler: null,
+      },
+    ],
   },
+  {
+    stageIndex: 1,
+    stageName: "挂号服务",
+    icon: "🏥",
+    description: "根据症状为您推荐挂号科室",
+    steps: [
+      {
+        stepIndex: 0,
+        stepName: "生成挂号建议",
+        detail: "AI正在分析您的症状，为您推荐合适的挂号科室...",
+        options: [],
+        pagelinks: [{ name: "前往挂号", handler: "gotoAppointmentPage" }],
+        stepHandler: "generateAppointmentAdvice",
+      },
+    ],
+  },
+  {
+    stageIndex: 2,
+    stageName: "科室导航",
+    icon: "🗺️",
+    description: "引导您前往挂号科室",
+    steps: [
+      {
+        stepIndex: 0,
+        stepName: "科室导航",
+        detail: "已为您生成科室导航，请点击下方按钮前往挂号科室。",
+        options: [],
+        pagelinks: [
+          {
+            name: "科室导航",
+            handler: "gotoDepartmentNavigationPage",
+          },
+        ],
+        stepHandler: null,
+      },
+    ],
+  },
+  {
+    stageIndex: 3,
+    stageName: "完成就诊",
+    icon: "👨‍⚕️",
+    description: "等待医生就诊并获取诊断结果",
+    steps: [
+      {
+        stepIndex: 0,
+        stepName: "等待就诊",
+        detail:
+          "请您耐心等待就诊。就诊完成后，医生会将诊断结果和处方药同步到您的个人信息中。",
+        options: [],
+        pagelinks: [{ name: "查看就诊记录", handler: "gotoUserInfoPage" }],
+        stepHandler: null,
+      },
+      {
+        stepIndex: 1,
+        stepName: "确认就诊完成",
+        detail: "请问您已经完成就诊了吗？",
+        options: ["已完成就诊", "尚未完成"],
+        pagelinks: null,
+        stepHandler: "confirmVisitComplete",
+      },
+    ],
+  },
+  {
+    stageIndex: 4,
+    stageName: "药房导航",
+    icon: "💊",
+    description: "引导您前往药房取药",
+    steps: [
+      {
+        stepIndex: 0,
+        stepName: "药房导航",
+        detail: "已为您生成药房导航，请点击下方按钮前往药房取药。",
+        options: [],
+        pagelinks: [
+          {
+            name: "药房导航",
+            handler: "gotoPharmacyNavigationPage",
+          },
+        ],
+        stepHandler: null,
+      },
+    ],
+  },
+  {
+    stageIndex: 5,
+    stageName: "支付页面",
+    icon: "💳",
+    description: "完成支付并结束会话",
+    steps: [
+      {
+        stepIndex: 0,
+        stepName: "支付页面",
+        detail: "请点击下方按钮前往支付页面完成支付。",
+        options: [],
+        pagelinks: [{ name: "前往支付", handler: null }],
+        stepHandler: null,
+      },
+      {
+        stepIndex: 1,
+        stepName: "确认支付完成",
+        detail: "请问您已经完成支付了吗？",
+        options: ["已完成支付", "尚未完成"],
+        pagelinks: null,
+        stepHandler: "confirmPaymentComplete",
+      },
+    ],
+  },
+];
 
-  // 生成挂号建议
-  generateAppointmentAdvice: (pageInstance) => {
-    pageInstance.addMessage("ai", "🤔 AI 正在为您推荐挂号科室，请稍候...");
+const stepActions = {
+  generateAppointmentAdvice: async (pageInstance) => {
+    const { sessionRecords, guideStages, stageIndex, stepIndex } =
+      pageInstance.data;
+
+    pageInstance.setData({ isProcessing: true });
+    pageInstance.addMessage(
+      "ai",
+      "🤔 AI 正在分析您的症状，为您推荐挂号科室...",
+    );
 
     setTimeout(() => {
-      pageInstance.setData({
-        stageSummary: "挂号建议已生成",
-        stepDetail: "已推荐挂号科室",
-        isAITyping: false,
-      });
+      const mainSymptom =
+        sessionRecords.find((r) => r.stepName === "主要症状")?.response ||
+        "未知";
+      const symptomDetail =
+        sessionRecords.find((r) => r.stepName === "症状详情")?.response ||
+        "未知";
+      const symptomSeverity =
+        sessionRecords.find((r) => r.stepName === "症状程度")?.response ||
+        "未知";
 
+      let recommendedDepartment = "内科";
+      let doctorType = "普通号";
+      let estimatedWaitTime = "15-30分钟";
+
+      if (mainSymptom.includes("头痛") || mainSymptom.includes("发热")) {
+        recommendedDepartment = "内科";
+      } else if (mainSymptom.includes("腹痛")) {
+        recommendedDepartment = "消化内科";
+      } else if (mainSymptom.includes("胸闷")) {
+        recommendedDepartment = "心内科";
+      }
+
+      if (symptomSeverity === "严重" || symptomSeverity === "非常严重") {
+        doctorType = "专家号";
+        estimatedWaitTime = "30-60分钟";
+      }
+
+      // 获取当前步骤的 pagelinks
+      const currentStage = guideStages[stageIndex];
+      const currentStep = currentStage?.steps[stepIndex];
+      const pagelinks = currentStep?.pagelinks || [];
+
+      pageInstance.setData({ isProcessing: false });
       pageInstance.replaceLastAIMessage(
-        `📋 **挂号建议**\n\n根据您的症状，建议您挂：\n\n` +
-          `• 科室：内科\n` +
-          `• 医生：普通号\n` +
-          `• 预计等待时间：15-30分钟\n\n` +
-          `如需预约，请点击下方的"挂号服务"按钮。`,
+        `📋 **挂号建议**\n\n根据您的症状分析，建议您挂：\n\n` +
+          `• **推荐科室**：${recommendedDepartment}\n` +
+          `• **医生类型**：${doctorType}\n` +
+          `• **预计等待时间**：${estimatedWaitTime}\n\n` +
+          `您的症状信息：\n` +
+          `• 主要症状：${mainSymptom}\n` +
+          `• 持续时间：${symptomDetail}\n` +
+          `• 严重程度：${symptomSeverity}\n\n` +
+          `如需预约，请点击下方的"前往挂号"按钮。`,
+        [],
+        pagelinks,
       );
+
+      pageInstance.saveAppointmentRecommendation({
+        department: recommendedDepartment,
+        doctorType: doctorType,
+        mainSymptom: mainSymptom,
+        symptomDetail: symptomDetail,
+        symptomSeverity: symptomSeverity,
+      });
 
       wx.showToast({
         title: "挂号建议已生成",
@@ -78,148 +216,80 @@ const stepActions = {
     }, 2000);
   },
 
-  // 结束导诊模式
-  endGuideMode: (pageInstance) => {
-    pageInstance.setData({
-      stageSummary: "导诊完成",
-      stepDetail: "感谢您的使用",
-      isAITyping: true,
-    });
+  confirmVisitComplete: (pageInstance) => {
+    const { pendingUserInput } = pageInstance.data;
 
-    pageInstance.addMessage("ai", "🤔 AI 正在生成结束语...");
-
-    setTimeout(() => {
-      pageInstance.setData({ isAITyping: false });
-      pageInstance.replaceLastAIMessage(
-        `🎉 **导诊流程已完成**\n\n感谢您完成本次智能导诊！\n\n` +
-          `✨ 祝您身体早日康复！\n\n` +
-          `如果后续有任何健康问题，欢迎随时咨询。祝您生活愉快！`,
-      );
-
-      wx.showToast({ title: "导诊完成！", icon: "success", duration: 3000 });
-      pageInstance.scrollToBottom();
+    if (pendingUserInput === "已完成就诊") {
+      pageInstance.setData({ isProcessing: true });
+      pageInstance.addMessage("ai", "🤔 正在同步就诊结果...");
 
       setTimeout(() => {
-        pageInstance.exitGuideMode();
-      }, 2000);
-    }, 1500);
+        const visitResult = {
+          visitDate: new Date().toISOString(),
+          diagnosis: "占位符诊断结果",
+          prescription: ["占位符药品A", "占位符药品B"],
+          doctorAdvice: "占位符医嘱",
+        };
+
+        pageInstance.saveVisitResult(visitResult);
+
+        pageInstance.setData({ isProcessing: false });
+        pageInstance.replaceLastAIMessage(
+          `✅ **就诊已完成**\n\n您的就诊结果已同步到个人信息中：\n\n` +
+            `• 诊断结果：${visitResult.diagnosis}\n` +
+            `• 处方药品：${visitResult.prescription.join("、")}\n` +
+            `• 医嘱：${visitResult.doctorAdvice}\n\n` +
+            `您可以在个人中心查看详细的就诊记录。`,
+        );
+
+        wx.showToast({
+          title: "就诊结果已同步",
+          icon: "success",
+          duration: 2000,
+        });
+        pageInstance.scrollToBottom();
+      }, 1500);
+    } else {
+      pageInstance.addMessage(
+        "ai",
+        "好的，请您继续等待就诊。完成就诊后请告诉我。",
+      );
+      pageInstance.scrollToBottom();
+    }
+  },
+
+  confirmPaymentComplete: (pageInstance) => {
+    const { pendingUserInput } = pageInstance.data;
+
+    if (pendingUserInput === "已完成支付") {
+      pageInstance.setData({ isProcessing: true });
+      pageInstance.addMessage("ai", "🤔 正在确认支付状态...");
+
+      setTimeout(() => {
+        pageInstance.setData({ isProcessing: false });
+        pageInstance.replaceLastAIMessage(
+          `🎉 **支付已完成**\n\n感谢您的使用！\n\n` +
+            `✨ 祝您身体早日康复！\n\n` +
+            `如果后续有任何健康问题，欢迎随时咨询。`,
+        );
+
+        wx.showToast({
+          title: "支付已完成",
+          icon: "success",
+          duration: 2000,
+        });
+        pageInstance.scrollToBottom();
+
+        setTimeout(() => {
+          pageInstance.exitGuideMode();
+        }, 3000);
+      }, 1500);
+    } else {
+      pageInstance.addMessage("ai", "好的，请您完成支付后告诉我。");
+      pageInstance.scrollToBottom();
+    }
   },
 };
-
-// 导诊阶段配置
-const GUIDE_STAGES = [
-  {
-    stageIndex: 0,
-    stageName: "智能问诊",
-    icon: "🩺",
-    description: "通过多轮对话收集您的症状信息",
-    steps: [
-      {
-        stepIndex: 0,
-        stepName: "主诉采集",
-        detail: "请您详细描述主要症状，如疼痛部位、持续时间、严重程度等。",
-        options: ["头痛发热", "胸闷气促", "腹痛腹泻", "皮疹瘙痒"],
-        navigations: null,
-        stepHandler: null,
-      },
-      {
-        stepIndex: 1,
-        stepName: "既往病史询问",
-        detail: "请告知是否有慢性疾病、过敏史、近期用药情况等。",
-        options: ["高血压", "糖尿病", "药物过敏", "无特殊病史"],
-        navigations: null,
-        stepHandler: null,
-      },
-      {
-        stepIndex: 2,
-        stepName: "生活习惯与旅行史",
-        detail: "请提供您的生活习惯、近期旅行史等信息。",
-        options: ["近期有长途旅行", "作息规律", "饮食偏油腻", "常熬夜"],
-        navigations: null,
-        stepHandler: null,
-      },
-      {
-        stepIndex: 3,
-        stepName: "分诊建议生成",
-        detail: "需要我为您提供挂号服务吗？",
-        options: ["需要", "不需要"],
-        navigations: null,
-        stepHandler: "generateTriageAdvice",
-      },
-    ],
-  },
-  {
-    stageIndex: 1,
-    stageName: "挂号建议",
-    icon: "📊",
-    description: "前往挂号页面完成挂号",
-    steps: [
-      {
-        stepIndex: 0,
-        stepName: "挂号建议生成",
-        detail: "AI 正在分析您的资料，稍后将给出分诊建议。",
-        options: [],
-        navigations: [
-          { name: "挂号建议", url: "/pages/appointment/appointment" },
-          { name: "报告", url: "/pages/report/report" },
-        ],
-        stepHandler: "generateAppointmentAdvice",
-      },
-    ],
-  },
-  {
-    stageIndex: 2,
-    stageName: "科室导航",
-    icon: "🗺️",
-    description: "引导您前往相应科室",
-    steps: [
-      {
-        stepIndex: 0,
-        stepName: "根据室内导航界面到达相应科室",
-        detail: "请根据室内导航界面到达相应科室",
-        options: ["是", "否"],
-        navigations: [
-          { name: "室内导航", url: "/pages/navigation/navigation" },
-        ],
-        stepHandler: null,
-      },
-    ],
-  },
-  {
-    stageIndex: 3,
-    stageName: "等待候诊",
-    icon: "⏰",
-    description: "耐心等待候诊与接收医生诊断",
-    steps: [
-      {
-        stepIndex: 0,
-        stepName: "等待候诊",
-        detail: "请耐心等待候诊与接收医生诊断。",
-        options: ["候诊完成"],
-        navigations: null,
-        stepHandler: null,
-      },
-    ],
-  },
-  {
-    stageIndex: 4,
-    stageName: "前往药学门诊",
-    icon: "💊",
-    description: "前往药学门诊取药或咨询",
-    steps: [
-      {
-        stepIndex: 0,
-        stepName: "前往药学门诊",
-        detail: "如需取药或咨询，请前往药学门诊",
-        options: [],
-        navigations: [
-          { name: "药学门诊导航", url: "/pages/pharmacy/pharmacy" },
-        ],
-        stepHandler: "endGuideMode",
-      },
-    ],
-  },
-];
 
 module.exports = {
   guideStages: GUIDE_STAGES,

@@ -23,7 +23,7 @@ Page({
   // 前往AI问诊页面
   toConsult() {
     wx.navigateTo({
-      url: '/pages/aiDialogue/aiDialogue'
+      url: '/pages/ChatPage/ChatPage'
     })
   },
 

@@ -8,7 +8,7 @@ Component({
       type: Array,
       value: [],
     },
-    navigations: {
+    pagelinks: {
       type: Array,
       value: [],
     },
@@ -19,10 +19,8 @@ Component({
       this.triggerEvent("selectoption", { option });
     },
     onActionTap(e) {
-      const url = e.currentTarget.dataset.url;
-      if (url) {
-        wx.navigateTo({ url });
-      }
+      const handler = e.currentTarget.dataset.handler;
+      this.triggerEvent("navigate", { handler });
     },
   },
 });
