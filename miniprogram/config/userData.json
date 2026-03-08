@@ -1,0 +1,26 @@
+{
+  "profile": {
+    "name": "张三",
+    "gender": "男",
+    "age": 35,
+    "idCard": "420106198912345678",
+    "phone": "13800138000",
+    "address": "湖北省武汉市洪山区光谷大道123号",
+    "emergencyContact": "李四 13900139000"
+  },
+  "healthInfo": {
+    "bloodType": "A型",
+    "allergies": ["青霉素", "花生"],
+    "chronicDiseases": ["高血压"],
+    "medications": ["降压药每日一次"],
+    "height": "175cm",
+    "weight": "70kg",
+    "bloodPressure": "130/85"
+  },
+  "appointments": [],
+  "chatHistory": [],
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2026-03-08T00:00:00.000Z"
+  }
+}

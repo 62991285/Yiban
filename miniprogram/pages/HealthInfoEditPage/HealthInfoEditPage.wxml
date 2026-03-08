@@ -1,0 +1,61 @@
+<!--pages/HealthInfoEditPage/HealthInfoEditPage.wxml-->
+<view class="edit-page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="back-btn" bindtap="onBackTap">返回</text>
+    <text class="page-title">编辑健康档案</text>
+    <text class="save-btn" bindtap="onSaveTap">保存</text>
+  </view>
+
+  <!-- 健康档案编辑表单 -->
+  <view class="edit-form">
+    <!-- 血型 -->
+    <view class="form-item">
+      <text class="form-label">血型</text>
+      <picker mode="selector" range="{{['A型', 'B型', 'AB型', 'O型', 'RH阳性', 'RH阴性', '未知']}}" value="{{0}}" bindchange="onBloodTypeChange">
+        <view class="picker-value">{{healthInfo.bloodType || '请选择血型'}}</view>
+      </picker>
+    </view>
+
+    <!-- 身高 -->
+    <view class="form-item">
+      <text class="form-label">身高</text>
+      <input class="form-input" placeholder="请输入身高，如：175cm" value="{{healthInfo.height}}" bindinput="onHeightInput" maxlength="10"></input>
+    </view>
+
+    <!-- 体重 -->
+    <view class="form-item">
+      <text class="form-label">体重</text>
+      <input class="form-input" placeholder="请输入体重，如：70kg" value="{{healthInfo.weight}}" bindinput="onWeightInput" maxlength="10"></input>
+    </view>
+
+    <!-- 血压 -->
+    <view class="form-item">
+      <text class="form-label">血压</text>
+      <input class="form-input" placeholder="请输入血压，如：130/85" value="{{healthInfo.bloodPressure}}" bindinput="onBloodPressureInput" maxlength="10"></input>
+    </view>
+
+    <!-- 过敏史 -->
+    <view class="form-item">
+      <text class="form-label">过敏史</text>
+      <textarea class="form-textarea" placeholder="请输入过敏史，多个用顿号（、）分隔" value="{{tempAllergies}}" bindinput="onAllergiesInput" auto-height maxlength="200"></textarea>
+    </view>
+
+    <!-- 慢性病 -->
+    <view class="form-item">
+      <text class="form-label">慢性病</text>
+      <textarea class="form-textarea" placeholder="请输入慢性病，多个用顿号（、）分隔" value="{{tempChronicDiseases}}" bindinput="onChronicDiseasesInput" auto-height maxlength="200"></textarea>
+    </view>
+
+    <!-- 用药情况 -->
+    <view class="form-item">
+      <text class="form-label">用药情况</text>
+      <textarea class="form-textarea" placeholder="请输入用药情况，多个用顿号（、）分隔" value="{{tempMedications}}" bindinput="onMedicationsInput" auto-height maxlength="200"></textarea>
+    </view>
+  </view>
+
+  <!-- 提示信息 -->
+  <view class="tips">
+    <text class="tips-text">提示：多个项目请使用顿号（、）分隔</text>
+  </view>
+</view>

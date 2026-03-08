@@ -1,0 +1,95 @@
+/* pages/EditUserInfoPage/EditUserInfoPage.wxss */
+.edit-page {
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 页面标题 */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 0 30rpx;
+  height: 100rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.back-btn, .save-btn {
+  font-size: 28rpx;
+  color: #07c160;
+  padding: 10rpx 20rpx;
+}
+
+.page-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 编辑表单 */
+.edit-form {
+  background-color: #fff;
+  margin-top: 20rpx;
+}
+
+.form-item {
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  display: flex;
+  align-items: flex-start;
+}
+
+.form-item:last-child {
+  border-bottom: none;
+}
+
+.form-label {
+  font-size: 30rpx;
+  color: #333;
+  width: 180rpx;
+  flex-shrink: 0;
+  line-height: 48rpx;
+}
+
+.form-label.required::after {
+  content: '*';
+  color: #ff4d4f;
+  margin-left: 8rpx;
+}
+
+.form-input, .form-textarea, .picker-value {
+  flex: 1;
+  font-size: 30rpx;
+  color: #333;
+  line-height: 48rpx;
+}
+
+.form-input {
+  height: 48rpx;
+  min-height: 48rpx;
+}
+
+.form-textarea {
+  min-height: 120rpx;
+  line-height: 48rpx;
+  padding: 0;
+}
+
+.picker-value {
+  color: #333;
+}
+
+/* 提示信息 */
+.tips {
+  padding: 30rpx;
+  text-align: center;
+}
+
+.tips-text {
+  font-size: 24rpx;
+  color: #999;
+}

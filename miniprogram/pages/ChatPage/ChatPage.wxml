@@ -1,0 +1,151 @@
+<view class="ai-dialogue-page">
+
+
+  <!-- 问诊步骤描述区（可展开）- 粘滞定位 -->
+  <view class="step-description-bar sticky-top">
+    <view class="stage-summary">
+      <view class="step-icon">🎯</view>
+      <text class="step-summary-text">
+        {{ stageSummary || '点击"+"开始一段新问诊步骤' }}
+      </text>
+      <view class="toggle-step" bindtap="toggleStepDescription">
+        {{ isStepDetailExpanded ? '∧' : '∨' }}
+      </view>
+    </view>
+    <view wx:if="{{mode === 'guide'}}" class="progress-bar-container">
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{completedStepCount > 0 && totalStepCount > 0 ? (completedStepCount / totalStepCount * 100) + '%' : '0%'}}"></view>
+      </view>
+      <text class="progress-text">{{completedStepCount}}/{{totalStepCount}}</text>
+    </view>
+    <view wx:if="{{isStepDetailExpanded}}" class="step-detail-panel">
+      <view class="step-detail-icon">💡</view>
+      <text class="step-detail-text">{{ stepName || stepDetail || '暂无步骤描述。请选择症状开始问诊。' }}</text>
+    </view>
+  </view>
+
+  <!-- 对话历史区域 -->
+  <scroll-view class="chat-history" scroll-y="true" scroll-with-animation scroll-top="{{scrollTop}}" enhanced="true" bounces="true">
+    <view class="chat-container">
+      <block wx:for="{{messages}}" wx:key="index">
+        <view wx:if="{{item.speaker === 'system'}}" class="message-wrapper system-wrapper">
+          <text class="system-message">{{item.content}}</text>
+        </view>
+        <view wx:else class="message-wrapper {{item.speaker === 'ai' ? 'ai-wrapper' : 'user-wrapper'}}">
+          <view class="message-content-wrapper">
+            <message-item
+              speaker="{{item.speaker === 'ai' ? 'ai' : 'user'}}"
+              options="{{item.options || []}}"
+              pagelinks="{{item.pagelinks || []}}"
+              bindselectoption="selectOption"
+              class="animated-message"
+            >
+              <text>{{item.content}}</text>
+            </message-item>
+            <!-- 消息导航按钮 -->
+            <view wx:if="{{item.speaker === 'ai'}}" class="debug-info">
+              <text>pagelinks: {{item.pagelinks ? item.pagelinks.length : 0}}</text>
+            </view>
+            <view wx:if="{{item.speaker === 'ai' && item.pagelinks && item.pagelinks.length > 0}}" class="message-navigations">
+              <block wx:for="{{item.pagelinks}}" wx:key="name" wx:for-item="nav">
+                <view class="nav-btn" bindtap="navigateTo" data-handler="{{nav.handler}}">
+                  <view class="nav-icon">🔗</view>
+                  <text class="nav-text">{{nav.name}}</text>
+                </view>
+              </block>
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <!-- AI正在处理指示器 -->
+      <view wx:if="{{isProcessing}}" class="typing-indicator">
+        <view class="typing-dots">
+          <view class="dot dot-1"></view>
+          <view class="dot dot-2"></view>
+          <view class="dot dot-3"></view>
+        </view>
+        <text class="typing-text">AI 正在思考...</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 聊天操作区 - 粘滞定位 -->
+  <view class="chat-controls sticky-controls">
+    <view class="control-group">
+      <text class="delete-chat-history" bind:tap="deleteChatHistory">🗑️ 清空对话</text>
+      <view class="chat-stats">
+        <text class="message-count">{{messages.length}} 条消息</text>
+      </view>
+    </view>
+    <!-- 浮动按钮 - 粘滞模式，位于右上角 -->
+    <view class="sticky-fab-btn {{mode==='guide'?'mode-delete':'mode-add'}}" bindtap="toggleGuideSession">
+      <text class="fab-icon-new">{{mode==='guide'?'−':'+'}}</text>
+      <view class="fab-tooltip-new">{{mode==='guide'?'结束问诊':'新建问诊'}}</view>
+    </view>
+  </view>
+
+  <!-- 滑动式功能按钮栏 - 粘滞定位 -->
+  <!-- 暂时禁用 -->
+  <!--
+  <view class="scroll-functional-bar sticky-functional-bar">
+    <scroll-view class="functional-scroll-view" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="functional-list">
+        <view class="functional-item" bindtap="gotoHistory">
+          <text class="func-icon">📍</text>
+          <text class="func-text">院内导航</text>
+        </view>
+        <view class="functional-item" bindtap="gotoVoiceInput">
+          <text class="func-icon">📞</text>
+          <text class="func-text">挂号服务</text>
+        </view>
+        <view class="functional-item" bindtap="gotoReport">
+          <text class="func-icon">📋</text>
+          <text class="func-text">检查预约</text>
+        </view>
+        <view class="functional-item" bindtap="gotoAIExplanation">
+          <text class="func-icon">⚕️</text>
+          <text class="func-text">治疗预约</text>
+        </view>
+        <view class="functional-item" bindtap="gotoHistory">
+          <text class="func-icon">🏥</text>
+          <text class="func-text">科室介绍</text>
+        </view>
+        <view class="functional-item" bindtap="gotoVoiceInput">
+          <text class="func-icon">💊</text>
+          <text class="func-text">药品查询</text>
+        </view>
+        <view class="functional-item" bindtap="gotoReport">
+          <text class="func-icon">🩺</text>
+          <text class="func-text">体检套餐</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+  -->
+
+  <!-- 用户输入区域 - AI风格 - 粘滞定位 -->
+  <view class="ai-input-container sticky-input">
+    <view class="input-wrapper-modern">
+      <view class="input-icon">✨</view>
+      <textarea
+        class="modern-input-box"
+        placeholder="请输入您的问题，AI将为您提供专业建议"
+        value="{{userInput}}"
+        bindinput="onInputChange"
+        auto-height="{{true}}"
+        maxlength="500"
+        placeholder-style="color:#999;line-height:80rpx;"
+        show-confirm-bar="false"
+      />
+      <button class="modern-send-btn {{userInput.trim()==='' ? '' : 'send-btn-active'}}" bindtap="sendMessage" disabled="{{userInput.trim() === ''}}">
+        <text class="send-text-modern">发送</text>
+      </button>
+    </view>
+    <view class="outside-char-count">
+      <text class="char-count-modern">{{userInput.length}}/500</text>
+    </view>
+  </view>
+
+
+</view>

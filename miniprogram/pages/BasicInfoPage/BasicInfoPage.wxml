@@ -1,0 +1,56 @@
+<!--pages/BasicInfoPage/BasicInfoPage.wxml-->
+<view class="edit-page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="back-btn" bindtap="onBackTap">返回</text>
+    <text class="page-title">编辑个人资料</text>
+    <text class="save-btn" bindtap="onSaveTap">保存</text>
+  </view>
+
+  <!-- 个人资料编辑表单 -->
+  <view class="edit-form">
+    <!-- 姓名 -->
+    <view class="form-item">
+      <text class="form-label required">姓名</text>
+      <input class="form-input" placeholder="请输入姓名" value="{{profile.name}}" bindinput="onNameInput" maxlength="20"></input>
+    </view>
+
+    <!-- 性别 -->
+    <view class="form-item">
+      <text class="form-label">性别</text>
+      <picker mode="selector" range="{{['未知', '男', '女']}}" value="{{profile.gender === '男' ? 1 : profile.gender === '女' ? 2 : 0}}" bindchange="onGenderChange">
+        <view class="picker-value">{{profile.gender || '请选择性别'}}</view>
+      </picker>
+    </view>
+
+    <!-- 年龄 -->
+    <view class="form-item">
+      <text class="form-label">年龄</text>
+      <input class="form-input" type="number" placeholder="请输入年龄" value="{{profile.age}}" bindinput="onAgeInput" maxlength="3"></input>
+    </view>
+
+    <!-- 身份证号 -->
+    <view class="form-item">
+      <text class="form-label">身份证号</text>
+      <input class="form-input" placeholder="请输入身份证号" value="{{profile.idCard}}" bindinput="onIdCardInput" maxlength="18"></input>
+    </view>
+
+    <!-- 手机号 -->
+    <view class="form-item">
+      <text class="form-label required">手机号</text>
+      <input class="form-input" type="number" placeholder="请输入手机号" value="{{profile.phone}}" bindinput="onPhoneInput" maxlength="11"></input>
+    </view>
+
+    <!-- 地址 -->
+    <view class="form-item">
+      <text class="form-label">地址</text>
+      <textarea class="form-textarea" placeholder="请输入地址" value="{{profile.address}}" bindinput="onAddressInput" auto-height maxlength="200"></textarea>
+    </view>
+
+    <!-- 紧急联系人 -->
+    <view class="form-item">
+      <text class="form-label">紧急联系人</text>
+      <input class="form-input" placeholder="请输入紧急联系人姓名和电话" value="{{profile.emergencyContact}}" bindinput="onEmergencyContactInput" maxlength="50"></input>
+    </view>
+  </view>
+</view>
