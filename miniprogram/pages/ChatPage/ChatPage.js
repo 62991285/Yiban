@@ -1,4 +1,3 @@
-import * as nav from "../../utils/pageNavigation.js";
 import { callAIModel } from "../../utils/aiUtils.js";
 import {
   getChatHistory,
@@ -17,7 +16,7 @@ const WELCOME_MESSAGE =
 
 const WELCOME_OPTIONS = ["医院科室介绍", "挂号流程说明", "医院导航"];
 
-const { guideStages, stepActions } = require("../../config/guideStages.js");
+const { guideStages, stepProcessor } = require("../../config/guideStages.js");
 
 Page({
   data: {
@@ -97,14 +96,24 @@ Page({
         options: message.options || [],
         pagelinks: message.pagelinks || [],
       }));
-      saveChatHistory(chatHistory);
+
+      const saveResult = saveChatHistory(chatHistory);
       wx.setStorageSync(STORAGE_KEYS.MODE, this.data.mode);
+
+      if (saveResult) {
+        console.log(
+          "聊天历史已成功保存到userData，消息数量:",
+          chatHistory.length,
+        );
+      } else {
+        console.error("聊天历史保存失败");
+      }
     } catch (error) {
       console.error("保存状态失败:", error);
     }
   },
 
-  startGuideSession() {
+  async startGuideSession() {
     const { guideStages } = this.data;
 
     if (!guideStages?.length) {
@@ -132,21 +141,26 @@ Page({
       messages: [],
       sessionRecords: [],
       mode: "guide",
+      isProcessing: true,
     });
 
     this.addSystemMessage("导诊模式已开启");
     this.updateStepDisplay();
-    this.addMessage(
-      "ai",
-      `您好！我是AI健康助手，${firstStage.description}\n\n${firstStep.detail}`,
-      firstStep.options,
-    );
-    this.scrollToBottom();
+
+    try {
+      await stepProcessor.processStep(this, firstStep, 0, 0);
+    } catch (error) {
+      console.error("启动导诊模式失败:", error);
+      this.addMessage("ai", "抱歉，启动导诊模式时出现错误，请重试。");
+    } finally {
+      this.setData({ isProcessing: false });
+      this.scrollToBottom();
+    }
   },
 
-  toggleGuideSession() {
+  async toggleGuideSession() {
     if (this.data.mode !== "guide") {
-      this.startGuideSession();
+      await this.startGuideSession();
       return;
     }
 
@@ -204,25 +218,24 @@ Page({
     }
   },
 
-  processGuideResponse() {
+  async processGuideResponse() {
     const { pendingUserInput, stageIndex, stepIndex } = this.data;
-
-    this.recordUserResponse(pendingUserInput, stageIndex, stepIndex);
     this.setData({ isProcessing: true });
     this.scrollToBottom();
-    this.executeCurrentStep();
+    await this.executeCurrentStep();
     this.continueToNextStep();
   },
 
   processChatMessage() {
-    const { pendingUserInput } = this.data;
+    const { pendingUserInput, messages } = this.data;
 
     this.setData({ isProcessing: true });
     this.scrollToBottom();
 
     setTimeout(async () => {
       try {
-        const aiReply = await callAIModel(pendingUserInput);
+        const enhancedPrompt = this.buildChatPrompt(pendingUserInput, messages);
+        const aiReply = await callAIModel(enhancedPrompt);
         this.replaceLastAIMessage(aiReply);
       } catch (error) {
         console.error("AI调用失败:", error);
@@ -234,55 +247,75 @@ Page({
     }, 800);
   },
 
-  recordUserResponse(response, stageIdx, stepIdx) {
-    const { guideStages, sessionRecords } = this.data;
-    const stage = guideStages[stageIdx];
-    const step = stage?.steps[stepIdx];
+  buildChatPrompt(userMessage, messages) {
+    const systemPrompt = `你是"医伴"，一位温暖贴心的AI健康陪伴助手。正在陪伴用户看病就医。
 
-    if (!step) {
-      console.error("步骤不存在:", stageIdx, stepIdx);
-      return;
+【回答要求】
+1. 简短亲切：每次回复控制在2-3句话，像朋友聊天一样自然
+2. 专业温暖：医学信息准确，语气温柔关切
+3. 对话感强：先回应用户情绪，再给出建议，最后可问"还有什么想了解的？"
+4. 逐步展开：用户追问时再详细解释，不一次性说太多
+5. 安全提醒：急重症必须建议立即就医
+
+【示例风格】
+- "别担心，这种情况很常见。可能是轻微感冒，多喝温水休息就好。还有哪里不舒服吗？"
+- "理解您的担心。这个指标稍微偏高，建议复查确认。您最近饮食如何？"
+
+【禁忌】
+- 不长篇大论
+- 不罗列123条
+- 不冷冰冰说教
+
+请像朋友一样简短回复：`;
+
+    const conversationHistory = this.buildConversationHistory(messages);
+
+    if (conversationHistory) {
+      return `${systemPrompt}\n\n对话历史：\n${conversationHistory}\n\n用户：${userMessage}\n\n医伴：`;
     }
 
-    const record = {
-      stageIndex: stageIdx,
-      stepIndex: stepIdx,
-      stageName: stage.stageName,
-      stepName: step.stepName,
-      question: step.detail,
-      response,
-    };
-
-    const exists = sessionRecords.some(
-      (r) =>
-        r.stageIndex === record.stageIndex && r.stepIndex === record.stepIndex,
-    );
-
-    if (!exists) {
-      this.setData({
-        sessionRecords: [...sessionRecords, record],
-      });
-    }
+    return `${systemPrompt}\n\n用户：${userMessage}\n\n医伴：`;
   },
 
-  executeCurrentStep() {
+  buildConversationHistory(messages) {
+    const chatMessages = messages.filter(
+      (msg) => msg.speaker === "user" || msg.speaker === "ai",
+    );
+    const recentMessages = chatMessages.slice(-6);
+
+    if (recentMessages.length === 0) {
+      return "";
+    }
+
+    return recentMessages
+      .map((msg) => {
+        const role = msg.speaker === "user" ? "用户" : "医伴";
+        const content = msg.content?.substring(0, 100) || "";
+        return `${role}：${content}`;
+      })
+      .join("\n");
+  },
+
+  async executeCurrentStep() {
     const { guideStages, stageIndex, stepIndex } = this.data;
     const currentStage = guideStages[stageIndex];
     const step = currentStage?.steps[stepIndex];
 
     if (!step) {
       console.error("步骤不存在:", stageIndex, stepIndex);
+      this.setData({ isProcessing: false });
       return;
     }
 
-    if (step.stepHandler && stepActions[step.stepHandler]) {
-      stepActions[step.stepHandler](this);
+    try {
+      await stepProcessor.processStep(this, step, stageIndex, stepIndex);
+    } catch (error) {
+      console.error("执行步骤失败:", error);
+      this.addMessage("ai", "抱歉，处理步骤时出现错误，请重试。");
+    } finally {
+      this.setData({ isProcessing: false });
+      this.scrollToBottom();
     }
-
-    const pagelinks = step.pagelinks || [];
-    console.log("[DEBUG] executeCurrentStep - pagelinks:", pagelinks);
-    this.addMessage("ai", step.detail, step.options, pagelinks);
-    this.scrollToBottom();
   },
 
   continueToNextStep() {
@@ -376,6 +409,8 @@ Page({
     const newMsg = { speaker, content, options, pagelinks };
     console.log("[DEBUG] addMessage - newMsg:", newMsg);
     this.setData({ messages: [...messages, newMsg] });
+    // 立即保存到文件
+    this.saveState();
   },
 
   addSystemMessage(content) {
@@ -394,6 +429,8 @@ Page({
         pagelinks,
       };
       this.setData({ messages: updatedMessages });
+      // 立即保存到文件
+      this.saveState();
     } else {
       this.addMessage("ai", content, options, pagelinks);
     }
@@ -428,11 +465,6 @@ Page({
     const { isStepDetailExpanded } = this.data;
     this.setData({ isStepDetailExpanded: !isStepDetailExpanded });
   },
-
-  gotoHistory: nav.gotoHistory,
-  gotoVoiceInput: nav.gotoVoiceInput,
-  gotoReport: nav.gotoReport,
-  gotoAIExplanation: nav.gotoAIExplanation,
 
   toggleFunctionalBar() {
     const { isToolbarVisible } = this.data;

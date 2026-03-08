@@ -1,0 +1,48 @@
+<!--pages/HealthInfoPage/HealthInfoPage.wxml-->
+<view class="health-page">
+  <!-- 页面标题 -->
+  <view class="page-header">
+    <text class="back-btn" bindtap="onBackTap">返回</text>
+    <text class="page-title">健康档案</text>
+    <text class="edit-btn" bindtap="onEditTap">编辑</text>
+  </view>
+
+  <!-- 健康信息卡片 -->
+  <view class="info-card">
+    <view class="info-list">
+      <view class="info-item">
+        <text class="info-label">血型</text>
+        <text class="info-value">{{healthInfo.bloodType || '-'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">身高</text>
+        <text class="info-value">{{healthInfo.height || '-'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">体重</text>
+        <text class="info-value">{{healthInfo.weight || '-'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">血压</text>
+        <text class="info-value">{{healthInfo.bloodPressure || '-'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">过敏史</text>
+        <text class="info-value">{{healthInfo.allergies && healthInfo.allergies.length > 0 ? healthInfo.allergies.join('、') : '无'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">慢性病</text>
+        <text class="info-value">{{healthInfo.chronicDiseases && healthInfo.chronicDiseases.length > 0 ? healthInfo.chronicDiseases.join('、') : '无'}}</text>
+      </view>
+      <view class="info-item">
+        <text class="info-label">用药情况</text>
+        <text class="info-value">{{healthInfo.medications && healthInfo.medications.length > 0 ? healthInfo.medications.join('、') : '无'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提示信息 -->
+  <view class="tips">
+    <text class="tips-text">请如实填写您的健康信息，以便医生更好地为您服务</text>
+  </view>
+</view>

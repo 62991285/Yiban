@@ -84,6 +84,27 @@ export function gotoEditUserInfoPage() {
 }
 
 /**
+ * 跳转到基本信息页面
+ */
+export function gotoBasicInfoPage() {
+  navigateTo("/pages/BasicInfoPage/BasicInfoPage");
+}
+
+/**
+ * 跳转到健康信息页面
+ */
+export function gotoHealthInfoPage() {
+  navigateTo("/pages/HealthInfoPage/HealthInfoPage");
+}
+
+/**
+ * 跳转到健康信息编辑页面
+ */
+export function gotoHealthInfoEditPage() {
+  navigateTo("/pages/HealthInfoEditPage/HealthInfoEditPage");
+}
+
+/**
  * 跳转到工具页面
  */
 export function gotoUtilitiesPage() {

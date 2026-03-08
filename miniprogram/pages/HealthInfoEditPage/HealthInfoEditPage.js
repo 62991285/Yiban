@@ -1,11 +1,9 @@
-// pages/EditUserInfoPage/EditUserInfoPage.js
+// pages/HealthInfoEditPage/HealthInfoEditPage.js
 Page({
   /**
    * 页面的初始数据
    */
   data: {
-    editType: "profile",
-    profile: {},
     healthInfo: {},
     tempAllergies: "",
     tempChronicDiseases: "",
@@ -16,8 +14,6 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    const editType = options.type || "profile";
-    this.setData({ editType });
     this.loadUserData();
   },
 
@@ -44,7 +40,10 @@ Page({
   /**
    * 页面相关事件处理函数--监听用户下拉动作
    */
-  onPullDownRefresh() {},
+  onPullDownRefresh() {
+    this.loadUserData();
+    wx.stopPullDownRefresh();
+  },
 
   /**
    * 页面上拉触底事件的处理函数
@@ -57,18 +56,19 @@ Page({
   onShareAppMessage() {},
 
   /**
-   * 加载用户数据
+   * 加载用户数据 - 从配置文件读取
    */
   loadUserData() {
+    const that = this;
     const fs = wx.getFileSystemManager();
-    const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
 
+    // 使用文件系统读取本地配置文件
     try {
+      const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
       const data = fs.readFileSync(filePath, "utf8");
       const userData = JSON.parse(data);
 
-      this.setData({
-        profile: userData.profile || {},
+      that.setData({
         healthInfo: userData.healthInfo || {},
         tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
         tempChronicDiseases: (userData.healthInfo?.chronicDiseases || []).join(
@@ -77,39 +77,55 @@ Page({
         tempMedications: (userData.healthInfo?.medications || []).join("、"),
       });
     } catch (err) {
-      console.log("本地文件读取失败", err);
-      this.loadFromResources();
+      console.log("本地文件读取失败，尝试读取项目配置文件", err);
+      that.loadFromConfig();
     }
   },
 
   /**
-   * 从资源文件加载
+   * 从项目配置文件加载（首次使用）
    */
-  loadFromResources() {
+  loadFromConfig() {
     const that = this;
+    const fs = wx.getFileSystemManager();
 
-    wx.request({
-      url: "/config/userData.json",
-      success: (res) => {
-        if (res.statusCode === 200 && res.data) {
-          const userData = res.data;
-          that.setData({
-            profile: userData.profile || {},
-            healthInfo: userData.healthInfo || {},
-            tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
-            tempChronicDiseases: (
-              userData.healthInfo?.chronicDiseases || []
-            ).join("、"),
-            tempMedications: (userData.healthInfo?.medications || []).join(
-              "、",
-            ),
-          });
-        }
-      },
-      fail: (err) => {
-        console.error("读取资源文件失败", err);
-      },
-    });
+    try {
+      // 读取项目目录下的配置文件
+      const data = fs.readFileSync("miniprogram/config/userData.json", "utf8");
+      const userData = JSON.parse(data);
+
+      that.setData({
+        healthInfo: userData.healthInfo || {},
+        tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
+        tempChronicDiseases: (userData.healthInfo?.chronicDiseases || []).join(
+          "、",
+        ),
+        tempMedications: (userData.healthInfo?.medications || []).join("、"),
+      });
+
+      // 保存到本地文件，以便后续使用
+      that.saveUserDataToLocal(userData);
+    } catch (err) {
+      console.error("读取配置文件失败", err);
+      wx.showToast({
+        title: "加载数据失败",
+        icon: "none",
+      });
+    }
+  },
+
+  /**
+   * 保存用户数据到本地
+   */
+  saveUserDataToLocal(userData) {
+    const fs = wx.getFileSystemManager();
+    const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
+
+    try {
+      fs.writeFileSync(filePath, JSON.stringify(userData, null, 2), "utf8");
+    } catch (err) {
+      console.error("保存到本地失败", err);
+    }
   },
 
   /**
@@ -124,30 +140,8 @@ Page({
    */
   onSaveTap() {
     const that = this;
-    const {
-      editType,
-      profile,
-      healthInfo,
-      tempAllergies,
-      tempChronicDiseases,
-      tempMedications,
-    } = this.data;
-
-    // 数据验证
-    if (editType === "profile") {
-      if (!profile.name || profile.name.trim() === "") {
-        wx.showToast({ title: "请输入姓名", icon: "none" });
-        return;
-      }
-      if (!profile.phone || profile.phone.trim() === "") {
-        wx.showToast({ title: "请输入手机号", icon: "none" });
-        return;
-      }
-      if (!/^1[3-9]\d{9}$/.test(profile.phone)) {
-        wx.showToast({ title: "手机号格式不正确", icon: "none" });
-        return;
-      }
-    }
+    const { healthInfo, tempAllergies, tempChronicDiseases, tempMedications } =
+      this.data;
 
     // 处理数组类型的健康信息
     const updatedHealthInfo = {
@@ -185,10 +179,7 @@ Page({
     }
 
     // 更新数据
-    userData.profile =
-      editType === "profile" ? profile : userData.profile || {};
-    userData.healthInfo =
-      editType === "health" ? updatedHealthInfo : userData.healthInfo || {};
+    userData.healthInfo = updatedHealthInfo;
     userData.meta = {
       version: "1.0.0",
       lastUpdated: new Date().toISOString(),
@@ -211,38 +202,6 @@ Page({
       console.error("保存失败", err);
       wx.showToast({ title: "保存失败", icon: "none" });
     }
-  },
-
-  // ========== 个人信息输入处理 ==========
-
-  onNameInput(e) {
-    this.setData({ "profile.name": e.detail.value });
-  },
-
-  onGenderChange(e) {
-    const genderMap = { 0: "未知", 1: "男", 2: "女" };
-    this.setData({ "profile.gender": genderMap[e.detail.value] });
-  },
-
-  onAgeInput(e) {
-    const age = parseInt(e.detail.value) || "";
-    this.setData({ "profile.age": age });
-  },
-
-  onIdCardInput(e) {
-    this.setData({ "profile.idCard": e.detail.value });
-  },
-
-  onPhoneInput(e) {
-    this.setData({ "profile.phone": e.detail.value });
-  },
-
-  onAddressInput(e) {
-    this.setData({ "profile.address": e.detail.value });
-  },
-
-  onEmergencyContactInput(e) {
-    this.setData({ "profile.emergencyContact": e.detail.value });
   },
 
   // ========== 健康信息输入处理 ==========

@@ -2,6 +2,7 @@ import {
   getUserProfile,
   addAppointmentRecord,
 } from "../../utils/userInfoManager.js";
+import { gotoDepartmentDetailPage, gotoAppointmentRecordsPage } from "../../utils/pageNavigation.js";
 
 Page({
   data: {
@@ -200,24 +201,17 @@ Page({
 
   goToDepartmentDetail: function (e) {
     const departmentId = e.currentTarget.dataset.id;
-    const departmentName = e.currentTarget.dataset.name;
-    const selectedArea = this.data.selectedArea;
-    const areaName = this.data.areas.find(
-      (area) => area.id === selectedArea,
-    ).name;
+    gotoDepartmentDetailPage(departmentId);
+  },
 
-    wx.navigateTo({
-      url: `/pages/DepartmentDetailPage/DepartmentDetailPage?departmentId=${departmentId}&departmentName=${departmentName}&areaName=${areaName}`,
-    });
-  },
   goToMyAppointments: function () {
-    wx.navigateTo({
-      url: "/appointment/pages/appointment/myAppointments",
-    });
+    gotoAppointmentRecordsPage();
   },
+
   goToMyDoctors: function () {
-    wx.navigateTo({
-      url: "/appointment/pages/appointment/myDoctors",
+    wx.showToast({
+      title: "功能开发中",
+      icon: "none",
     });
   },
 });

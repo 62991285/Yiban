@@ -1,4 +1,4 @@
-/* pages/EditUserInfoPage/EditUserInfoPage.wxss */
+/* pages/BasicInfoPage/BasicInfoPage.wxss */
 .edit-page {
   background-color: #f5f5f5;
   min-height: 100vh;
@@ -81,15 +81,4 @@
 
 .picker-value {
   color: #333;
-}
-
-/* 提示信息 */
-.tips {
-  padding: 30rpx;
-  text-align: center;
-}
-
-.tips-text {
-  font-size: 24rpx;
-  color: #999;
 }

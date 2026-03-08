@@ -1,17 +1,11 @@
-// pages/UserInfoPage/UserInfoPage.js
-import {
-  gotoBasicInfoPage,
-  gotoHealthInfoPage,
-  gotoAppointmentRecordsPage,
-  gotoChatPage,
-} from "../../utils/pageNavigation.js";
+// pages/HealthInfoPage/HealthInfoPage.js
+import { gotoHealthInfoEditPage } from "../../utils/pageNavigation.js";
 
 Page({
   /**
    * 页面的初始数据
    */
   data: {
-    profile: {},
     healthInfo: {},
   },
 
@@ -76,7 +70,6 @@ Page({
       const userData = JSON.parse(data);
 
       that.setData({
-        profile: userData.profile || {},
         healthInfo: userData.healthInfo || {},
       });
     } catch (err) {
@@ -98,7 +91,6 @@ Page({
       const userData = JSON.parse(data);
 
       that.setData({
-        profile: userData.profile || {},
         healthInfo: userData.healthInfo || {},
       });
 
@@ -128,30 +120,16 @@ Page({
   },
 
   /**
-   * 编辑个人信息
+   * 返回按钮点击事件
    */
-  onEditProfileTap() {
-    gotoBasicInfoPage();
+  onBackTap() {
+    wx.navigateBack();
   },
 
   /**
-   * 跳转到健康档案
+   * 编辑按钮点击事件
    */
-  goToHealthInfo() {
-    gotoHealthInfoPage();
-  },
-
-  /**
-   * 跳转到挂号记录
-   */
-  goToAppointmentRecords() {
-    gotoAppointmentRecordsPage();
-  },
-
-  /**
-   * 跳转到对话记录
-   */
-  goToChatHistory() {
-    gotoChatPage();
+  onEditTap() {
+    gotoHealthInfoEditPage();
   },
 });

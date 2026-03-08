@@ -6,7 +6,9 @@
     "pages/PharmacyNavigationPage/PharmacyNavigationPage",
     "pages/AppointmentPage/AppointmentPage",
     "pages/UserInfoPage/UserInfoPage",
-    "pages/EditUserInfoPage/EditUserInfoPage",
+    "pages/BasicInfoPage/BasicInfoPage",
+    "pages/HealthInfoPage/HealthInfoPage",
+    "pages/HealthInfoEditPage/HealthInfoEditPage",
     "pages/UtilitiesPage/UtilitiesPage",
     "pages/AppointmentRecordsPage/AppointmentRecordsPage",
     "pages/DepartmentDetailPage/DepartmentDetailPage"

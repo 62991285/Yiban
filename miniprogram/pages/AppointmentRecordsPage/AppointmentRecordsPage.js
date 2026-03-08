@@ -2,6 +2,7 @@ import {
   getAppointmentRecords,
   saveAppointmentRecords,
 } from "../../utils/userInfoManager.js";
+import { gotoAppointmentPage } from "../../utils/pageNavigation.js";
 
 Page({
   data: {
@@ -27,7 +28,7 @@ Page({
 
   // 去预约
   goToBooking() {
-    wx.navigateBack();
+    gotoAppointmentPage();
   },
 
   // 查看详情
@@ -35,8 +36,11 @@ Page({
     const index = e.currentTarget.dataset.index;
     const record = this.data.records[index];
     const recordStr = JSON.stringify(record);
-    wx.navigateTo({
-      url: `/pages/bookingDetail/bookingDetail?record=${encodeURIComponent(recordStr)}`,
+    
+    wx.showModal({
+      title: "预约详情",
+      content: `医院：${record.hospitalName}\n科室：${record.department}\n状态：${record.status}`,
+      showCancel: false,
     });
   },
 
@@ -45,9 +49,17 @@ Page({
     const index = e.currentTarget.dataset.index;
     const record = this.data.records[index];
 
+    if (record.status === "已取消") {
+      wx.showToast({
+        title: "该预约已取消",
+        icon: "none",
+      });
+      return;
+    }
+
     wx.showModal({
       title: "取消预约",
-      content: `确定要取消${record.date}的预约吗？`,
+      content: `确定要取消${record.hospitalName} ${record.department}的预约吗？`,
       confirmText: "确定取消",
       cancelText: "暂不取消",
       success: (res) => {

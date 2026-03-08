@@ -1,69 +1,59 @@
 /* pages/UserInfoPage/UserInfoPage.wxss */
 .mine-page {
-  background-color: #f6f6f6;
+  background-color: #f5f5f5;
   min-height: 100vh;
+  padding: 20rpx;
   padding-bottom: 40rpx;
 }
 
-/* 用户信息区域 */
-.user-info-section {
+/* 卡片样式 */
+.section-card {
   background-color: #fff;
-  padding: 30rpx;
+  border-radius: 16rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
-.user-header {
+/* 卡片头部 - 绿色主题 */
+.section-header {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  padding: 20rpx 0;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background: linear-gradient(135deg, #07c160 0%, #05a050 100%);
 }
 
-.user-avatar {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 50%;
-  margin-right: 30rpx;
-  border: 2rpx solid #eaeaea;
-}
-
-.user-detail {
-  flex: 1;
-}
-
-.user-nickname {
-  display: block;
-  font-size: 36rpx;
+.section-title {
+  font-size: 32rpx;
   font-weight: bold;
-  color: #333;
-  margin-bottom: 10rpx;
+  color: #fff;
 }
 
-.user-motto {
-  display: block;
-  font-size: 24rpx;
-  color: #999;
+.edit-btn {
+  font-size: 28rpx;
+  color: #fff;
+  padding: 8rpx 24rpx;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 30rpx;
 }
 
-.arrow-icon {
-  width: 24rpx;
-  height: 24rpx;
-  opacity: 0.6;
+.edit-btn:active {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
-/* 用户信息列表 */
+/* 信息列表 */
 .info-list {
-  background-color: #fff;
-  margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  padding: 0 30rpx;
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
 }
 
 .info-item:last-child {
@@ -73,40 +63,30 @@
 .info-label {
   font-size: 28rpx;
   color: #666;
+  flex-shrink: 0;
+  width: 160rpx;
 }
 
 .info-value {
   font-size: 28rpx;
   color: #333;
-}
-
-/* 操作按钮 */
-.action-buttons {
-  padding: 0 30rpx;
-}
-
-.action-btn {
-  margin-bottom: 30rpx;
-  border-radius: 8rpx;
-  font-size: 32rpx;
-  height: 80rpx;
-  line-height: 80rpx;
+  flex: 1;
+  text-align: right;
+  word-break: break-all;
+  padding-left: 20rpx;
 }
 
 /* 功能菜单 */
 .menu-list {
-  background-color: white;
-  margin: 30rpx 30rpx;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.05);
+  padding: 0 30rpx;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 30rpx;
-  border-bottom: 1rpx solid #f0f0f0;
+  padding: 30rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
   transition: all 0.3s;
 }
 
@@ -130,7 +110,12 @@
 }
 
 .menu-text {
-  font-size: 32rpx;
+  font-size: 30rpx;
   color: #333;
 }
 
+.arrow-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.4;
+}
