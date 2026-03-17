@@ -1,48 +1,78 @@
 <view class="container">
-  <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{isEmpty}}">
-    <text class="empty-icon">📋</text>
-    <text class="empty-text">暂无挂号记录</text>
-    <button class="btn-booking" bindtap="goToBooking">立即预约</button>
-  </view>
+  
 
-  <!-- 挂号记录列表 -->
-  <view class="records-list" wx:else>
+
+
+
+  <!-- 预约记录列表 -->
+  <view class="records-list" wx:if="{{!isEmpty}}">
     <view class="record-card" wx:for="{{records}}" wx:key="id">
-      <view class="record-header">
-        <view class="record-status {{item.status === '已预约' ? 'active' : 'cancelled'}}">
-          <text class="status-text">{{item.status}}</text>
+      <!-- 卡片头部 -->
+      <view class="card-header">
+        <view class="header-main">
+          <view class="status-badge {{item.status === '已预约' ? 'active' : 'cancelled'}}">
+            <view class="status-dot"></view>
+            <text class="status-text">{{item.status}}</text>
+          </view>
+          <text class="booking-no">预约编号：{{item.bookingNo}}</text>
         </view>
-        <text class="record-no">{{item.bookingNo}}</text>
+        <text class="booking-date">{{item.date}}</text>
       </view>
 
-      <view class="record-body">
-        <view class="record-row">
-          <text class="record-label">院区</text>
-          <text class="record-value">{{item.area.name}}</text>
+      <!-- 卡片内容 -->
+      <view class="card-body">
+        <view class="info-row">
+          <view class="info-icon-box" style="background: #E3F2FD;">
+            <text style="color: #2196F3;">🏥</text>
+          </view>
+          <view class="info-detail">
+            <text class="info-label">就诊院区</text>
+            <text class="info-value">{{item.area.name}}</text>
+          </view>
         </view>
-        <view class="record-row">
-          <text class="record-label">科室</text>
-          <text class="record-value">{{item.department.name}} - {{item.subDepartment.name}}</text>
+        <view class="info-row">
+          <view class="info-icon-box" style="background: #F3E5F5;">
+            <text style="color: #9C27B0;">🩺</text>
+          </view>
+          <view class="info-detail">
+            <text class="info-label">就诊科室</text>
+            <text class="info-value">{{item.department.name}} - {{item.subDepartment.name}}</text>
+          </view>
         </view>
-        <view class="record-row">
-          <text class="record-label">日期</text>
-          <text class="record-value">{{item.date}}</text>
-        </view>
-        <view class="record-row">
-          <text class="record-label">时段</text>
-          <text class="record-value">{{item.timeSlot.name}} {{item.period.name}}</text>
-        </view>
-        <view class="record-row" wx:if="{{item.cancelTime}}">
-          <text class="record-label">取消时间</text>
-          <text class="record-value">{{item.cancelTime}}</text>
+        <view class="info-row">
+          <view class="info-icon-box" style="background: #FFF3E0;">
+            <text style="color: #FF9800;">⏰</text>
+          </view>
+          <view class="info-detail">
+            <text class="info-label">就诊时间</text>
+            <text class="info-value highlight">{{item.timeSlot.name}} {{item.period.name}}</text>
+          </view>
         </view>
       </view>
 
-      <view class="record-footer">
-        <button class="btn-detail" bindtap="viewDetail" data-index="{{index}}">查看详情</button>
-        <button class="btn-cancel" wx:if="{{item.status === '已预约'}}" bindtap="cancelBooking" data-index="{{index}}">取消预约</button>
+      <!-- 取消信息 -->
+      <view class="cancel-info" wx:if="{{item.cancelTime}}">
+        <text class="cancel-icon">ⓘ</text>
+        <text class="cancel-text">取消时间：{{item.cancelTime}}</text>
+      </view>
+
+      <!-- 卡片操作 -->
+      <view class="card-actions">
+        <view class="action-btn secondary" bindtap="viewDetail" data-index="{{index}}">
+          <text class="action-icon">👁</text>
+          <text class="action-text">详情</text>
+        </view>
+        <view class="action-btn primary" wx:if="{{item.status === '已预约'}}" bindtap="cancelBooking" data-index="{{index}}">
+          <text class="action-icon">✕</text>
+          <text class="action-text">取消预约</text>
+        </view>
       </view>
     </view>
+  </view>
+
+  <!-- 底部添加按钮 -->
+  <view class="fab-button" wx:if="{{!isEmpty}}" bindtap="goToBooking">
+    <text class="fab-icon">+</text>
+    <text class="fab-text">新建预约</text>
   </view>
 </view>

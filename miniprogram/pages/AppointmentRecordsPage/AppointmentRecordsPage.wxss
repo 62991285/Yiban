@@ -1,8 +1,39 @@
 .container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #F0F9F1 0%, #F5F5F5 100%);
-  padding: 30rpx;
-  padding-bottom: 100rpx;
+  background: #f5f5f5;
+  padding: 20rpx;
+  padding-bottom: 140rpx;
+  box-sizing: border-box;
+}
+
+/* 页面头部 */
+.page-header {
+  text-align: center;
+  padding: 20rpx 0;
+  margin-bottom: 20rpx;
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+}
+
+.title-icon {
+  font-size: 40rpx;
+  margin-right: 12rpx;
+}
+
+.title-text {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.title-desc {
+  font-size: 24rpx;
+  color: #666;
 }
 
 /* 空状态 */
@@ -11,159 +42,327 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 200rpx 0;
+  padding: 80rpx 40rpx;
+}
+
+.empty-illustration {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32rpx;
 }
 
 .empty-icon {
-  font-size: 120rpx;
-  margin-bottom: 30rpx;
-  opacity: 0.6;
+  font-size: 80rpx;
 }
 
-.empty-text {
+.empty-title {
   font-size: 32rpx;
-  color: #999;
-  margin-bottom: 60rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
 }
 
-.btn-booking {
-  width: 400rpx;
-  height: 88rpx;
-  background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+.empty-desc {
+  font-size: 26rpx;
+  color: #666;
+  text-align: center;
+  margin-bottom: 48rpx;
+  line-height: 1.6;
+}
+
+.btn-primary {
+  width: 360rpx;
+  height: 80rpx;
+  background: #333;
   color: white;
-  font-size: 32rpx;
-  font-weight: bold;
-  border-radius: 44rpx;
-  border: none;
-  box-shadow: 0 4rpx 16rpx rgba(0, 200, 83, 0.3);
-}
-
-.btn-booking::after {
-  border: none;
-}
-
-/* 记录列表 */
-.records-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30rpx;
-}
-
-.record-card {
-  background: white;
-  border-radius: 20rpx;
-  padding: 30rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  transition: all 0.3s;
-}
-
-.record-card:active {
-  transform: scale(0.98);
-}
-
-.record-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 24rpx;
-  border-bottom: 1rpx solid #F0F0F0;
-  margin-bottom: 24rpx;
-}
-
-.record-status {
-  padding: 8rpx 24rpx;
-  border-radius: 20rpx;
-  font-size: 24rpx;
-  font-weight: bold;
-}
-
-.record-status.active {
-  background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
-  color: #00C853;
-}
-
-.record-status.cancelled {
-  background: #F5F5F5;
-  color: #999;
-}
-
-.status-text {
-  font-size: 24rpx;
-}
-
-.record-no {
-  font-size: 24rpx;
-  color: #999;
-}
-
-.record-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.record-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.record-label {
-  font-size: 28rpx;
-  color: #999;
-  width: 140rpx;
-}
-
-.record-value {
   font-size: 30rpx;
-  color: #1A1A1A;
-  font-weight: 500;
-  flex: 1;
-  text-align: right;
-}
-
-.record-footer {
-  display: flex;
-  gap: 20rpx;
-  margin-top: 30rpx;
-  padding-top: 24rpx;
-  border-top: 1rpx solid #F0F0F0;
-}
-
-.btn-detail,
-.btn-cancel {
-  flex: 1;
-  height: 72rpx;
-  border-radius: 36rpx;
-  font-size: 28rpx;
-  font-weight: bold;
+  font-weight: 600;
+  border-radius: 40rpx;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.btn-detail {
-  background: #F5F5F5;
+.btn-primary::after {
+  border: none;
+}
+
+.btn-icon {
+  margin-right: 10rpx;
+  font-size: 32rpx;
+}
+
+/* 统计栏 */
+.stats-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 24rpx;
+  background: white;
+  border-radius: 12rpx;
+  margin-bottom: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6rpx;
+}
+
+.stat-value.active {
+  color: #00c853;
+}
+
+.stat-value.cancelled {
+  color: #ff5252;
+}
+
+.stat-label {
+  font-size: 22rpx;
   color: #666;
 }
 
-.btn-detail::after {
-  border: none;
+.stat-divider {
+  width: 2rpx;
+  height: 50rpx;
+  background: #e0e0e0;
 }
 
-.btn-cancel {
-  background: linear-gradient(135deg, #FF5252 0%, #FF1744 100%);
+/* 记录列表 */
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.record-card {
+  background: white;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 卡片头部 */
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20rpx;
+  border-bottom: 1rpx solid #e0e0e0;
+  margin-bottom: 20rpx;
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  padding: 6rpx 12rpx;
+  border-radius: 16rpx;
+  gap: 6rpx;
+}
+
+.status-badge.active {
+  background: #e8f5e9;
+}
+
+.status-badge.cancelled {
+  background: #ffebee;
+}
+
+.status-dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+}
+
+.status-badge.active .status-dot {
+  background: #00c853;
+}
+
+.status-badge.cancelled .status-dot {
+  background: #ff5252;
+}
+
+.status-text {
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.status-badge.active .status-text {
+  color: #00c853;
+}
+
+.status-badge.cancelled .status-text {
+  color: #ff5252;
+}
+
+.booking-no {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.booking-date {
+  font-size: 24rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+/* 卡片内容 */
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+}
+
+.info-icon-box {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.info-icon-box text {
+  font-size: 26rpx;
+}
+
+.info-detail {
+  flex: 1;
+}
+
+.info-label {
+  font-size: 22rpx;
+  color: #999;
+  margin-bottom: 4rpx;
+  display: block;
+}
+
+.info-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 600;
+}
+
+.info-value.highlight {
+  color: #00c853;
+  font-weight: 700;
+}
+
+/* 取消信息 */
+.cancel-info {
+  display: flex;
+  align-items: center;
+  padding: 12rpx 16rpx;
+  background: #ffebee;
+  border-radius: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.cancel-icon {
+  font-size: 24rpx;
+  color: #ff5252;
+  margin-right: 10rpx;
+}
+
+.cancel-text {
+  font-size: 24rpx;
+  color: #ff5252;
+}
+
+/* 卡片操作 */
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #e0e0e0;
+}
+
+.action-btn {
+  flex: 1;
+  height: 64rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6rpx;
+}
+
+.action-btn.secondary {
+  background: #f5f5f5;
+}
+
+.action-btn.primary {
+  background: #ff5252;
+}
+
+.action-icon {
+  font-size: 24rpx;
+}
+
+.action-text {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.action-btn.secondary .action-text {
+  color: #666;
+}
+
+.action-btn.primary .action-text {
   color: white;
-  box-shadow: 0 4rpx 12rpx rgba(255, 82, 82, 0.3);
 }
 
-.btn-cancel::after {
-  border: none;
+/* 浮动按钮 */
+.fab-button {
+  position: fixed;
+  bottom: 40rpx;
+  right: 40rpx;
+  display: flex;
+  align-items: center;
+  padding: 16rpx 28rpx;
+  background: #333;
+  border-radius: 48rpx;
+  z-index: 100;
 }
 
-.btn-detail:active,
-.btn-cancel:active {
-  opacity: 0.8;
-  transform: scale(0.98);
+.fab-icon {
+  font-size: 32rpx;
+  color: white;
+  margin-right: 10rpx;
+  font-weight: 700;
+}
+
+.fab-text {
+  font-size: 26rpx;
+  color: white;
+  font-weight: 600;
 }

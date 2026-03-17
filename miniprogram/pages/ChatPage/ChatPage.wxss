@@ -237,6 +237,16 @@
   max-width: 92%;
 }
 
+/* 消息图片样式 */
+.message-image {
+  width: 100%;
+  height: auto;
+  max-height: 400rpx;
+  margin-top: 16rpx;
+  border-radius: 12rpx;
+  display: block;
+}
+
 /* 消息导航按钮 */
 .message-navigations {
   display: flex;

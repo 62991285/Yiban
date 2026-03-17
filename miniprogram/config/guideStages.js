@@ -1,7 +1,7 @@
 const STEP_TYPES = {
-  FIXED: 'fixed',
-  AI_PROCESSED: 'ai_processed',
-  DATA_PROCESSED: 'data_processed'
+  FIXED: "fixed",
+  AI_PROCESSED: "ai_processed",
+  DATA_PROCESSED: "data_processed",
 };
 
 const GUIDE_STAGES = [
@@ -19,6 +19,7 @@ const GUIDE_STAGES = [
         options: ["头痛", "发热", "腹痛", "胸闷", "其他症状"],
         pagelinks: null,
         handler: null,
+        picture: null,
       },
       {
         stepIndex: 1,
@@ -28,6 +29,7 @@ const GUIDE_STAGES = [
         options: ["今天刚开始", "持续1-3天", "持续4-7天", "超过一周"],
         pagelinks: null,
         handler: null,
+        picture: null,
       },
       {
         stepIndex: 2,
@@ -37,6 +39,7 @@ const GUIDE_STAGES = [
         options: ["轻微", "中等", "严重", "非常严重"],
         pagelinks: null,
         handler: null,
+        picture: null,
       },
     ],
   },
@@ -54,6 +57,7 @@ const GUIDE_STAGES = [
         options: [],
         pagelinks: [{ name: "前往挂号", handler: "gotoAppointmentPage" }],
         handler: "processAppointmentAdvice",
+        picture: null,
       },
     ],
   },
@@ -67,8 +71,9 @@ const GUIDE_STAGES = [
         stepIndex: 0,
         stepName: "科室导航",
         type: STEP_TYPES.FIXED,
-        detail: "已为您生成科室导航，请点击下方按钮前往挂号科室。",
-        options: [],
+        detail:
+          "已为您生成预约记录，是否需要开启科室导航？点击下方按钮开启导航",
+        options: ["否", "是"],
         pagelinks: [
           {
             name: "科室导航",
@@ -76,7 +81,61 @@ const GUIDE_STAGES = [
           },
         ],
         handler: null,
+        picture: null,
       },
+      {
+        stepIndex: 1,
+        stepName: "科室导航",
+        type: STEP_TYPES.FIXED,
+        detail: "从门诊大楼1楼进入后，请向左转，上扶梯，进入2楼",
+        options: ["下一步"],
+        pagelinks: [],
+        handler: null,
+        picture: "/images/department_navigation/电梯.jpg",
+      },
+      {
+        stepIndex: 2,
+        stepName: "科室导航",
+        type: STEP_TYPES.FIXED,
+        detail: "进入2楼之后。右转，回头进入前往三楼的扶梯，乘坐扶梯前往3楼后，左拐，前行6米后进入内科门诊区域，请在此处等待叫号",
+        options: ["下一步"],
+        pagelinks: [],
+        handler: null,
+        picture: "/images/department_navigation/内科.jpg",
+      },
+      {
+        stepIndex: 3,
+        stepName: "科室导航",
+        type: STEP_TYPES.FIXED,
+        detail: "医生开具检查单，准备前往血常规检查，请步行出内科诊室，向右前行20米，右转进入采血自助取号缴费区，在取号后继续向左前方长廊前行40米，可见门诊采血中心，请在此处等候采血。",
+        options: ["下一步"],
+        pagelinks: [],
+        handler: null,
+        picture: "/images/department_navigation/门诊采血中心.jpg",
+      },
+      {
+        stepIndex: 4,
+        stepName: "科室导航",
+        type: STEP_TYPES.FIXED,
+        detail: "在检查完成后，从采血门诊中心，出门直走30米，后左转20米后可见自助打印区，请在此打印检查报告单，打印完检查报告单后，请在手机app上进行复诊预约挂号，",
+        options: ["下一步"],
+        pagelinks: [],
+        handler: null,
+        picture: "/images/department_navigation/自助打印区.jpg",
+      },
+     
+    
+      {
+        stepIndex: 5,
+        stepName: "科室导航",
+        type: STEP_TYPES.FIXED,
+        detail: " 在取号后又左转出自助打印区，随后直行30m前往内科门诊b区进行复诊。",
+        options: ["下一步"],
+        pagelinks: [],
+        handler: null,
+        picture: "/images/department_navigation/内科.jpg",
+      }
+
     ],
   },
   {
@@ -89,19 +148,12 @@ const GUIDE_STAGES = [
         stepIndex: 0,
         stepName: "等待就诊",
         type: STEP_TYPES.FIXED,
-        detail: "请您耐心等待就诊。就诊完成后，医生会将诊断结果和处方药同步到您的个人信息中。",
-        options: [],
+        detail:
+          "请前往取药，请步行出内科诊室，出门后向右乘坐扶梯前往2楼，下楼梯后向后方直行到头，前往自助服务区进行缴费，随后右转10m，前往取药自助排号区，取号后右侧即是门诊中心药房",
+        options: ["下一步"],
         pagelinks: [{ name: "查看就诊记录", handler: "gotoUserInfoPage" }],
         handler: null,
-      },
-      {
-        stepIndex: 1,
-        stepName: "确认就诊完成",
-        type: STEP_TYPES.DATA_PROCESSED,
-        detail: "请问您已经完成就诊了吗？",
-        options: ["已完成就诊", "尚未完成"],
-        pagelinks: null,
-        handler: "processVisitCompletion",
+        picture: "/images/department_navigation/取药自助排号区.jpg",
       },
     ],
   },
@@ -115,7 +167,7 @@ const GUIDE_STAGES = [
         stepIndex: 0,
         stepName: "药房导航",
         type: STEP_TYPES.FIXED,
-        detail: "已为您生成药房导航，请点击下方按钮前往药房取药。",
+        detail: "（检测到复杂药物）检测到复杂药物处方，推荐前往药师门诊，进行咨询，拿取药物后，请向后行至扶梯口处，继续向前走20米，右侧即为药师门诊。",
         options: [],
         pagelinks: [
           {
@@ -124,9 +176,12 @@ const GUIDE_STAGES = [
           },
         ],
         handler: null,
-      },
+        picture:null
+      }
     ],
   },
+
+
   {
     stageIndex: 5,
     stageName: "支付页面",
@@ -141,6 +196,7 @@ const GUIDE_STAGES = [
         options: [],
         pagelinks: [{ name: "前往支付", handler: null }],
         handler: null,
+        picture:null
       },
       {
         stepIndex: 1,
@@ -150,6 +206,7 @@ const GUIDE_STAGES = [
         options: ["已完成支付", "尚未完成"],
         pagelinks: null,
         handler: "processPaymentCompletion",
+        picture:null
       },
     ],
   },
@@ -160,7 +217,7 @@ class StepProcessor {
     this.processors = {
       [STEP_TYPES.FIXED]: this.processFixedStep.bind(this),
       [STEP_TYPES.AI_PROCESSED]: this.processAIStep.bind(this),
-      [STEP_TYPES.DATA_PROCESSED]: this.processDataStep.bind(this)
+      [STEP_TYPES.DATA_PROCESSED]: this.processDataStep.bind(this),
     };
   }
 
@@ -174,12 +231,19 @@ class StepProcessor {
   }
 
   async processFixedStep(pageInstance, step) {
-    pageInstance.addMessage("ai", step.detail, step.options, step.pagelinks);
+    pageInstance.addMessage(
+      "ai",
+      step.detail,
+      step.options,
+      step.pagelinks,
+      step.picture,
+    );
     return {
       success: true,
       message: step.detail,
       options: step.options,
-      pagelinks: step.pagelinks
+      pagelinks: step.pagelinks,
+      picture: step.picture,
     };
   }
 
@@ -191,15 +255,21 @@ class StepProcessor {
       const { sessionRecords } = pageInstance.data;
       const context = this.buildContext(sessionRecords);
       const aiResult = await this.callAI(context, step);
-      
+
       pageInstance.setData({ isProcessing: false });
-      pageInstance.replaceLastAIMessage(aiResult, step.options, step.pagelinks);
-      
+      pageInstance.replaceLastAIMessage(
+        aiResult,
+        step.options,
+        step.pagelinks,
+        step.picture,
+      );
+
       return {
         success: true,
         message: aiResult,
         options: step.options,
-        pagelinks: step.pagelinks
+        pagelinks: step.pagelinks,
+        picture: step.picture,
       };
     } catch (error) {
       console.error("AI处理失败:", error);
@@ -207,22 +277,27 @@ class StepProcessor {
       pageInstance.replaceLastAIMessage("抱歉，AI服务暂时不可用，请稍后重试。");
       return {
         success: false,
-        message: "AI处理失败"
+        message: "AI处理失败",
       };
     }
   }
 
   async processDataStep(pageInstance, step, stageIndex, stepIndex) {
     if (step.handler && stepHandlers[step.handler]) {
-      return await stepHandlers[step.handler](pageInstance, step, stageIndex, stepIndex);
+      return await stepHandlers[step.handler](
+        pageInstance,
+        step,
+        stageIndex,
+        stepIndex,
+      );
     }
     return this.processFixedStep(pageInstance, step);
   }
 
   buildContext(sessionRecords) {
-    return sessionRecords.map(record => ({
+    return sessionRecords.map((record) => ({
       question: record.question,
-      response: record.response
+      response: record.response,
     }));
   }
 
@@ -234,14 +309,14 @@ class StepProcessor {
 
   buildPrompt(context, step) {
     let prompt = `请根据以下对话历史和当前任务，生成下一步的响应：\n\n`;
-    
-    context.forEach(item => {
+
+    context.forEach((item) => {
       prompt += `Q: ${item.question}\nA: ${item.response}\n\n`;
     });
-    
+
     prompt += `当前任务: ${step.detail}\n\n`;
     prompt += `请生成一个专业、友好的响应，帮助用户完成当前步骤。`;
-    
+
     return prompt;
   }
 }
@@ -251,13 +326,22 @@ const stepHandlers = {
     const { sessionRecords } = pageInstance.data;
 
     pageInstance.setData({ isProcessing: true });
-    pageInstance.addMessage("ai", "🤔 AI 正在分析您的症状，为您推荐挂号科室...");
+    pageInstance.addMessage(
+      "ai",
+      "🤔 AI 正在分析您的症状，为您推荐挂号科室...",
+    );
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        const mainSymptom = sessionRecords.find((r) => r.stepName === "主要症状")?.response || "未知";
-        const symptomDetail = sessionRecords.find((r) => r.stepName === "症状详情")?.response || "未知";
-        const symptomSeverity = sessionRecords.find((r) => r.stepName === "症状程度")?.response || "未知";
+        const mainSymptom =
+          sessionRecords.find((r) => r.stepName === "主要症状")?.response ||
+          "未知";
+        const symptomDetail =
+          sessionRecords.find((r) => r.stepName === "症状详情")?.response ||
+          "未知";
+        const symptomSeverity =
+          sessionRecords.find((r) => r.stepName === "症状程度")?.response ||
+          "未知";
 
         let recommendedDepartment = "内科";
         let doctorType = "普通号";
@@ -269,9 +353,15 @@ const stepHandlers = {
           recommendedDepartment = "消化内科";
         } else if (mainSymptom.includes("胸闷")) {
           recommendedDepartment = "心内科";
-        } else if (mainSymptom.includes("咳嗽") || mainSymptom.includes("呼吸困难")) {
+        } else if (
+          mainSymptom.includes("咳嗽") ||
+          mainSymptom.includes("呼吸困难")
+        ) {
           recommendedDepartment = "呼吸内科";
-        } else if (mainSymptom.includes("关节") || mainSymptom.includes("骨骼")) {
+        } else if (
+          mainSymptom.includes("关节") ||
+          mainSymptom.includes("骨骼")
+        ) {
           recommendedDepartment = "骨科";
         }
 
@@ -280,7 +370,8 @@ const stepHandlers = {
           estimatedWaitTime = "30-60分钟";
         }
 
-        const message = `📋 **挂号建议**\n\n根据您的症状分析，建议您挂：\n\n` +
+        const message =
+          `📋 **挂号建议**\n\n根据您的症状分析，建议您挂：\n\n` +
           `• **推荐科室**：${recommendedDepartment}\n` +
           `• **医生类型**：${doctorType}\n` +
           `• **预计等待时间**：${estimatedWaitTime}\n\n` +
@@ -291,7 +382,12 @@ const stepHandlers = {
           `如需预约，请点击下方的"前往挂号"按钮。`;
 
         pageInstance.setData({ isProcessing: false });
-        pageInstance.replaceLastAIMessage(message, [], step.pagelinks);
+        pageInstance.replaceLastAIMessage(
+          message,
+          ["完成挂号"],
+          step.pagelinks,
+          step.picture,
+        );
 
         pageInstance.saveAppointmentRecommendation({
           department: recommendedDepartment,
@@ -312,7 +408,8 @@ const stepHandlers = {
           success: true,
           message: message,
           options: [],
-          pagelinks: step.pagelinks
+          pagelinks: step.pagelinks,
+          picture: step.picture,
         });
       }, 2000);
     });
@@ -336,7 +433,8 @@ const stepHandlers = {
 
           pageInstance.saveVisitResult(visitResult);
 
-          const message = `✅ **就诊已完成**\n\n您的就诊结果已同步到个人信息中：\n\n` +
+          const message =
+            `✅ **就诊已完成**\n\n您的就诊结果已同步到个人信息中：\n\n` +
             `• 诊断结果：${visitResult.diagnosis}\n` +
             `• 处方药品：${visitResult.prescription.join("、")}\n` +
             `• 医嘱：${visitResult.doctorAdvice}\n\n` +
@@ -356,7 +454,7 @@ const stepHandlers = {
             success: true,
             message: message,
             options: [],
-            pagelinks: null
+            pagelinks: null,
           });
         }, 1500);
       });
@@ -369,7 +467,7 @@ const stepHandlers = {
         success: true,
         message: message,
         options: [],
-        pagelinks: null
+        pagelinks: null,
       };
     }
   },
@@ -383,7 +481,8 @@ const stepHandlers = {
 
       return new Promise((resolve) => {
         setTimeout(() => {
-          const message = `🎉 **支付已完成**\n\n感谢您的使用！\n\n` +
+          const message =
+            `🎉 **支付已完成**\n\n感谢您的使用！\n\n` +
             `✨ 祝您身体早日康复！\n\n` +
             `如果后续有任何健康问题，欢迎随时咨询。`;
 
@@ -405,7 +504,7 @@ const stepHandlers = {
             success: true,
             message: message,
             options: [],
-            pagelinks: null
+            pagelinks: null,
           });
         }, 1500);
       });
@@ -418,7 +517,7 @@ const stepHandlers = {
         success: true,
         message: message,
         options: [],
-        pagelinks: null
+        pagelinks: null,
       };
     }
   },
@@ -429,5 +528,5 @@ const stepProcessor = new StepProcessor();
 module.exports = {
   guideStages: GUIDE_STAGES,
   stepProcessor: stepProcessor,
-  STEP_TYPES: STEP_TYPES
+  STEP_TYPES: STEP_TYPES,
 };

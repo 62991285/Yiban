@@ -1,4 +1,6 @@
 // pages/HealthInfoEditPage/HealthInfoEditPage.js
+const STORAGE_KEY_USER_DATA = "userData";
+
 Page({
   /**
    * 页面的初始数据
@@ -30,7 +32,9 @@ Page({
   /**
    * 生命周期函数--监听页面隐藏
    */
-  onHide() {},
+  onHide() {
+    this.saveUserData();
+  },
 
   /**
    * 生命周期函数--监听页面卸载
@@ -56,75 +60,77 @@ Page({
   onShareAppMessage() {},
 
   /**
-   * 加载用户数据 - 从配置文件读取
+   * 加载用户数据
    */
   loadUserData() {
-    const that = this;
-    const fs = wx.getFileSystemManager();
-
-    // 使用文件系统读取本地配置文件
     try {
-      const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
-      const data = fs.readFileSync(filePath, "utf8");
-      const userData = JSON.parse(data);
+      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA);
 
-      that.setData({
-        healthInfo: userData.healthInfo || {},
-        tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
-        tempChronicDiseases: (userData.healthInfo?.chronicDiseases || []).join(
-          "、",
-        ),
-        tempMedications: (userData.healthInfo?.medications || []).join("、"),
-      });
+      if (userData) {
+        this.setData({
+          healthInfo: userData.healthInfo || {},
+          tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
+          tempChronicDiseases: (userData.healthInfo?.chronicDiseases || []).join(
+            "、",
+          ),
+          tempMedications: (userData.healthInfo?.medications || []).join("、"),
+        });
+      }
     } catch (err) {
-      console.log("本地文件读取失败，尝试读取项目配置文件", err);
-      that.loadFromConfig();
+      console.log("读取用户数据失败", err);
     }
   },
 
   /**
-   * 从项目配置文件加载（首次使用）
+   * 保存用户数据
    */
-  loadFromConfig() {
-    const that = this;
-    const fs = wx.getFileSystemManager();
-
+  saveUserData() {
     try {
-      // 读取项目目录下的配置文件
-      const data = fs.readFileSync("miniprogram/config/userData.json", "utf8");
-      const userData = JSON.parse(data);
+      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA) || {
+        profile: {},
+        healthInfo: {},
+        meta: {
+          version: "1.0.0",
+          lastUpdated: new Date().toISOString(),
+        },
+      };
 
-      that.setData({
-        healthInfo: userData.healthInfo || {},
-        tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
-        tempChronicDiseases: (userData.healthInfo?.chronicDiseases || []).join(
-          "、",
-        ),
-        tempMedications: (userData.healthInfo?.medications || []).join("、"),
-      });
+      const { healthInfo, tempAllergies, tempChronicDiseases, tempMedications } =
+        this.data;
 
-      // 保存到本地文件，以便后续使用
-      that.saveUserDataToLocal(userData);
+      // 处理数组类型的健康信息
+      const updatedHealthInfo = {
+        ...healthInfo,
+        allergies: tempAllergies
+          ? tempAllergies
+              .split("、")
+              .map((item) => item.trim())
+              .filter((item) => item)
+          : [],
+        chronicDiseases: tempChronicDiseases
+          ? tempChronicDiseases
+              .split("、")
+              .map((item) => item.trim())
+              .filter((item) => item)
+          : [],
+        medications: tempMedications
+          ? tempMedications
+              .split("、")
+              .map((item) => item.trim())
+              .filter((item) => item)
+          : [],
+      };
+
+      userData.healthInfo = updatedHealthInfo;
+      userData.meta = {
+        version: "1.0.0",
+        lastUpdated: new Date().toISOString(),
+      };
+
+      wx.setStorageSync(STORAGE_KEY_USER_DATA, userData);
+      console.log("用户数据保存成功");
     } catch (err) {
-      console.error("读取配置文件失败", err);
-      wx.showToast({
-        title: "加载数据失败",
-        icon: "none",
-      });
-    }
-  },
-
-  /**
-   * 保存用户数据到本地
-   */
-  saveUserDataToLocal(userData) {
-    const fs = wx.getFileSystemManager();
-    const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
-
-    try {
-      fs.writeFileSync(filePath, JSON.stringify(userData, null, 2), "utf8");
-    } catch (err) {
-      console.error("保存到本地失败", err);
+      console.error("保存用户数据失败", err);
     }
   },
 
@@ -132,6 +138,7 @@ Page({
    * 返回按钮点击事件
    */
   onBackTap() {
+    this.saveUserData();
     wx.navigateBack();
   },
 
@@ -139,7 +146,6 @@ Page({
    * 保存按钮点击事件
    */
   onSaveTap() {
-    const that = this;
     const { healthInfo, tempAllergies, tempChronicDiseases, tempMedications } =
       this.data;
 
@@ -167,13 +173,9 @@ Page({
     };
 
     // 读取现有数据
-    const fs = wx.getFileSystemManager();
-    const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
-
     let userData = {};
     try {
-      const data = fs.readFileSync(filePath, "utf8");
-      userData = JSON.parse(data);
+      userData = wx.getStorageSync(STORAGE_KEY_USER_DATA) || {};
     } catch (err) {
       console.log("读取现有数据失败，创建新数据");
     }
@@ -185,9 +187,9 @@ Page({
       lastUpdated: new Date().toISOString(),
     };
 
-    // 保存到本地文件
+    // 保存到storage
     try {
-      fs.writeFileSync(filePath, JSON.stringify(userData, null, 2), "utf8");
+      wx.setStorageSync(STORAGE_KEY_USER_DATA, userData);
 
       wx.showToast({
         title: "保存成功",

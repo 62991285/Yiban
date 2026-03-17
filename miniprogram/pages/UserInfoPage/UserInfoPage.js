@@ -1,4 +1,6 @@
 // pages/UserInfoPage/UserInfoPage.js
+const STORAGE_KEY_USER_DATA = "userData";
+
 import {
   gotoBasicInfoPage,
   gotoHealthInfoPage,
@@ -63,74 +65,27 @@ Page({
   onShareAppMessage() {},
 
   /**
-   * 加载用户数据 - 从配置文件读取
+   * 加载用户数据 - 从本地storage读取
    */
   loadUserData() {
-    const that = this;
-    const fs = wx.getFileSystemManager();
-
-    // 使用文件系统读取本地配置文件
     try {
-      const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
-      const data = fs.readFileSync(filePath, "utf8");
-      const userData = JSON.parse(data);
+      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA);
 
-      that.setData({
-        profile: userData.profile || {},
-        healthInfo: userData.healthInfo || {},
-      });
+      if (userData) {
+        this.setData({
+          profile: userData.profile || {},
+          healthInfo: userData.healthInfo || {},
+        });
+      }
     } catch (err) {
-      console.log("本地文件读取失败，尝试读取项目配置文件", err);
-      that.loadFromConfig();
-    }
-  },
-
-  /**
-   * 从项目配置文件加载（首次使用）
-   */
-  loadFromConfig() {
-    const that = this;
-    const fs = wx.getFileSystemManager();
-
-    try {
-      // 读取项目目录下的配置文件
-      const data = fs.readFileSync("miniprogram/config/userData.json", "utf8");
-      const userData = JSON.parse(data);
-
-      that.setData({
-        profile: userData.profile || {},
-        healthInfo: userData.healthInfo || {},
-      });
-
-      // 保存到本地文件，以便后续使用
-      that.saveUserDataToLocal(userData);
-    } catch (err) {
-      console.error("读取配置文件失败", err);
-      wx.showToast({
-        title: "加载数据失败",
-        icon: "none",
-      });
-    }
-  },
-
-  /**
-   * 保存用户数据到本地
-   */
-  saveUserDataToLocal(userData) {
-    const fs = wx.getFileSystemManager();
-    const filePath = `${wx.env.USER_DATA_PATH}/userData.json`;
-
-    try {
-      fs.writeFileSync(filePath, JSON.stringify(userData, null, 2), "utf8");
-    } catch (err) {
-      console.error("保存到本地失败", err);
+      console.log("读取用户数据失败", err);
     }
   },
 
   /**
    * 编辑个人信息
    */
-  onEditProfileTap() {
+  gotoBasicInfo() {
     gotoBasicInfoPage();
   },
 

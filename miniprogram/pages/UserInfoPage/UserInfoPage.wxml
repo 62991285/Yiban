@@ -1,49 +1,49 @@
 <!--pages/UserInfoPage/UserInfoPage.wxml-->
 <view class="mine-page">
-  <!-- 个人信息卡片 -->
+  <!-- 个人信息卡片 
   <view class="section-card">
     <view class="section-header">
       <text class="section-title">👤 个人资料</text>
-      <text class="edit-btn" bindtap="onEditProfileTap">编辑</text>
+      <text class="edit-btn" bindtap="gotoBasicInfo">编辑</text>
     </view>
-    <view class="info-list">
+    <view class="info-list" wx:if="{{profile.name}}">
       <view class="info-item">
         <text class="info-label">姓名</text>
-        <text class="info-value">{{profile.name || '-'}}</text>
+        <text class="info-value">{{profile.name}}</text>
       </view>
       <view class="info-item">
         <text class="info-label">性别</text>
-        <text class="info-value">{{profile.gender || '-'}}</text>
+        <text class="info-value">{{profile.gender}}</text>
       </view>
       <view class="info-item">
         <text class="info-label">年龄</text>
-        <text class="info-value">{{profile.age ? profile.age + '岁' : '-'}}</text>
-      </view>
-      <view class="info-item">
-        <text class="info-label">身份证号</text>
-        <text class="info-value">{{profile.idCard || '-'}}</text>
+        <text class="info-value">{{profile.age}}</text>
       </view>
       <view class="info-item">
         <text class="info-label">手机号</text>
-        <text class="info-value">{{profile.phone || '-'}}</text>
+        <text class="info-value">{{profile.phone}}</text>
       </view>
+    </view>
+    <view class="info-list" wx:else>
       <view class="info-item">
-        <text class="info-label">地址</text>
-        <text class="info-value">{{profile.address || '-'}}</text>
-      </view>
-      <view class="info-item">
-        <text class="info-label">紧急联系人</text>
-        <text class="info-value">{{profile.emergencyContact || '-'}}</text>
+        <text class="info-value" style="color: #999;">暂无信息</text>
       </view>
     </view>
   </view>
-
+ -->
   <!-- 功能菜单 -->
   <view class="section-card">
     <view class="section-header">
       <text class="section-title">📋 更多功能</text>
     </view>
     <view class="menu-list">
+      <view class="menu-item" bindtap="gotoBasicInfo">
+        <view class="menu-item-left">
+          <text class="menu-icon">👤</text>
+          <text class="menu-text">个人资料</text>
+        </view>
+        <image class="arrow-icon" src="../../images/arrow.svg" mode="aspectFit"></image>
+      </view>
       <view class="menu-item" bindtap="goToHealthInfo">
         <view class="menu-item-left">
           <text class="menu-icon">❤️</text>

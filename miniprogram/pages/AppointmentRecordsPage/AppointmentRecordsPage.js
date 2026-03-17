@@ -20,9 +20,13 @@ Page({
 
   loadRecords() {
     const records = getAppointmentRecords() || [];
+    const activeCount = records.filter(r => r.status === '已预约').length;
+    const cancelledCount = records.filter(r => r.status === '已取消').length;
     this.setData({
       records: records,
       isEmpty: records.length === 0,
+      activeCount: activeCount,
+      cancelledCount: cancelledCount,
     });
   },
 
@@ -35,11 +39,13 @@ Page({
   viewDetail(e) {
     const index = e.currentTarget.dataset.index;
     const record = this.data.records[index];
-    const recordStr = JSON.stringify(record);
-    
+
+    const statusText = record.status === "已预约" ? "已预约" : "已取消";
+    const content = `预约号：${record.bookingNo}\n\n院区：${record.area.name}\n科室：${record.department.name} - ${record.subDepartment.name}\n日期：${record.date}\n时段：${record.timeSlot.name} ${record.period.name}\n状态：${statusText}${record.cancelTime ? `\n取消时间：${record.cancelTime}` : ""}`;
+
     wx.showModal({
       title: "预约详情",
-      content: `医院：${record.hospitalName}\n科室：${record.department}\n状态：${record.status}`,
+      content: content,
       showCancel: false,
     });
   },
@@ -59,7 +65,7 @@ Page({
 
     wx.showModal({
       title: "取消预约",
-      content: `确定要取消${record.hospitalName} ${record.department}的预约吗？`,
+      content: `确定要取消${record.area.name} ${record.department.name} - ${record.subDepartment.name}的预约吗？`,
       confirmText: "确定取消",
       cancelText: "暂不取消",
       success: (res) => {

@@ -41,6 +41,7 @@
               class="animated-message"
             >
               <text>{{item.content}}</text>
+              <image wx:if="{{item.picture}}" class="message-image" src="{{item.picture}}" mode="widthFix" lazy-load="true"></image>
             </message-item>
             <!-- 消息导航按钮 -->
             <view wx:if="{{item.speaker === 'ai'}}" class="debug-info">

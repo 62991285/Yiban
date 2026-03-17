@@ -4,6 +4,21 @@ import {
   saveChatHistory,
   addChatMessage,
 } from "../../utils/userInfoManager.js";
+import {
+  gotoAppointmentPage,
+  gotoDepartmentNavigationPage,
+  gotoPharmacyNavigationPage,
+  gotoUserInfoPage,
+  gotoAppointmentRecordsPage,
+} from "../../utils/pageNavigation.js";
+
+const nav = {
+  gotoAppointmentPage,
+  gotoDepartmentNavigationPage,
+  gotoPharmacyNavigationPage,
+  gotoUserInfoPage,
+  gotoAppointmentRecordsPage,
+};
 
 const STORAGE_KEYS = {
   MODE: "aiDialogue_mode",
@@ -71,6 +86,7 @@ Page({
         content: item.content,
         options: item.options || [],
         pagelinks: item.pagelinks || [],
+        picture: item.picture || null,
       }));
 
       if (messages.length > 0 && savedMode === "guide") {
@@ -95,6 +111,7 @@ Page({
         content: message.content,
         options: message.options || [],
         pagelinks: message.pagelinks || [],
+        picture: message.picture || null,
       }));
 
       const saveResult = saveChatHistory(chatHistory);
@@ -138,6 +155,11 @@ Page({
       isStepDetailExpanded: true,
       stageIndex: 0,
       stepIndex: 0,
+      totalStepCount: guideStages.reduce(
+        (sum, stage) => sum + stage.steps.length,
+        0,
+      ),
+      completedStepCount: 0,
       messages: [],
       sessionRecords: [],
       mode: "guide",
@@ -145,7 +167,6 @@ Page({
     });
 
     this.addSystemMessage("导诊模式已开启");
-    this.updateStepDisplay();
 
     try {
       await stepProcessor.processStep(this, firstStep, 0, 0);
@@ -219,10 +240,26 @@ Page({
   },
 
   async processGuideResponse() {
-    const { pendingUserInput, stageIndex, stepIndex } = this.data;
+    const { pendingUserInput, stageIndex, stepIndex, guideStages } = this.data;
     this.setData({ isProcessing: true });
     this.scrollToBottom();
-    await this.executeCurrentStep();
+
+    // 保存用户的回答到 sessionRecords
+    const currentStage = guideStages[stageIndex];
+    const currentStep = currentStage?.steps[stepIndex];
+    if (currentStep) {
+      this.setData({
+        sessionRecords: [
+          ...this.data.sessionRecords,
+          {
+            stepName: currentStep.stepName,
+            response: pendingUserInput,
+            question: currentStep.detail,
+          },
+        ],
+      });
+    }
+
     this.continueToNextStep();
   },
 
@@ -318,28 +355,48 @@ Page({
     }
   },
 
-  continueToNextStep() {
+  async continueToNextStep() {
     const { guideStages, stageIndex, stepIndex } = this.data;
     const currentStage = guideStages[stageIndex];
     const nextStepIdx = stepIndex + 1;
 
+    const calculateCompletedSteps = () => {
+      let completed = 0;
+      for (let i = 0; i < stageIndex; i++) {
+        completed += guideStages[i].steps.length;
+      }
+      completed += nextStepIdx;
+      return completed;
+    };
+
     if (nextStepIdx < currentStage.steps.length) {
       this.setData({
         stepIndex: nextStepIdx,
-        isProcessing: false,
+        completedStepCount: calculateCompletedSteps(),
+        isProcessing: true,
       });
       this.updateStepDisplay();
+      await this.executeCurrentStep();
+      this.setData({ isProcessing: false });
       return;
     }
 
     const nextStageIdx = stageIndex + 1;
     if (nextStageIdx < guideStages.length) {
+      let completed = 0;
+      for (let i = 0; i <= stageIndex; i++) {
+        completed += guideStages[i].steps.length;
+      }
+
       this.setData({
         stageIndex: nextStageIdx,
         stepIndex: 0,
-        isProcessing: false,
+        completedStepCount: completed,
+        isProcessing: true,
       });
       this.updateStepDisplay();
+      await this.executeCurrentStep();
+      this.setData({ isProcessing: false });
     }
   },
 
@@ -359,15 +416,6 @@ Page({
       this.setData({ totalStepCount: total });
     };
 
-    const calculateCompletedSteps = () => {
-      let completed = 0;
-      for (let i = 0; i < stageIndex; i++) {
-        completed += guideStages[i].steps.length;
-      }
-      completed += stepIndex + 1;
-      this.setData({ completedStepCount: completed });
-    };
-
     const step = currentStage.steps[stepIndex];
     if (step) {
       this.setData({
@@ -375,7 +423,6 @@ Page({
         stepDetail: step.detail,
         stepName: step.stepName,
       });
-      calculateCompletedSteps();
     }
 
     calculateTotalSteps();
@@ -404,12 +451,11 @@ Page({
     }
   },
 
-  addMessage(speaker, content, options = [], pagelinks = []) {
+  addMessage(speaker, content, options = [], pagelinks = [], picture = null) {
     const { messages } = this.data;
-    const newMsg = { speaker, content, options, pagelinks };
+    const newMsg = { speaker, content, options, pagelinks, picture };
     console.log("[DEBUG] addMessage - newMsg:", newMsg);
     this.setData({ messages: [...messages, newMsg] });
-    // 立即保存到文件
     this.saveState();
   },
 
@@ -417,7 +463,7 @@ Page({
     this.addMessage("system", content);
   },
 
-  replaceLastAIMessage(content, options = [], pagelinks = []) {
+  replaceLastAIMessage(content, options = [], pagelinks = [], picture = null) {
     const { messages } = this.data;
 
     if (messages.length > 0 && messages[messages.length - 1].speaker === "ai") {
@@ -427,12 +473,12 @@ Page({
         content,
         options,
         pagelinks,
+        picture,
       };
       this.setData({ messages: updatedMessages });
-      // 立即保存到文件
       this.saveState();
     } else {
-      this.addMessage("ai", content, options, pagelinks);
+      this.addMessage("ai", content, options, pagelinks, picture);
     }
   },
 
