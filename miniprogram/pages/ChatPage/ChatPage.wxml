@@ -44,9 +44,6 @@
               <image wx:if="{{item.picture}}" class="message-image" src="{{item.picture}}" mode="widthFix" lazy-load="true"></image>
             </message-item>
             <!-- 消息导航按钮 -->
-            <view wx:if="{{item.speaker === 'ai'}}" class="debug-info">
-              <text>pagelinks: {{item.pagelinks ? item.pagelinks.length : 0}}</text>
-            </view>
             <view wx:if="{{item.speaker === 'ai' && item.pagelinks && item.pagelinks.length > 0}}" class="message-navigations">
               <block wx:for="{{item.pagelinks}}" wx:key="name" wx:for-item="nav">
                 <view class="nav-btn" bindtap="navigateTo" data-handler="{{nav.handler}}">
@@ -86,44 +83,6 @@
     </view>
   </view>
 
-  <!-- 滑动式功能按钮栏 - 粘滞定位 -->
-  <!-- 暂时禁用 -->
-  <!--
-  <view class="scroll-functional-bar sticky-functional-bar">
-    <scroll-view class="functional-scroll-view" scroll-x="true" enhanced="true" show-scrollbar="false">
-      <view class="functional-list">
-        <view class="functional-item" bindtap="gotoHistory">
-          <text class="func-icon">📍</text>
-          <text class="func-text">院内导航</text>
-        </view>
-        <view class="functional-item" bindtap="gotoVoiceInput">
-          <text class="func-icon">📞</text>
-          <text class="func-text">挂号服务</text>
-        </view>
-        <view class="functional-item" bindtap="gotoReport">
-          <text class="func-icon">📋</text>
-          <text class="func-text">检查预约</text>
-        </view>
-        <view class="functional-item" bindtap="gotoAIExplanation">
-          <text class="func-icon">⚕️</text>
-          <text class="func-text">治疗预约</text>
-        </view>
-        <view class="functional-item" bindtap="gotoHistory">
-          <text class="func-icon">🏥</text>
-          <text class="func-text">科室介绍</text>
-        </view>
-        <view class="functional-item" bindtap="gotoVoiceInput">
-          <text class="func-icon">💊</text>
-          <text class="func-text">药品查询</text>
-        </view>
-        <view class="functional-item" bindtap="gotoReport">
-          <text class="func-icon">🩺</text>
-          <text class="func-text">体检套餐</text>
-        </view>
-      </view>
-    </scroll-view>
-  </view>
-  -->
 
   <!-- 用户输入区域 - AI风格 - 粘滞定位 -->
   <view class="ai-input-container sticky-input">
@@ -139,7 +98,7 @@
         placeholder-style="color:#999;line-height:80rpx;"
         show-confirm-bar="false"
       />
-      <button class="modern-send-btn {{userInput.trim()==='' ? '' : 'send-btn-active'}}" bindtap="sendMessage" disabled="{{userInput.trim() === ''}}">
+      <button class="modern-send-btn {{userInput.trim()==='' ? '' : 'send-btn-active'}}" bindtap="processUserInputWorkflow" disabled="{{userInput.trim() === ''}}">
         <text class="send-text-modern">发送</text>
       </button>
     </view>

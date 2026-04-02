@@ -31,7 +31,7 @@ const WELCOME_MESSAGE =
 
 const WELCOME_OPTIONS = ["医院科室介绍", "挂号流程说明", "医院导航"];
 
-const { guideStages, stepProcessor } = require("../../config/guideStages.js");
+const { guideStages } = require("../../config/guideStages.js");
 
 Page({
   data: {
@@ -61,7 +61,7 @@ Page({
 
   onShow() {
     if (!this.data.messages?.length) {
-      this.addMessage("ai", WELCOME_MESSAGE, WELCOME_OPTIONS);
+      this.addAIMessage(WELCOME_MESSAGE, WELCOME_OPTIONS);
     }
   },
 
@@ -91,7 +91,6 @@ Page({
 
       if (messages.length > 0 && savedMode === "guide") {
         this.setData({ messages, mode: "guide" });
-        this.updateStepDisplay();
       } else {
         this.setData({
           mode: "chat",
@@ -167,16 +166,7 @@ Page({
     });
 
     this.addSystemMessage("导诊模式已开启");
-
-    try {
-      await stepProcessor.processStep(this, firstStep, 0, 0);
-    } catch (error) {
-      console.error("启动导诊模式失败:", error);
-      this.addMessage("ai", "抱歉，启动导诊模式时出现错误，请重试。");
-    } finally {
-      this.setData({ isProcessing: false });
-      this.scrollToBottom();
-    }
+    this.showNextStepMessage();
   },
 
   async toggleGuideSession() {
@@ -212,10 +202,21 @@ Page({
     wx.showToast({ title: "已退出AI导诊", icon: "success" });
   },
 
-  sendMessage() {
-    const { userInput } = this.data;
-    const trimmedInput = userInput?.trim();
+  processUserInputWorkflow() {
+    this.recordUserInput();
+    if (this.data.mode === "guide") {
+      this.recordUserResponse();
+      if (this.TryMoveToNextStep()) this.showNextStepMessage();
+      else return;
+    } else {
+      this.processChatMessage();
+    }
+  },
 
+  recordUserInput() {
+    this.setData({ isProcessing: true });
+    const { userInput, mode } = this.data;
+    const trimmedInput = userInput?.trim();
     if (!trimmedInput) {
       return;
     }
@@ -225,26 +226,10 @@ Page({
       userInput: "",
       pendingUserInput: trimmedInput,
     });
-
-    this.processUserMessage();
   },
 
-  processUserMessage() {
-    const { mode } = this.data;
-
-    if (mode === "guide") {
-      this.processGuideResponse();
-    } else {
-      this.processChatMessage();
-    }
-  },
-
-  async processGuideResponse() {
-    const { pendingUserInput, stageIndex, stepIndex, guideStages } = this.data;
-    this.setData({ isProcessing: true });
-    this.scrollToBottom();
-
-    // 保存用户的回答到 sessionRecords
+  recordUserResponse() {
+    const { guideStages, stageIndex, stepIndex, pendingUserInput } = this.data;
     const currentStage = guideStages[stageIndex];
     const currentStep = currentStage?.steps[stepIndex];
     if (currentStep) {
@@ -253,14 +238,12 @@ Page({
           ...this.data.sessionRecords,
           {
             stepName: currentStep.stepName,
-            response: pendingUserInput,
             question: currentStep.detail,
+            response: pendingUserInput,
           },
         ],
       });
     }
-
-    this.continueToNextStep();
   },
 
   processChatMessage() {
@@ -333,7 +316,68 @@ Page({
       .join("\n");
   },
 
-  async executeCurrentStep() {
+  updateStepDisplay() {
+    const { guideStages, stageIndex, stepIndex } = this.data;
+    const currentStage = guideStages[stageIndex];
+    const step = currentStage?.steps[stepIndex];
+
+    if (step) {
+      this.setData({
+        stageSummary: `阶段 ${stageIndex + 1}/${guideStages.length}：${currentStage.stageName}`,
+        stepDetail: step.detail,
+        stepName: step.stepName,
+      });
+    }
+  },
+
+  async TryMoveToNextStep() {
+    const { guideStages, stageIndex, stepIndex } = this.data;
+    const currentStage = guideStages[stageIndex];
+    const nextStepIdx = stepIndex + 1;
+    const calculateCompletedSteps = () => {
+      let completed = 0;
+      for (let i = 0; i < stageIndex; i++) {
+        completed += guideStages[i].steps.length;
+      }
+      completed += nextStepIdx;
+      return completed;
+    };
+    const calculateTotalSteps = () => {
+      const total = guideStages.reduce(
+        (sum, stage) => sum + stage.steps.length,
+        0,
+      );
+      this.setData({ totalStepCount: total });
+    };
+    if (nextStepIdx < currentStage.steps.length) {
+      this.setData({
+        stepIndex: nextStepIdx,
+        completedStepCount: calculateCompletedSteps(),
+        isProcessing: true,
+      });
+      this.updateStepDisplay();
+
+      return true;
+    } else {
+      const nextStageIdx = stageIndex + 1;
+      if (nextStageIdx < guideStages.length) {
+        let completed = 0;
+        for (let i = 0; i <= stageIndex; i++) {
+          completed += guideStages[i].steps.length;
+        }
+
+        this.setData({
+          stageIndex: nextStageIdx,
+          stepIndex: 0,
+          completedStepCount: completed,
+          isProcessing: true,
+        });
+        return true;
+      } else return false;
+    }
+  },
+
+  async showNextStepMessage() {
     const { guideStages, stageIndex, stepIndex } = this.data;
     const currentStage = guideStages[stageIndex];
     const step = currentStage?.steps[stepIndex];
@@ -345,7 +389,14 @@ Page({
     }
 
     try {
-      await stepProcessor.processStep(this, step, stageIndex, stepIndex);
+      if (step.handler) step.detail = step.handler(this);
+
+      this.addAIMessage(
+        step.detail,
+        step.options,
+        step.pagelinks,
+        step.picture,
+      );
     } catch (error) {
       console.error("执行步骤失败:", error);
       this.addMessage("ai", "抱歉，处理步骤时出现错误，请重试。");
@@ -355,108 +406,19 @@ Page({
     }
   },
 
-  async continueToNextStep() {
-    const { guideStages, stageIndex, stepIndex } = this.data;
-    const currentStage = guideStages[stageIndex];
-    const nextStepIdx = stepIndex + 1;
-
-    const calculateCompletedSteps = () => {
-      let completed = 0;
-      for (let i = 0; i < stageIndex; i++) {
-        completed += guideStages[i].steps.length;
-      }
-      completed += nextStepIdx;
-      return completed;
-    };
-
-    if (nextStepIdx < currentStage.steps.length) {
-      this.setData({
-        stepIndex: nextStepIdx,
-        completedStepCount: calculateCompletedSteps(),
-        isProcessing: true,
-      });
-      this.updateStepDisplay();
-      await this.executeCurrentStep();
-      this.setData({ isProcessing: false });
-      return;
-    }
-
-    const nextStageIdx = stageIndex + 1;
-    if (nextStageIdx < guideStages.length) {
-      let completed = 0;
-      for (let i = 0; i <= stageIndex; i++) {
-        completed += guideStages[i].steps.length;
-      }
-
-      this.setData({
-        stageIndex: nextStageIdx,
-        stepIndex: 0,
-        completedStepCount: completed,
-        isProcessing: true,
-      });
-      this.updateStepDisplay();
-      await this.executeCurrentStep();
-      this.setData({ isProcessing: false });
-    }
-  },
-
-  updateStepDisplay() {
-    const { guideStages, stageIndex, stepIndex } = this.data;
-    const currentStage = guideStages[stageIndex];
-
-    if (!currentStage) {
-      return;
-    }
-
-    const calculateTotalSteps = () => {
-      const total = guideStages.reduce(
-        (sum, stage) => sum + stage.steps.length,
-        0,
-      );
-      this.setData({ totalStepCount: total });
-    };
-
-    const step = currentStage.steps[stepIndex];
-    if (step) {
-      this.setData({
-        stageSummary: `阶段 ${stageIndex + 1}/${guideStages.length}：${currentStage.stageName}`,
-        stepDetail: step.detail,
-        stepName: step.stepName,
-      });
-    }
-
-    calculateTotalSteps();
-    this.scrollToBottom();
-  },
-
-  saveAppointmentRecommendation(recommendation) {
-    try {
-      wx.setStorageSync(
-        STORAGE_KEYS.APPOINTMENT_RECOMMENDATION,
-        recommendation,
-      );
-    } catch (error) {
-      console.error("保存挂号建议失败:", error);
-    }
-  },
-
-  saveVisitResult(visitResult) {
-    try {
-      const existingResults =
-        wx.getStorageSync(STORAGE_KEYS.VISIT_RESULT) || [];
-      const newResults = [...existingResults, visitResult];
-      wx.setStorageSync(STORAGE_KEYS.VISIT_RESULT, newResults);
-    } catch (error) {
-      console.error("保存就诊结果失败:", error);
-    }
-  },
-
   addMessage(speaker, content, options = [], pagelinks = [], picture = null) {
     const { messages } = this.data;
     const newMsg = { speaker, content, options, pagelinks, picture };
     console.log("[DEBUG] addMessage - newMsg:", newMsg);
     this.setData({ messages: [...messages, newMsg] });
     this.saveState();
+  },
+
+  addUserMessage(content) {
+    this.addMessage("user", content);
+  },
+  addAIMessage(content, options = [], pagelinks = [], picture = null) {
+    this.addMessage("ai", content, options, pagelinks, picture);
   },
 
   addSystemMessage(content) {
@@ -491,7 +453,7 @@ Page({
 
     if (selectedOption) {
       this.setData({ userInput: selectedOption });
-      this.sendMessage();
+      this.processUserInputWorkflow();
     }
   },
 
@@ -526,6 +488,7 @@ Page({
       success: (res) => {
         if (res.confirm) {
           this.setData({ messages: [] });
+          this.addAIMessage(WELCOME_MESSAGE, WELCOME_OPTIONS);
           wx.showToast({ title: "已清空聊天记录", icon: "success" });
         }
       },
