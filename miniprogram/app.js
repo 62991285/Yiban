@@ -14,6 +14,8 @@ const isDev = true; // 开发环境为true，生产环境为false
   },
 }; */
 
+import { setProfile, getProfile } from "./utils/accountDataManager.js";
+
 App({
   onLaunch: function () {
     this.globalData = {
@@ -41,7 +43,7 @@ App({
   checkLoginStatus: function () {
     const that = this;
     // 从本地缓存获取用户信息
-    const userInfo = wx.getStorageSync("userInfo");
+    const userInfo = getProfile();
     const openid = wx.getStorageSync("openid");
 
     // 优先从缓存加载数据到全局
@@ -82,6 +84,7 @@ App({
             success: (res) => {
               if (res.result && res.result.openid) {
                 that.globalData.openid = res.result.openid;
+                // openid 保持使用 wx.setStorageSync 存储
                 wx.setStorageSync("openid", res.result.openid);
 
                 // 登录成功的标志是获取到openid
@@ -157,7 +160,7 @@ App({
           wx.getUserInfo({
             success: (res) => {
               that.globalData.userInfo = res.userInfo;
-              wx.setStorageSync("userInfo", res.userInfo);
+              setProfile(res.userInfo);
 
               // 将用户信息保存到云数据库
               that.saveUserInfoToCloud(res.userInfo);
@@ -194,7 +197,7 @@ App({
           wx.getUserInfo({
             success: (res) => {
               that.globalData.userInfo = res.userInfo;
-              wx.setStorageSync("userInfo", res.userInfo);
+              setProfile(res.userInfo);
 
               // 将用户信息保存到云数据库
               that.saveUserInfoToCloud(res.userInfo);
@@ -212,7 +215,7 @@ App({
             desc: "用于完善用户资料", // 声明获取用户信息的用途
             success: (res) => {
               that.globalData.userInfo = res.userInfo;
-              wx.setStorageSync("userInfo", res.userInfo);
+              setProfile(res.userInfo);
 
               // 将用户信息保存到云数据库
               that.saveUserInfoToCloud(res.userInfo);

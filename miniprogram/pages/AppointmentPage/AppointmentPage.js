@@ -1,13 +1,13 @@
 import {
-  getUserProfile,
-  addAppointmentRecord,
-} from "../../utils/userInfoManager.js";
+  getProfile,
+  addAppointment,
+  getHealthInfo,
+} from "../../utils/accountDataManager.js";
 import {
   gotoDepartmentDetailPage,
   gotoAppointmentRecordsPage,
   gotoEditUserInfoPage,
 } from "../../utils/pageNavigation.js";
-const STORAGE_KEY_USER_DATA = "userData";
 Page({
   data: {
     currentStep: 1,
@@ -69,40 +69,30 @@ Page({
   },
 
   onLoad: function () {
-    //this.loadUserInfo();
-    //this.loadUserData();
-    var userdata=wx.getStorageSync('userData')
-
-console.log(userdata);
-  
-this.setData({userInfo:userdata.profile});
-
+    this.loadUserInfo();
+    this.loadHealthInfo();
     this.setCurrentDate();
   },
 
-  loadUserData() {
+  loadHealthInfo() {
     try {
-      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA);
+      const healthInfo = getHealthInfo();
 
-      if (userData) {
+      if (healthInfo) {
         this.setData({
-          profile: userData.profile || {},
-          healthInfo: userData.healthInfo || {},
-          tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
-          tempChronicDiseases: (
-            userData.healthInfo?.chronicDiseases || []
-          ).join("、"),
-          tempMedications: (userData.healthInfo?.medications || []).join("、"),
+          tempAllergies: (healthInfo.allergies || []).join("、"),
+          tempChronicDiseases: (healthInfo.chronicDiseases || []).join("、"),
+          tempMedications: (healthInfo.medications || []).join("、"),
         });
       }
     } catch (err) {
-      console.log("读取用户数据失败", err);
+      console.log("读取健康信息失败", err);
     }
   },
 
   loadUserInfo: function () {
     try {
-      const userInfo = getUserProfile();
+      const userInfo = getProfile();
       this.setData({
         userInfo: userInfo,
       });
@@ -315,7 +305,7 @@ this.setData({userInfo:userdata.profile});
     };
 
     try {
-      const success = addAppointmentRecord(registrationData);
+      const success = addAppointment(registrationData);
 
       if (success) {
         wx.showToast({ title: "预约成功", icon: "success" });

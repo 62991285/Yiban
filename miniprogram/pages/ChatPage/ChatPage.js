@@ -1,9 +1,11 @@
 import { callAIModel } from "../../utils/aiUtils.js";
 import {
+  setPageData,
+  getPageData,
   getChatHistory,
-  saveChatHistory,
+  setChatHistory,
   addChatMessage,
-} from "../../utils/userInfoManager.js";
+} from "../../utils/accountDataManager.js";
 import {
   gotoAppointmentPage,
   gotoDepartmentNavigationPage,
@@ -35,28 +37,33 @@ const { guideStages } = require("../../config/guideStages.js");
 
 Page({
   data: {
-    mode: "chat",
-    isStepDetailExpanded: false,
-    stageSummary: "",
-    stepDetail: "",
-    stepName: "",
-    userInput: "",
-    stageIndex: 0,
-    stepIndex: 0,
-    isProcessing: false,
-    guideStages: [],
+    pageName: "ChatPage",
     messages: [],
-    sessionRecords: [],
+    guideStages: [],
+
+    pageConfigs: {
+      mode: "chat",
+      isStepDetailExpanded: false,
+      stageSummary: "",
+      stepDetail: "",
+      stepName: "",
+      userInput: "",
+      stageIndex: 0,
+      stepIndex: 0,
+      sessionRecords: [],
+      pendingUserInput: "",
+    },
+
+    isProcessing: false,
     scrollTop: 0,
-    pendingUserInput: "",
     totalStepCount: 0,
     completedStepCount: 0,
-    isToolbarVisible: false,
   },
 
   onLoad() {
     this.initAISTageList();
-    this.loadSavedState();
+    this.loadChatHistory();
+    this.loadChatPageData();
   },
 
   onShow() {
@@ -66,21 +73,20 @@ Page({
   },
 
   onHide() {
-    this.saveState();
+    this.saveChatPageData();
+    this.saveChatHistory();
   },
 
-  onUnload() {
-    this.saveState();
-  },
+  onUnload() {},
 
   initAISTageList() {
     this.setData({ guideStages: guideStages });
   },
 
-  loadSavedState() {
+  loadChatHistory() {
     try {
       const chatHistory = getChatHistory() || [];
-      const savedMode = wx.getStorageSync(STORAGE_KEYS.MODE) || "chat";
+
       const messages = chatHistory.map((item) => ({
         speaker: item.speaker,
         content: item.content,
@@ -89,43 +95,67 @@ Page({
         picture: item.picture || null,
       }));
 
-      if (messages.length > 0 && savedMode === "guide") {
-        this.setData({ messages, mode: "guide" });
-      } else {
-        this.setData({
-          mode: "chat",
-          messages: messages.length > 0 ? messages : [],
-        });
-      }
+      this.setData({ messages: messages.length > 0 ? messages : [] });
     } catch (error) {
-      console.error("加载保存状态失败:", error);
-      this.setData({ mode: "chat", messages: [] });
+      console.error("加载聊天历史失败:", error);
+      this.setData({ messages: [] });
     }
   },
 
-  saveState() {
+  loadChatPageData() {
     try {
-      const chatHistory = this.data.messages.map((message) => ({
-        speaker: message.speaker,
-        content: message.content,
-        options: message.options || [],
-        pagelinks: message.pagelinks || [],
-        picture: message.picture || null,
-      }));
+      const savedPageData = getPageData(this.data.pageName);
 
-      const saveResult = saveChatHistory(chatHistory);
-      wx.setStorageSync(STORAGE_KEYS.MODE, this.data.mode);
-
-      if (saveResult) {
-        console.log(
-          "聊天历史已成功保存到userData，消息数量:",
-          chatHistory.length,
-        );
+      if (savedPageData) {
+        this.setData({
+          pageConfigs: savedPageData,
+        });
       } else {
-        console.error("聊天历史保存失败");
+        this.setData({
+          pageConfigs: {
+            mode: "chat",
+            isStepDetailExpanded: false,
+            stageSummary: "",
+            stepDetail: "",
+            stepName: "",
+            userInput: "",
+            stageIndex: 0,
+            stepIndex: 0,
+            sessionRecords: [],
+            pendingUserInput: "",
+          },
+        });
       }
     } catch (error) {
-      console.error("保存状态失败:", error);
+      console.error("加载聊天页面数据失败:", error);
+      this.setData({
+        pageConfigs: {
+          mode: "chat",
+          isStepDetailExpanded: false,
+          stageSummary: "",
+          stepDetail: "",
+          stepName: "",
+          userInput: "",
+          stageIndex: 0,
+          stepIndex: 0,
+          sessionRecords: [],
+          pendingUserInput: "",
+        },
+      });
+    }
+  },
+
+  saveChatPageData() {
+    try {
+      const result = setPageData(this.data.pageName, this.data.pageConfigs);
+
+      if (result) {
+        console.log("聊天页面数据已成功保存");
+      } else {
+        console.error("聊天页面数据保存失败");
+      }
+    } catch (error) {
+      console.error("保存聊天页面数据失败:", error);
     }
   },
 
@@ -410,8 +440,32 @@ Page({
     const { messages } = this.data;
     const newMsg = { speaker, content, options, pagelinks, picture };
     console.log("[DEBUG] addMessage - newMsg:", newMsg);
-    this.setData({ messages: [...messages, newMsg] });
-    this.saveState();
+
+    const updatedMessages = [...messages, newMsg];
+    this.setData({ messages: updatedMessages });
+
+    this.saveChatHistory(updatedMessages);
+  },
+
+  saveChatHistory() {
+    try {
+      const chatHistory = this.data.messages.map((msg) => ({
+        speaker: msg.speaker,
+        content: msg.content,
+        options: msg.options || [],
+        pagelinks: msg.pagelinks || [],
+        picture: msg.picture || null,
+      }));
+
+      const result = setChatHistory(chatHistory);
+      if (result) {
+        console.log("聊天记录已保存");
+      } else {
+        console.error("聊天记录保存失败");
+      }
+    } catch (error) {
+      console.error("保存聊天记录失败:", error);
+    }
   },
 
   addUserMessage(content) {
@@ -438,7 +492,7 @@ Page({
         picture,
       };
       this.setData({ messages: updatedMessages });
-      this.saveState();
+      this.saveChatHistory(updatedMessages);
     } else {
       this.addMessage("ai", content, options, pagelinks, picture);
     }
@@ -488,6 +542,7 @@ Page({
       success: (res) => {
         if (res.confirm) {
           this.setData({ messages: [] });
+          this.saveChatHistory([]);
           this.addAIMessage(WELCOME_MESSAGE, WELCOME_OPTIONS);
           wx.showToast({ title: "已清空聊天记录", icon: "success" });
         }

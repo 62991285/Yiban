@@ -1,6 +1,4 @@
-// pages/UserInfoPage/UserInfoPage.js
-const STORAGE_KEY_USER_DATA = "userData";
-
+import { getProfile, getHealthInfo } from "../../utils/accountDataManager.js";
 import {
   gotoBasicInfoPage,
   gotoHealthInfoPage,
@@ -69,14 +67,13 @@ Page({
    */
   loadUserData() {
     try {
-      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA);
+      const profile = getProfile();
+      const healthInfo = getHealthInfo();
 
-      if (userData) {
-        this.setData({
-          profile: userData.profile || {},
-          healthInfo: userData.healthInfo || {},
-        });
-      }
+      this.setData({
+        profile: profile || {},
+        healthInfo: healthInfo || {},
+      });
     } catch (err) {
       console.log("读取用户数据失败", err);
     }

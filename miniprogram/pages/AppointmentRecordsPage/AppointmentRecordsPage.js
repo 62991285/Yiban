@@ -1,7 +1,7 @@
 import {
-  getAppointmentRecords,
-  saveAppointmentRecords,
-} from "../../utils/userInfoManager.js";
+  getAppointments,
+  saveAppointments,
+} from "../../utils/accountDataManager.js";
 import { gotoAppointmentPage } from "../../utils/pageNavigation.js";
 
 Page({
@@ -19,9 +19,9 @@ Page({
   },
 
   loadRecords() {
-    const records = getAppointmentRecords() || [];
-    const activeCount = records.filter(r => r.status === '已预约').length;
-    const cancelledCount = records.filter(r => r.status === '已取消').length;
+    const records = getAppointments() || [];
+    const activeCount = records.filter((r) => r.status === "已预约").length;
+    const cancelledCount = records.filter((r) => r.status === "已取消").length;
     this.setData({
       records: records,
       isEmpty: records.length === 0,

@@ -1,5 +1,7 @@
-// pages/HealthInfoEditPage/HealthInfoEditPage.js
-const STORAGE_KEY_USER_DATA = "userData";
+import {
+  getHealthInfo,
+  setHealthInfo,
+} from "../../utils/accountDataManager.js";
 
 Page({
   /**
@@ -64,18 +66,14 @@ Page({
    */
   loadUserData() {
     try {
-      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA);
+      const healthInfo = getHealthInfo();
 
-      if (userData) {
-        this.setData({
-          healthInfo: userData.healthInfo || {},
-          tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
-          tempChronicDiseases: (userData.healthInfo?.chronicDiseases || []).join(
-            "、",
-          ),
-          tempMedications: (userData.healthInfo?.medications || []).join("、"),
-        });
-      }
+      this.setData({
+        healthInfo: healthInfo || {},
+        tempAllergies: (healthInfo?.allergies || []).join("、"),
+        tempChronicDiseases: (healthInfo?.chronicDiseases || []).join("、"),
+        tempMedications: (healthInfo?.medications || []).join("、"),
+      });
     } catch (err) {
       console.log("读取用户数据失败", err);
     }
@@ -86,21 +84,15 @@ Page({
    */
   saveUserData() {
     try {
-      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA) || {
-        profile: {},
-        healthInfo: {},
-        meta: {
-          version: "1.0.0",
-          lastUpdated: new Date().toISOString(),
-        },
-      };
-
-      const { healthInfo, tempAllergies, tempChronicDiseases, tempMedications } =
-        this.data;
+      const {
+        healthInfo,
+        tempAllergies,
+        tempChronicDiseases,
+        tempMedications,
+      } = this.data;
 
       // 处理数组类型的健康信息
       const updatedHealthInfo = {
-        ...healthInfo,
         allergies: tempAllergies
           ? tempAllergies
               .split("、")
@@ -121,14 +113,13 @@ Page({
           : [],
       };
 
-      userData.healthInfo = updatedHealthInfo;
-      userData.meta = {
-        version: "1.0.0",
-        lastUpdated: new Date().toISOString(),
-      };
+      const result = setHealthInfo(updatedHealthInfo);
 
-      wx.setStorageSync(STORAGE_KEY_USER_DATA, userData);
-      console.log("用户数据保存成功");
+      if (result) {
+        console.log("用户数据保存成功");
+      } else {
+        console.error("用户数据保存失败");
+      }
     } catch (err) {
       console.error("保存用户数据失败", err);
     }
@@ -151,7 +142,6 @@ Page({
 
     // 处理数组类型的健康信息
     const updatedHealthInfo = {
-      ...healthInfo,
       allergies: tempAllergies
         ? tempAllergies
             .split("、")
@@ -172,25 +162,9 @@ Page({
         : [],
     };
 
-    // 读取现有数据
-    let userData = {};
-    try {
-      userData = wx.getStorageSync(STORAGE_KEY_USER_DATA) || {};
-    } catch (err) {
-      console.log("读取现有数据失败，创建新数据");
-    }
+    const result = setHealthInfo(updatedHealthInfo);
 
-    // 更新数据
-    userData.healthInfo = updatedHealthInfo;
-    userData.meta = {
-      version: "1.0.0",
-      lastUpdated: new Date().toISOString(),
-    };
-
-    // 保存到storage
-    try {
-      wx.setStorageSync(STORAGE_KEY_USER_DATA, userData);
-
+    if (result) {
       wx.showToast({
         title: "保存成功",
         icon: "success",
@@ -200,8 +174,7 @@ Page({
           }, 1500);
         },
       });
-    } catch (err) {
-      console.error("保存失败", err);
+    } else {
       wx.showToast({ title: "保存失败", icon: "none" });
     }
   },

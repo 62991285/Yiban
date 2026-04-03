@@ -1,5 +1,9 @@
-// pages/EditUserInfoPage/EditUserInfoPage.js
-const STORAGE_KEY_USER_DATA = "userData";
+import {
+  getProfile,
+  getHealthInfo,
+  setProfile,
+  setHealthInfo,
+} from "../../utils/accountDataManager.js";
 
 Page({
   /**
@@ -65,19 +69,16 @@ Page({
    */
   loadUserData() {
     try {
-      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA);
+      const profile = getProfile();
+      const healthInfo = getHealthInfo();
 
-      if (userData) {
-        this.setData({
-          profile: userData.profile || {},
-          healthInfo: userData.healthInfo || {},
-          tempAllergies: (userData.healthInfo?.allergies || []).join("、"),
-          tempChronicDiseases: (
-            userData.healthInfo?.chronicDiseases || []
-          ).join("、"),
-          tempMedications: (userData.healthInfo?.medications || []).join("、"),
-        });
-      }
+      this.setData({
+        profile: profile || {},
+        healthInfo: healthInfo || {},
+        tempAllergies: (healthInfo?.allergies || []).join("、"),
+        tempChronicDiseases: (healthInfo?.chronicDiseases || []).join("、"),
+        tempMedications: (healthInfo?.medications || []).join("、"),
+      });
     } catch (err) {
       console.log("读取用户数据失败", err);
     }
@@ -88,28 +89,23 @@ Page({
    */
   saveUserData() {
     try {
-      const userData = wx.getStorageSync(STORAGE_KEY_USER_DATA) || {
-        profile: {},
-        healthInfo: {},
-        meta: {
-          version: "1.0.0",
-          lastUpdated: new Date().toISOString(),
-        },
-      };
-
       const { editType, profile, healthInfo } = this.data;
 
-      userData.profile =
-        editType === "profile" ? profile : userData.profile || {};
-      userData.healthInfo =
-        editType === "health" ? healthInfo : userData.healthInfo || {};
-      userData.meta = {
-        version: "1.0.0",
-        lastUpdated: new Date().toISOString(),
-      };
-
-      wx.setStorageSync(STORAGE_KEY_USER_DATA, userData);
-      console.log("用户数据保存成功");
+      if (editType === "profile") {
+        const result = setProfile(profile);
+        if (result) {
+          console.log("用户数据保存成功");
+        } else {
+          console.error("用户数据保存失败");
+        }
+      } else if (editType === "health") {
+        const result = setHealthInfo(healthInfo);
+        if (result) {
+          console.log("用户数据保存成功");
+        } else {
+          console.error("用户数据保存失败");
+        }
+      }
     } catch (err) {
       console.error("保存用户数据失败", err);
     }
@@ -154,7 +150,6 @@ Page({
 
     // 处理数组类型的健康信息
     const updatedHealthInfo = {
-      ...healthInfo,
       allergies: tempAllergies
         ? tempAllergies
             .split("、")
@@ -175,28 +170,17 @@ Page({
         : [],
     };
 
-    // 读取现有数据
-    let userData = {};
-    try {
-      userData = wx.getStorageSync(STORAGE_KEY_USER_DATA) || {};
-    } catch (err) {
-      console.log("读取现有数据失败，创建新数据");
+    let result;
+    if (editType === "profile") {
+      result = setProfile(profile);
+    } else if (editType === "health") {
+      result = setHealthInfo(updatedHealthInfo);
+    } else {
+      wx.showToast({ title: "未知编辑类型", icon: "none" });
+      return;
     }
 
-    // 更新数据
-    userData.profile =
-      editType === "profile" ? profile : userData.profile || {};
-    userData.healthInfo =
-      editType === "health" ? updatedHealthInfo : userData.healthInfo || {};
-    userData.meta = {
-      version: "1.0.0",
-      lastUpdated: new Date().toISOString(),
-    };
-
-    // 保存到storage
-    try {
-      wx.setStorageSync(STORAGE_KEY_USER_DATA, userData);
-
+    if (result) {
       wx.showToast({
         title: "保存成功",
         icon: "success",
@@ -206,8 +190,7 @@ Page({
           }, 1500);
         },
       });
-    } catch (err) {
-      console.error("保存失败", err);
+    } else {
       wx.showToast({ title: "保存失败", icon: "none" });
     }
   },
