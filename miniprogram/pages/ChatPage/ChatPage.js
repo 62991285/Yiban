@@ -1,4 +1,4 @@
-import { callAIModel } from "../../utils/aiUtils.js";
+import { callAIModelWithContext } from "./AIModule.js";
 import {
   setPageData,
   getPageData,
@@ -276,74 +276,22 @@ Page({
     }
   },
 
-  processChatMessage() {
+  async processChatMessage() {
     const { pendingUserInput, messages } = this.data;
 
     this.setData({ isProcessing: true });
     this.scrollToBottom();
 
-    setTimeout(async () => {
-      try {
-        const enhancedPrompt = this.buildChatPrompt(pendingUserInput, messages);
-        const aiReply = await callAIModel(enhancedPrompt);
-        this.replaceLastAIMessage(aiReply);
-      } catch (error) {
-        console.error("AI调用失败:", error);
-        this.replaceLastAIMessage("抱歉，AI服务暂时不可用，请稍后重试。");
-      } finally {
-        this.setData({ isProcessing: false });
-        this.scrollToBottom();
-      }
-    }, 800);
-  },
-
-  buildChatPrompt(userMessage, messages) {
-    const systemPrompt = `你是"医伴"，一位温暖贴心的AI健康陪伴助手。正在陪伴用户看病就医。
-
-【回答要求】
-1. 简短亲切：每次回复控制在2-3句话，像朋友聊天一样自然
-2. 专业温暖：医学信息准确，语气温柔关切
-3. 对话感强：先回应用户情绪，再给出建议，最后可问"还有什么想了解的？"
-4. 逐步展开：用户追问时再详细解释，不一次性说太多
-5. 安全提醒：急重症必须建议立即就医
-
-【示例风格】
-- "别担心，这种情况很常见。可能是轻微感冒，多喝温水休息就好。还有哪里不舒服吗？"
-- "理解您的担心。这个指标稍微偏高，建议复查确认。您最近饮食如何？"
-
-【禁忌】
-- 不长篇大论
-- 不罗列123条
-- 不冷冰冰说教
-
-请像朋友一样简短回复：`;
-
-    const conversationHistory = this.buildConversationHistory(messages);
-
-    if (conversationHistory) {
-      return `${systemPrompt}\n\n对话历史：\n${conversationHistory}\n\n用户：${userMessage}\n\n医伴：`;
+    try {
+      const aiReply = await callAIModelWithContext(pendingUserInput, messages);
+      this.replaceLastAIMessage(aiReply.text, [], aiReply.pagelinks);
+    } catch (error) {
+      console.error("AI调用失败:", error);
+      this.replaceLastAIMessage("抱歉，AI服务暂时不可用，请稍后重试。");
+    } finally {
+      this.setData({ isProcessing: false });
+      this.scrollToBottom();
     }
-
-    return `${systemPrompt}\n\n用户：${userMessage}\n\n医伴：`;
-  },
-
-  buildConversationHistory(messages) {
-    const chatMessages = messages.filter(
-      (msg) => msg.speaker === "user" || msg.speaker === "ai",
-    );
-    const recentMessages = chatMessages.slice(-6);
-
-    if (recentMessages.length === 0) {
-      return "";
-    }
-
-    return recentMessages
-      .map((msg) => {
-        const role = msg.speaker === "user" ? "用户" : "医伴";
-        const content = msg.content?.substring(0, 100) || "";
-        return `${role}：${content}`;
-      })
-      .join("\n");
   },
 
   updateStepDisplay() {
