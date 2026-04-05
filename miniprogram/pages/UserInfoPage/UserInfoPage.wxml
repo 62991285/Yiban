@@ -1,69 +1,160 @@
 <!--pages/UserInfoPage/UserInfoPage.wxml-->
 <view class="mine-page">
-  <!-- 个人信息卡片 
-  <view class="section-card">
-    <view class="section-header">
-      <text class="section-title">👤 个人资料</text>
-      <text class="edit-btn" bindtap="gotoBasicInfo">编辑</text>
+  <!-- 状态栏 -->
+  <view class="status-bar">
+    <text class="status-left">只能拨打紧急求助电</text>
+    <text class="status-center">中国移动 全球通</text>
+    <view class="status-right">
+      <text class="status-time">17:40</text>
+      <text class="status-battery">73%</text>
     </view>
-    <view class="info-list" wx:if="{{profile.name}}">
-      <view class="info-item">
-        <text class="info-label">姓名</text>
-        <text class="info-value">{{profile.name}}</text>
+  </view>
+
+  <!-- 头部标题区 -->
+  <view class="header">
+    <text class="header-title">{{hospitalName || '同济医院'}}</text>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input">
+      <text class="search-icon">🔍</text>
+      <input type="text" placeholder="请输入科室或医生姓名" placeholder-class="search-placeholder"/>
+    </view>
+  </view>
+
+  <!-- 快捷功能入口 -->
+  <view class="quick-functions">
+    <view class="quick-item" bindtap="goToAppointment">
+      <view class="quick-icon">📅</view>
+      <text class="quick-text">预约挂号</text>
+    </view>
+    <view class="quick-item" bindtap="goToPayment">
+      <view class="quick-icon">💳</view>
+      <text class="quick-text">门诊缴费</text>
+    </view>
+    <view class="quick-item" bindtap="goToReport">
+      <view class="quick-icon">📋</view>
+      <text class="quick-text">门诊报告</text>
+    </view>
+    <view class="quick-item" bindtap="goToRecharge">
+      <view class="quick-icon">💵</view>
+      <text class="quick-text">住院充值</text>
+    </view>
+  </view>
+
+  <!-- 用户信息卡片 -->
+  <view class="user-card">
+    <view class="user-info">
+      <view class="user-basic">
+        <text class="user-name">{{profile.name || '未登录'}}</text>
+        <text class="user-id">就诊卡号/ID：{{profile.id || '暂无'}}</text>
       </view>
-      <view class="info-item">
-        <text class="info-label">性别</text>
-        <text class="info-value">{{profile.gender}}</text>
-      </view>
-      <view class="info-item">
-        <text class="info-label">年龄</text>
-        <text class="info-value">{{profile.age}}</text>
-      </view>
-      <view class="info-item">
-        <text class="info-label">手机号</text>
-        <text class="info-value">{{profile.phone}}</text>
+      <view class="user-codes">
+        <view class="code-btn">就诊码</view>
+        <view class="code-btn">医保码</view>
       </view>
     </view>
-    <view class="info-list" wx:else>
-      <view class="info-item">
-        <text class="info-value" style="color: #999;">暂无信息</text>
+    <view class="user-alert">
+      <text class="alert-text">未检测到您的挂号记录，请先完成挂号</text>
+      <view class="appointment-btn" bindtap="goToAppointment">预约挂号</view>
+    </view>
+  </view>
+
+  <!-- 最新消息 -->
+  <view class="news-section">
+    <text class="section-title">最新消息</text>
+    <view class="news-item">
+      <text class="news-content">2025同济门诊就医攻略-退卡余额‘掌..</text>
+      <text class="news-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 服务分类快捷入口 -->
+  <view class="service-section">
+    <text class="section-title">服务分类</text>
+    <view class="service-grid">
+      <view class="service-item">
+        <view class="service-icon">🏥</view>
+        <text class="service-text">门诊服务</text>
+      </view>
+      <view class="service-item">
+        <view class="service-icon">🛏️</view>
+        <text class="service-text">住院服务</text>
+      </view>
+      <view class="service-item">
+        <view class="service-icon">便利</view>
+        <text class="service-text">便民服务</text>
       </view>
     </view>
   </view>
- -->
-  <!-- 功能菜单 -->
-  <view class="section-card">
-    <view class="section-header">
-      <text class="section-title">📋 更多功能</text>
+
+  <!-- 常用功能/工具区 -->
+  <view class="tools-section">
+    <text class="section-title">常用功能</text>
+    <view class="tools-grid">
+      <view class="tool-item">
+        <view class="tool-icon">📢</view>
+        <text class="tool-text">报到候诊</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">🤖</view>
+        <text class="tool-text">智能导诊</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">👨‍⚕️</view>
+        <text class="tool-text">知名专家门诊</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">🔄</view>
+        <text class="tool-text">复诊</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">👥</view>
+        <text class="tool-text">多学科门诊</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">📅</view>
+        <text class="tool-text">复诊预约</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">🔬</view>
+        <text class="tool-text">检查预约</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">💉</view>
+        <text class="tool-text">治疗预约</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">B</view>
+        <text class="tool-text">病历</text>
+      </view>
+      <view class="tool-item">
+        <view class="tool-icon">B</view>
+        <text class="tool-text">报告</text>
+      </view>
     </view>
-    <view class="menu-list">
-      <view class="menu-item" bindtap="gotoBasicInfo">
-        <view class="menu-item-left">
-          <text class="menu-icon">👤</text>
-          <text class="menu-text">个人资料</text>
-        </view>
-        <image class="arrow-icon" src="../../images/arrow.svg" mode="aspectFit"></image>
+  </view>
+
+  <!-- 病历与报告区 -->
+  <view class="records-section">
+    <text class="section-title">病历与报告</text>
+    <view class="records-grid">
+      <view class="record-item">
+        <view class="record-icon">📄</view>
+        <text class="record-text">门诊病历</text>
       </view>
-      <view class="menu-item" bindtap="goToHealthInfo">
-        <view class="menu-item-left">
-          <text class="menu-icon">❤️</text>
-          <text class="menu-text">健康档案</text>
-        </view>
-        <image class="arrow-icon" src="../../images/arrow.svg" mode="aspectFit"></image>
+      <view class="record-item">
+        <view class="record-icon">�</view>
+        <text class="record-text">门诊报告</text>
       </view>
-      <view class="menu-item" bindtap="goToAppointmentRecords">
-        <view class="menu-item-left">
-          <text class="menu-icon">📅</text>
-          <text class="menu-text">挂号记录</text>
-        </view>
-        <image class="arrow-icon" src="../../images/arrow.svg" mode="aspectFit"></image>
+      <view class="record-item">
+        <view class="record-icon">🩻</view>
+        <text class="record-text">云胶片</text>
       </view>
-      <view class="menu-item" bindtap="goToChatHistory">
-        <view class="menu-item-left">
-          <text class="menu-icon">💬</text>
-          <text class="menu-text">对话记录</text>
-        </view>
-        <image class="arrow-icon" src="../../images/arrow.svg" mode="aspectFit"></image>
+      <view class="record-item">
+        <view class="record-icon">🧾</view>
+        <text class="record-text">门诊发票</text>
       </view>
     </view>
   </view>

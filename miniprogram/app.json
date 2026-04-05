@@ -1,6 +1,6 @@
 {
   "pages": [
-    "pages/HomePage/HomePage",
+    "pages/homepage/homepage",
     "pages/ChatPage/ChatPage",
     "pages/DepartmentNavigationPage/DepartmentNavigationPage",
     "pages/PharmacyNavigationPage/PharmacyNavigationPage",
@@ -23,7 +23,7 @@
   "tabBar": {
     "list": [
       {
-        "pagePath": "pages/HomePage/HomePage",
+        "pagePath": "pages/homepage/homepage",
         "text": "AI聊天",
         "iconPath": "images/icons/usercenter.png",
         "selectedIconPath": "images/icons/usercenter-active.png"
