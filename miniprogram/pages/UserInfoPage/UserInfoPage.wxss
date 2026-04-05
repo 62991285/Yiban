@@ -1,121 +1,416 @@
 /* pages/UserInfoPage/UserInfoPage.wxss */
+/* 基础样式重置 */
 .mine-page {
+  margin: 0;
+  padding: 0;
+  padding-bottom: 100rpx;
+  box-sizing: border-box;
   background-color: #f5f5f5;
   min-height: 100vh;
-  padding: 20rpx;
-  padding-bottom: 40rpx;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* 卡片样式 */
-.section-card {
+/* 状态栏 */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 20rpx;
   background-color: #fff;
+  border-bottom: 1rpx solid #e5e5e5;
+  font-size: 24rpx;
+  color: #666;
+}
+
+.status-left {
+  flex: 1;
+}
+
+.status-center {
+  flex: 1;
+  text-align: center;
+  font-weight: 500;
+}
+
+.status-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12rpx;
+}
+
+/* 头部标题区 */
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30rpx 0;
+  background-color: #00C853;
+  color: #fff;
+}
+
+.header-title {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+/* 搜索栏 */
+.search-bar {
+  padding: 20rpx;
+  background-color: #fff;
+  border-bottom: 1rpx solid #e5e5e5;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 30rpx;
+  padding: 16rpx 24rpx;
+}
+
+.search-icon {
+  font-size: 28rpx;
+  margin-right: 12rpx;
+  color: #999;
+}
+
+.search-placeholder {
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* 快捷功能入口 */
+.quick-functions {
+  display: flex;
+  justify-content: space-around;
+  padding: 30rpx 0;
+  background-color: #fff;
+  border-bottom: 12rpx solid #f5f5f5;
+}
+
+.quick-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  flex: 1;
+}
+
+.quick-icon {
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #E8F5E8;
+  border-radius: 20rpx;
+  font-size: 40rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 200, 83, 0.2);
+}
+
+.quick-text {
+  font-size: 24rpx;
+  color: #333;
+  text-align: center;
+}
+
+/* 用户信息卡片 */
+.user-card {
+  background-color: #fff;
+  margin: 20rpx;
   border-radius: 16rpx;
-  margin-bottom: 20rpx;
   box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
-/* 卡片头部 - 绿色主题 */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.user-info {
   padding: 30rpx;
   border-bottom: 1rpx solid #f0f0f0;
-  background: linear-gradient(135deg, #07c160 0%, #05a050 100%);
 }
 
-.section-title {
+.user-basic {
+  margin-bottom: 24rpx;
+}
+
+.user-name {
   font-size: 32rpx;
   font-weight: bold;
-  color: #fff;
-}
-
-.edit-btn {
-  font-size: 28rpx;
-  color: #fff;
-  padding: 8rpx 24rpx;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 30rpx;
-}
-
-.edit-btn:active {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-/* 信息列表 */
-.info-list {
-  padding: 0 30rpx;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 28rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-}
-
-.info-item:last-child {
-  border-bottom: none;
-}
-
-.info-label {
-  font-size: 28rpx;
-  color: #666;
-  flex-shrink: 0;
-  width: 160rpx;
-}
-
-.info-value {
-  font-size: 28rpx;
   color: #333;
-  flex: 1;
-  text-align: right;
-  word-break: break-all;
-  padding-left: 20rpx;
+  margin-bottom: 8rpx;
+  display: block;
 }
 
-/* 功能菜单 */
-.menu-list {
-  padding: 0 30rpx;
+.user-id {
+  font-size: 24rpx;
+  color: #666;
 }
 
-.menu-item {
+.user-codes {
   display: flex;
-  align-items: center;
+  gap: 20rpx;
+}
+
+.code-btn {
+  flex: 1;
+  padding: 16rpx;
+  background-color: #00C853;
+  color: #fff;
+  border-radius: 8rpx;
+  text-align: center;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 200, 83, 0.3);
+}
+
+.user-alert {
+  padding: 24rpx 30rpx;
+  display: flex;
   justify-content: space-between;
-  padding: 30rpx 0;
-  border-bottom: 1rpx solid #f5f5f5;
-  transition: all 0.3s;
-}
-
-.menu-item:last-child {
-  border-bottom: none;
-}
-
-.menu-item:active {
-  background-color: #f9f9f9;
-}
-
-.menu-item-left {
-  display: flex;
   align-items: center;
-  flex: 1;
+  background-color: #FFF3E0;
 }
 
-.menu-icon {
-  font-size: 40rpx;
+.alert-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: #FF5722;
   margin-right: 20rpx;
 }
 
-.menu-text {
-  font-size: 30rpx;
-  color: #333;
+.appointment-btn {
+  padding: 12rpx 24rpx;
+  background-color: #00C853;
+  color: #fff;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 200, 83, 0.3);
 }
 
-.arrow-icon {
-  width: 24rpx;
-  height: 24rpx;
-  opacity: 0.4;
+/* 通用区域样式 */
+.news-section,
+.service-section,
+.tools-section,
+.records-section {
+  background-color: #fff;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  padding: 24rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+/* 最新消息 */
+.news-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.news-content {
+  flex: 1;
+  font-size: 26rpx;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.news-arrow {
+  font-size: 32rpx;
+  color: #999;
+}
+
+/* 服务分类 */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24rpx;
+}
+
+.service-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx;
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.service-item:active {
+  background-color: #f0f0f0;
+}
+
+.service-icon {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #E8F5E8;
+  border-radius: 16rpx;
+  font-size: 32rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 200, 83, 0.2);
+}
+
+.service-text {
+  font-size: 24rpx;
+  color: #333;
+  text-align: center;
+}
+
+/* 常用功能 */
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+
+.tool-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+  padding: 16rpx 12rpx;
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.tool-item:active {
+  background-color: #f0f0f0;
+}
+
+.tool-icon {
+  width: 52rpx;
+  height: 52rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #E8F5E8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 200, 83, 0.2);
+}
+
+.tool-text {
+  font-size: 20rpx;
+  color: #333;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* 病历与报告 */
+.records-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16rpx;
+}
+
+.record-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 20rpx 12rpx;
+  background-color: #f9f9f9;
+  border-radius: 12rpx;
+  transition: all 0.3s;
+}
+
+.record-item:active {
+  background-color: #f0f0f0;
+}
+
+.record-icon {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #E8F5E8;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 6rpx rgba(0, 200, 83, 0.2);
+}
+
+.record-text {
+  font-size: 20rpx;
+  color: #333;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* 响应式调整 */
+@media (max-width: 375px) {
+  .quick-icon {
+    width: 70rpx;
+    height: 70rpx;
+    font-size: 36rpx;
+  }
+  
+  .quick-text {
+    font-size: 22rpx;
+  }
+  
+  .user-name {
+    font-size: 28rpx;
+  }
+  
+  .user-id {
+    font-size: 22rpx;
+  }
+  
+  .code-btn {
+    font-size: 24rpx;
+  }
+  
+  .alert-text {
+    font-size: 22rpx;
+  }
+  
+  .appointment-btn {
+    font-size: 22rpx;
+  }
+  
+  .section-title {
+    font-size: 28rpx;
+  }
+  
+  .news-content {
+    font-size: 24rpx;
+  }
+  
+  .service-icon,
+  .tool-icon {
+    width: 56rpx;
+    height: 56rpx;
+    font-size: 28rpx;
+  }
+  
+  .service-text,
+  .tool-text {
+    font-size: 22rpx;
+  }
+  
+  .record-icon {
+    width: 52rpx;
+    height: 52rpx;
+    font-size: 24rpx;
+  }
+  
+  .record-text {
+    font-size: 18rpx;
+  }
 }

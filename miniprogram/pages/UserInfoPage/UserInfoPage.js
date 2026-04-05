@@ -4,6 +4,7 @@ import {
   gotoHealthInfoPage,
   gotoAppointmentRecordsPage,
   gotoChatPage,
+  gotoAppointmentPage,
 } from "../../utils/pageNavigation.js";
 
 Page({
@@ -13,6 +14,7 @@ Page({
   data: {
     profile: {},
     healthInfo: {},
+    hospitalName: '同济医院', // 默认医院名称
   },
 
   /**
@@ -105,5 +107,45 @@ Page({
    */
   goToChatHistory() {
     gotoChatPage();
+  },
+
+  /**
+   * 跳转到预约挂号
+   */
+  goToAppointment() {
+    gotoAppointmentPage();
+  },
+
+  /**
+   * 跳转到门诊缴费
+   */
+  goToPayment() {
+    wx.showToast({
+      title: "门诊缴费功能开发中",
+      icon: "none",
+      duration: 2000
+    });
+  },
+
+  /**
+   * 跳转到门诊报告
+   */
+  goToReport() {
+    wx.showToast({
+      title: "门诊报告功能开发中",
+      icon: "none",
+      duration: 2000
+    });
+  },
+
+  /**
+   * 跳转到住院充值
+   */
+  goToRecharge() {
+    wx.showToast({
+      title: "住院充值功能开发中",
+      icon: "none",
+      duration: 2000
+    });
   },
 });
