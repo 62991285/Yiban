@@ -2,96 +2,126 @@
 
 .container {
   min-height: 100vh;
-  background: #f5f7fa;
-  padding: 40rpx 30rpx;
+  background: linear-gradient(180deg, #eaf4f6 0rpx, #f5f8f8 300rpx, #f6f8f9 100%);
+  padding: 28rpx 24rpx 36rpx;
   box-sizing: border-box;
 }
 
-/* 顶部标题区 */
-.header {
+.top-nav {
+  margin-bottom: 16rpx;
+}
+
+.top-nav-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.hospital-title {
+  font-size: 56rpx;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #24312b;
+  letter-spacing: 1rpx;
+}
+
+.top-nav-actions {
+  display: flex;
+  align-items: center;
+}
+
+.dot-btn {
+  min-width: 96rpx;
+  height: 62rpx;
+  border-radius: 34rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1rpx solid #dbe8e2;
+  color: #2d3b35;
+  font-size: 42rpx;
+  line-height: 56rpx;
   text-align: center;
-  margin-bottom: 50rpx;
 }
 
-.header-title {
-  display: block;
+.search-bar {
+  height: 84rpx;
+  border-radius: 42rpx;
+  background: #ffffff;
+  border: 1rpx solid #dde9e4;
+  display: flex;
+  align-items: center;
+  padding: 0 24rpx;
+  box-shadow: 0 6rpx 18rpx rgba(29, 57, 44, 0.06);
+}
+
+.search-icon {
+  color: #93a29b;
   font-size: 36rpx;
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 12rpx;
+  margin-right: 12rpx;
 }
 
-.header-desc {
-  display: block;
-  font-size: 26rpx;
-  color: #6b7280;
+.search-placeholder {
+  color: #98a8a1;
+  font-size: 30rpx;
 }
 
 /* 网格容器 */
 .grid-container {
+  background: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #e5ece8;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24rpx;
-  padding: 0 10rpx;
+  gap: 8rpx 4rpx;
+  padding: 24rpx 6rpx 10rpx;
+  box-shadow: 0 10rpx 30rpx rgba(34, 70, 55, 0.06);
 }
 
 /* 功能项卡片 */
 .grid-item {
-  background: #ffffff;
-  border-radius: 12rpx;
-  padding: 30rpx 16rpx;
+  background: transparent;
+  border-radius: 14rpx;
+  padding: 20rpx 10rpx 24rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.grid-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4rpx;
-  background: linear-gradient(90deg, #22c55e, #16a34a);
 }
 
 .grid-item:active {
   transform: scale(0.96);
-  box-shadow: 0 4rpx 12rpx rgba(34, 197, 94, 0.15);
+  background: #f3f8f5;
 }
 
 /* 图标容器 */
 .icon-wrapper {
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 24rpx;
+  background: #f2f8f5;
+  border: 2rpx solid #d7e8de;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16rpx;
-  padding: 12rpx;
-  box-shadow: 0 2rpx 8rpx rgba(34, 197, 94, 0.2);
+  margin-bottom: 14rpx;
+  padding: 14rpx;
 }
 
 .icon {
-  width: 50rpx;
-  height: 50rpx;
-  filter: brightness(0) invert(1);
+  width: 54rpx;
+  height: 54rpx;
 }
 
 /* 标题 */
 .item-title {
-  font-size: 24rpx;
-  font-weight: 500;
-  color: #1f2937;
-  margin-bottom: 6rpx;
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #273530;
+  margin-bottom: 8rpx;
   text-align: center;
-  word-break: break-all;
+  word-break: break-word;
   line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -101,13 +131,39 @@
 
 /* 描述 */
 .item-desc {
-  font-size: 20rpx;
-  color: #6b7280;
+  font-size: 21rpx;
+  color: #5a6862;
   text-align: center;
-  word-break: break-all;
-  line-height: 1.3;
+  word-break: break-word;
+  line-height: 1.45;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+}
+
+@media (max-width: 360px) {
+  .hospital-title {
+    font-size: 48rpx;
+  }
+
+  .search-bar {
+    height: 78rpx;
+  }
+
+  .search-placeholder {
+    font-size: 28rpx;
+  }
+
+  .header-title {
+    font-size: 40rpx;
+  }
+
+  .item-title {
+    font-size: 26rpx;
+  }
+
+  .item-desc {
+    font-size: 20rpx;
+  }
 }

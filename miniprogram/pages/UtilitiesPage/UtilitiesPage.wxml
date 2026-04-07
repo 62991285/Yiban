@@ -1,8 +1,17 @@
 <!--pages/UtilitiesPage/UtilitiesPage.wxml-->
 <view class="container">
-  <!-- 顶部标题 -->
-  <view class="header">
-    <text class="header-title">选择您需要的服务</text>
+  <view class="top-nav">
+    <view class="top-nav-title-row">
+      <text class="hospital-title">同济医院</text>
+      <view class="top-nav-actions">
+        <view class="dot-btn">...</view>
+      </view>
+    </view>
+
+    <view class="search-bar">
+      <text class="search-icon">⌕</text>
+      <text class="search-placeholder">搜索你需要的服务</text>
+    </view>
   </view>
 
   <!-- 功能网格 -->
