@@ -47,6 +47,62 @@ Page({
         desc: '完善个人健康信息',
         icon: '/images/icons/setting.svg',
         url: '/pages/EditUserInfoPage/EditUserInfoPage'
+      },
+      {
+        id: 7,
+        title: '复诊预约',
+        desc: '快速发起复诊挂号与时间安排',
+        icon: '/images/icons/examples-active.png',
+        url: ''
+      },
+      {
+        id: 8,
+        title: '检查预约',
+        desc: '常见检查项目线上预约登记',
+        icon: '/images/icons/goods.png',
+        url: ''
+      },
+      {
+        id: 9,
+        title: '门诊病历',
+        desc: '查看近期门诊病历与就诊记录',
+        icon: '/images/icons/goods-active.png',
+        url: ''
+      },
+      {
+        id: 10,
+        title: '门诊报告',
+        desc: '检验检查报告在线查看与追踪',
+        icon: '/images/icons/question.svg',
+        url: ''
+      },
+      {
+        id: 11,
+        title: '体检中心',
+        desc: '体检套餐选择与体检报告查询',
+        icon: '/images/icons/business-active.png',
+        url: ''
+      },
+      {
+        id: 12,
+        title: '专家介绍',
+        desc: '按科室浏览专家信息与出诊安排',
+        icon: '/images/icons/avatar.png',
+        url: ''
+      },
+      {
+        id: 13,
+        title: '图文咨询',
+        desc: '通过图文方式进行健康咨询',
+        icon: '/images/icons/usercenter-active.png',
+        url: ''
+      },
+      {
+        id: 14,
+        title: '帮助中心',
+        desc: '常见问题与就诊指引说明',
+        icon: '/images/icons/share.svg',
+        url: ''
       }
     ]
   },
